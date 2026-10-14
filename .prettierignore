@@ -1,0 +1,11 @@
+node_modules/
+.venv/
+_site/
+sorties/
+playwright-report/
+test-results/
+package-lock.json
+*.py
+skills/**/assets/
+commun/charte/icones/
+.claude/

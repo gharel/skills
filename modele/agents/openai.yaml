@@ -1,0 +1,12 @@
+interface:
+  display_name: Nom affiché du skill
+  short_description: Ce que fait le skill, en une phrase.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+    - chatgpt
+    - codex
+    - api
+    - atlas
+  allow_implicit_invocation: true

@@ -1,0 +1,12 @@
+interface:
+  display_name: Support de formation Skazy
+  short_description: Crée le diaporama d'une formation (HTML, PDF, PPTX) à partir de son plan, aux couleurs de Skazy Formation.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+    - chatgpt
+    - codex
+    - api
+    - atlas
+  allow_implicit_invocation: true

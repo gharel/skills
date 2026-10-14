@@ -1,0 +1,238 @@
+/*
+ * Charte graphique Skazy Formation, d'après le design system Claude Design (tokens/colors.css,
+ * typography.css, spacing.css), reprise de l'Atelier d'exercices IA. Seul fichier où une couleur
+ * est écrite.
+ * Chaque outil garde sa couleur de l'arc-en-ciel, celle de son favicon : --outil-a → --outil-b
+ * (dégradé), --outil-texte (texte, contraste AA sur la surface et sur --outil-pale).
+ */
+
+@font-face {
+  font-family: 'Georama';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('../fonts/georama-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Georama';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('../fonts/georama-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light;
+
+  /* Marque */
+  --primaire: #50967c;
+  --primaire-fonce: #3d7a62;
+  --primaire-pale: #e8f5f0;
+  --primaire-texte: #3f7662;
+  --sur-primaire: #ffffff;
+
+  /* Neutres */
+  --fond: #f8f9fa;
+  --surface: #ffffff;
+  --surface-2: #f1f3f5;
+  --bord: #dee2e6;
+  --bord-fort: #ced4da;
+  --texte: #4a4a4a;
+  --texte-fort: #2e2e2e;
+  --texte-doux: #5c646c;
+  --ombre-teinte: 0 0 0;
+
+  /* Héros (la « scène » sombre du design system) */
+  --scene: #1a1a1a;
+  --scene-2: #262626;
+  --scene-3: #303030;
+  --scene-bord: #3d3d3d;
+  --scene-texte: #f1f3f5;
+  --scene-doux: #c3c9cf;
+  --scene-accent: #6db898;
+
+  /* L'arc-en-ciel des outils : dégradés des favicons */
+  --rouge-a: #ff6557;
+  --rouge-b: #d70d40;
+  --rouge-texte: #c20c39;
+  --rouge-pale: #fbe7ec;
+  --orange-a: #ffa839;
+  --orange-b: #ec5900;
+  --orange-texte: #ad4100;
+  --orange-pale: #fdeee6;
+  --jaune-a: #f9e03f;
+  --jaune-b: #ef9d05;
+  --jaune-texte: #875800;
+  --jaune-pale: #fdf5e6;
+  --vert-a: #7ce963;
+  --vert-b: #02934a;
+  --vert-texte: #02753b;
+  --vert-pale: #e6f4ed;
+  --bleu-a: #29c9fa;
+  --bleu-b: #135ae4;
+  --bleu-texte: #1150c9;
+  --bleu-pale: #e7effc;
+  --violet-a: #d578f0;
+  --violet-b: #701fe6;
+  --violet-texte: #6a1dd9;
+  --violet-pale: #f1e9fd;
+
+  /* Typographie */
+  --police: 'Georama', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --texte-xs: 0.75rem;
+  --texte-sm: 0.875rem;
+  --texte-base: 1rem;
+  --texte-md: 1.125rem;
+  --texte-lg: 1.25rem;
+  --texte-xl: 1.5rem;
+  --interlettre-large: 0.04em;
+  --interlettre-tres-large: 0.08em;
+
+  /* Espacements (grille de 4 px) */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-5: 1.25rem;
+  --e-6: 1.5rem;
+  --e-8: 2rem;
+  --e-10: 2.5rem;
+  --e-12: 3rem;
+  --e-16: 4rem;
+
+  /* Formes */
+  --rayon-md: 8px;
+  --rayon-lg: 12px;
+  --rayon-xl: 16px;
+  --rayon-pilule: 9999px;
+  --ombre-sm: 0 1px 4px rgb(var(--ombre-teinte) / 8%), 0 1px 2px rgb(var(--ombre-teinte) / 4%);
+  --ombre-md: 0 4px 12px rgb(var(--ombre-teinte) / 10%), 0 2px 4px rgb(var(--ombre-teinte) / 6%);
+  --ombre-lg: 0 8px 24px rgb(var(--ombre-teinte) / 12%), 0 4px 8px rgb(var(--ombre-teinte) / 6%);
+  --transition-rapide: 150ms ease;
+
+  --largeur: 1280px;
+  --hauteur-bandeau: 72px;
+}
+
+/* Thème sombre : celui des slides du design system (#1a1a1a). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --primaire: #6db898;
+    --primaire-fonce: #6db898;
+    --primaire-pale: #213a31;
+    --primaire-texte: #7cc1a5;
+    --sur-primaire: #102019;
+    --fond: #141414;
+    --surface: #1f1f1f;
+    --surface-2: #2a2a2a;
+    --bord: #383838;
+    --bord-fort: #4a4a4a;
+    --texte: #e4e7ea;
+    --texte-fort: #f8f9fa;
+    --texte-doux: #aab2ba;
+    --scene: #0c0c0c;
+    --scene-2: #1a1a1a;
+    --scene-3: #242424;
+    --scene-bord: #333333;
+    --rouge-texte: #ff7d71;
+    --rouge-pale: #471b26;
+    --orange-texte: #ffa839;
+    --orange-pale: #4c2c18;
+    --jaune-texte: #f9e03f;
+    --jaune-pale: #4d3b19;
+    --vert-texte: #7ce963;
+    --vert-pale: #193928;
+    --bleu-texte: #29c9fa;
+    --bleu-pale: #1c2c4a;
+    --violet-texte: #d991f2;
+    --violet-pale: #311f4b;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --primaire: #6db898;
+  --primaire-fonce: #6db898;
+  --primaire-pale: #213a31;
+  --primaire-texte: #7cc1a5;
+  --sur-primaire: #102019;
+  --fond: #141414;
+  --surface: #1f1f1f;
+  --surface-2: #2a2a2a;
+  --bord: #383838;
+  --bord-fort: #4a4a4a;
+  --texte: #e4e7ea;
+  --texte-fort: #f8f9fa;
+  --texte-doux: #aab2ba;
+  --scene: #0c0c0c;
+  --scene-2: #1a1a1a;
+  --scene-3: #242424;
+  --scene-bord: #333333;
+  --rouge-texte: #ff7d71;
+  --rouge-pale: #471b26;
+  --orange-texte: #ffa839;
+  --orange-pale: #4c2c18;
+  --jaune-texte: #f9e03f;
+  --jaune-pale: #4d3b19;
+  --vert-texte: #7ce963;
+  --vert-pale: #193928;
+  --bleu-texte: #29c9fa;
+  --bleu-pale: #1c2c4a;
+  --violet-texte: #d991f2;
+  --violet-pale: #311f4b;
+}
+
+/*
+ * Thème clair choisi : « only light » interdit aux navigateurs et aux extensions qui assombrissent
+ * les sites (mode nuit de Brave, Dark Reader…) d'assombrir la page.
+ */
+:root[data-theme='light'] {
+  color-scheme: only light;
+}
+
+/* Couleur de chaque outil, posée sur sa carte. */
+[data-couleur='rouge'] {
+  --outil-a: var(--rouge-a);
+  --outil-b: var(--rouge-b);
+  --outil-texte: var(--rouge-texte);
+  --outil-pale: var(--rouge-pale);
+}
+[data-couleur='orange'] {
+  --outil-a: var(--orange-a);
+  --outil-b: var(--orange-b);
+  --outil-texte: var(--orange-texte);
+  --outil-pale: var(--orange-pale);
+}
+[data-couleur='jaune'] {
+  --outil-a: var(--jaune-a);
+  --outil-b: var(--jaune-b);
+  --outil-texte: var(--jaune-texte);
+  --outil-pale: var(--jaune-pale);
+}
+[data-couleur='vert'] {
+  --outil-a: var(--vert-a);
+  --outil-b: var(--vert-b);
+  --outil-texte: var(--vert-texte);
+  --outil-pale: var(--vert-pale);
+}
+[data-couleur='bleu'] {
+  --outil-a: var(--bleu-a);
+  --outil-b: var(--bleu-b);
+  --outil-texte: var(--bleu-texte);
+  --outil-pale: var(--bleu-pale);
+}
+[data-couleur='violet'] {
+  --outil-a: var(--violet-a);
+  --outil-b: var(--violet-b);
+  --outil-texte: var(--violet-texte);
+  --outil-pale: var(--violet-pale);
+}

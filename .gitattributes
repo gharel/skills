@@ -1,0 +1,9 @@
+# Fins de ligne LF partout (Prettier les attend, même avec core.autocrlf=true sous Windows).
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.woff2 binary
+*.png binary
+*.xlsx binary
+*.docx binary
+*.pptx binary
+*.zip binary

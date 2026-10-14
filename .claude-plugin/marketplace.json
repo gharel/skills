@@ -1,0 +1,23 @@
+{
+  "name": "gharel-skills",
+  "owner": {
+    "name": "Guillaume Harel",
+    "url": "https://github.com/gharel"
+  },
+  "description": "Skills IA de Guillaume Harel : Skazy Formation (plan, support, quiz), UNC et usage personnel.",
+  "plugins": [
+    {
+      "name": "skazy-formation",
+      "displayName": "Pro · Skazy Formation",
+      "description": "Concevoir et animer les formations Skazy Formation : plan, support et quiz, aux couleurs de la charte.",
+      "source": "./",
+      "strict": false,
+      "homepage": "https://gharel.github.io/skills/",
+      "skills": [
+        "./skills/pro/skazy-plan-formation",
+        "./skills/pro/skazy-support-formation",
+        "./skills/pro/skazy-quiz"
+      ]
+    }
+  ]
+}

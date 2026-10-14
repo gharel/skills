@@ -1,0 +1,29 @@
+---
+name: nom-du-skill
+description: "Fait ceci et cela à partir de telle source (une ou deux phrases sur ce que produit le skill). À utiliser dès que l'utilisateur demande telle chose, telle autre ou telle variante, même sans citer le skill."
+license: Propriétaire.
+metadata:
+  version: '1.0.0'
+  categorie: perso
+  auteur: Guillaume Harel
+  source: https://github.com/gharel/skills
+---
+
+# Titre du skill
+
+Une phrase sur l'objectif : ce que l'utilisateur obtient et pourquoi c'est utile.
+
+## Déroulé
+
+1. **Comprendre la demande.** Ce qu'il faut repérer, les valeurs par défaut, la seule question groupée à poser si une information manque vraiment.
+2. **Produire.** Les règles essentielles. Le détail va dans [references/regles.md](references/regles.md).
+3. **Livrer.**
+   - **Si tu peux exécuter du Python** : la commande à lancer.
+   - **Sinon** : le format à donner dans la réponse (ou le JSON à coller dans l'atelier https://gharel.github.io/skills/atelier/).
+
+## Règles essentielles
+
+- Règle 1.
+- Règle 2.
+
+Version 1.0.0. Sources et mises à jour : https://gharel.github.io/skills/

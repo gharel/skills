@@ -1,0 +1,364 @@
+{
+  "format": "skazy-support",
+  "version": 1,
+  "formation": {
+    "intitule": "Excel : les bases",
+    "categorie": "Bureautique",
+    "niveau": "Initiation",
+    "duree": "2 jours · 14 h",
+    "formateur": "Guillaume Harel",
+    "email": "formation@skazy.nc"
+  },
+  "slides": [
+    {
+      "type": "couverture",
+      "notes": "Accueil des participants, tour des aspects pratiques : horaires, pauses, Wi-Fi."
+    },
+    {
+      "type": "faisons-connaissance",
+      "infos": [
+        { "label": "Passions", "texte": "acroyoga et moto" },
+        { "label": "Desserts", "texte": "vacherin et tarte au citron" }
+      ],
+      "notes": "Présentez-vous en 1 minute, puis lancez le tour de table. Notez les attentes au tableau pour y revenir en fin de formation."
+    },
+    {
+      "type": "objectifs",
+      "objectifs": [
+        "**Créer** un classeur et organiser des données dans un tableau structuré",
+        "**Utiliser** les formules et fonctions de base (SOMME, MOYENNE, SI)",
+        "**Mettre en forme** un tableau et appliquer une mise en forme conditionnelle",
+        "**Produire** un graphique adapté aux données et l'imprimer proprement"
+      ],
+      "notes": "Reliez chaque objectif aux attentes exprimées lors du tour de table."
+    },
+    {
+      "type": "programme",
+      "parties": [
+        { "titre": "Découvrir l'environnement Excel", "duree": "1 h 30" },
+        { "titre": "Saisir et organiser les données", "duree": "2 h" },
+        { "titre": "Calculer avec des formules", "duree": "3 h" },
+        { "titre": "Mettre en forme un tableau", "duree": "2 h" },
+        { "titre": "Aller plus loin avec la fonction SI", "duree": "2 h" },
+        { "titre": "Représenter les données", "duree": "2 h" },
+        { "titre": "Projet final", "duree": "1 h 30" }
+      ],
+      "notes": "Programme sur deux jours : parties 1 à 3 le premier jour, 4 à 7 le second."
+    },
+    {
+      "type": "chapitre",
+      "titre": "Découvrir l'environnement Excel",
+      "duree": "1 h 30",
+      "points": [
+        "Classeur, feuilles, cellules, plages",
+        "Ruban, barre de formule et zone Nom",
+        "Ouvrir, enregistrer et retrouver un classeur"
+      ],
+      "notes": "Demandez qui utilise déjà Excel au quotidien et pour quoi faire."
+    },
+    {
+      "type": "contenu",
+      "titre": "Le classeur et ses feuilles",
+      "texte": "Un fichier Excel est un **classeur** qui contient une ou plusieurs **feuilles** de calcul.",
+      "points": [
+        {
+          "label": "Cellule",
+          "texte": "l'intersection d'une colonne et d'une ligne, par exemple B3"
+        },
+        { "label": "Plage", "texte": "un ensemble de cellules, par exemple A1:C10" },
+        { "label": "Astuce", "texte": "double-cliquez sur l'onglet pour renommer une feuille" }
+      ],
+      "notes": "Faites la démonstration en direct : création d'un classeur, ajout et renommage de feuilles."
+    },
+    {
+      "type": "capture",
+      "titre": "L'interface d'Excel",
+      "reperes": [
+        { "titre": "Ruban", "texte": "Les commandes, rangées par onglets", "x": 50, "y": 8 },
+        { "titre": "Zone Nom", "texte": "L'adresse de la cellule active", "x": 8, "y": 22 },
+        { "titre": "Barre de formule", "texte": "Le contenu réel de la cellule", "x": 50, "y": 22 },
+        {
+          "titre": "Onglets de feuilles",
+          "texte": "Pour passer d'une feuille à l'autre",
+          "x": 15,
+          "y": 94
+        }
+      ],
+      "notes": "Remplacez l'emplacement par une capture de la version utilisée par les participants."
+    },
+    {
+      "type": "raccourcis",
+      "remarque": "Sur Mac, Ctrl devient Cmd.",
+      "raccourcis": [
+        { "touches": ["Ctrl", "C"], "action": "Copier" },
+        { "touches": ["Ctrl", "V"], "action": "Coller" },
+        { "touches": ["Ctrl", "Z"], "action": "Annuler" },
+        { "touches": ["Ctrl", "S"], "action": "Enregistrer" },
+        { "touches": ["Ctrl", "Flèche"], "action": "Aller au bout des données" },
+        { "touches": ["F2"], "action": "Modifier la cellule" }
+      ],
+      "notes": "Faites tester chaque raccourci : les participants les retiennent mieux en les pratiquant."
+    },
+    {
+      "type": "exercice",
+      "titre": "Prendre en main un classeur",
+      "contexte": "Vous recevez le classeur des ventes de la boutique : explorez-le et organisez ses feuilles.",
+      "consignes": [
+        "Ouvrez le fichier et repérez les trois feuilles",
+        "Renommez-les « Janvier », « Février », « Mars »",
+        "Ajoutez une feuille « Synthèse » en première position",
+        "Enregistrez le classeur sous un nouveau nom"
+      ],
+      "duree": "15 min",
+      "fichier": "ventes-boutique.xlsx",
+      "livrable": "Un classeur de quatre feuilles bien nommées",
+      "bonus": "Donnez une couleur différente à chaque onglet",
+      "notes": "Passez dans les rangs. Les plus rapides peuvent aider leur voisin."
+    },
+    {
+      "type": "a-retenir",
+      "messages": [
+        "Un classeur contient des **feuilles**, une feuille contient des **cellules**",
+        "La **barre de formule** montre le contenu réel d'une cellule",
+        "Enregistrez souvent : **Ctrl + S**"
+      ],
+      "notes": "Faites reformuler ces trois messages par un participant."
+    },
+    {
+      "type": "chapitre",
+      "titre": "Calculer avec des formules",
+      "duree": "3 h",
+      "points": [
+        "Opérateurs et priorités de calcul",
+        "Fonctions SOMME, MOYENNE, MIN, MAX",
+        "Références relatives et absolues"
+      ]
+    },
+    {
+      "type": "notion-cle",
+      "titre": "Une formule",
+      "definition": "Une formule commence toujours par **=** et calcule un résultat à partir de valeurs, de références ou de fonctions.",
+      "termes": [
+        { "terme": "=A1+B1", "definition": "additionne deux cellules" },
+        { "terme": "SOMME()", "definition": "additionne une plage" },
+        { "terme": "$A$1", "definition": "référence absolue" }
+      ],
+      "notes": "Insistez sur le signe égal : c'est l'erreur la plus fréquente des débutants."
+    },
+    {
+      "type": "code",
+      "titre": "La fonction SI",
+      "intro": "SI teste une condition et renvoie une valeur différente selon le résultat.",
+      "elements": [
+        { "code": "test", "texte": "la condition à vérifier, par exemple B2>=1000" },
+        { "code": "si_vrai", "texte": "la valeur renvoyée si la condition est remplie" },
+        { "code": "si_faux", "texte": "la valeur renvoyée sinon" }
+      ],
+      "syntaxe": "SI(test;\n    si_vrai;\n    si_faux)",
+      "exemple": "SI(B2>=1000;\"Objectif atteint\";\"À relancer\")",
+      "resultat": "Affiche **Objectif atteint** quand les ventes dépassent 1 000.",
+      "notes": "Montrez l'assistant de fonction (fx) pour les participants qui préfèrent remplir les arguments un à un."
+    },
+    {
+      "type": "pas-a-pas",
+      "titre": "Recopier une formule en 4 étapes",
+      "etapes": [
+        { "texte": "Sélectionnez la cellule qui contient la formule" },
+        { "texte": "Placez le pointeur sur la **poignée de recopie**" },
+        { "texte": "Faites glisser jusqu'à la dernière ligne" },
+        { "texte": "Vérifiez les références dans la barre de formule" }
+      ]
+    },
+    {
+      "type": "comparatif",
+      "titre": "Référence relative ou absolue ?",
+      "colonnes": ["Relative (A1)", "Absolue ($A$1)"],
+      "lignes": [
+        {
+          "critere": "À la recopie",
+          "valeurs": ["S'adapte à la nouvelle position", "Reste figée sur la même cellule"]
+        },
+        {
+          "critere": "Usage",
+          "valeurs": ["Calculs ligne par ligne", "Taux, constante, total général"]
+        },
+        { "critere": "Raccourci", "valeurs": ["Par défaut", "Touche F4"] }
+      ],
+      "recommandation": "utilisez une référence absolue dès qu'une formule pointe vers une cellule unique, comme un taux de TVA."
+    },
+    {
+      "type": "bon-a-savoir",
+      "encadres": [
+        {
+          "genre": "astuce",
+          "titre": "Somme automatique",
+          "texte": "**Alt + =** insère une somme de la plage voisine."
+        },
+        {
+          "genre": "attention",
+          "titre": "Erreur #DIV/0!",
+          "texte": "Elle signale une division par zéro : vérifiez la cellule au dénominateur."
+        },
+        {
+          "genre": "bonne-pratique",
+          "titre": "Une donnée par cellule",
+          "texte": "Ne mélangez jamais nombre et unité : écrivez 1000 et non « 1000 F »."
+        }
+      ]
+    },
+    {
+      "type": "exercice-etapes",
+      "titre": "Construire un budget prévisionnel",
+      "contexte": "Vous préparez le budget mensuel de l'association à partir des dépenses de l'an dernier.",
+      "duree": "30 minutes",
+      "etapes": [
+        { "titre": "Préparer", "texte": "Ouvrez le fichier et repérez les dépenses par poste." },
+        {
+          "titre": "Réaliser",
+          "texte": "Calculez les totaux et la moyenne mensuelle avec SOMME et MOYENNE."
+        },
+        { "titre": "Vérifier", "texte": "Comparez votre total avec celui de la feuille Corrigé." }
+      ],
+      "fichier": "budget-association.xlsx",
+      "modalite": "en binôme",
+      "livrable": "un budget mensuel calculé",
+      "notes": "Corrigez collectivement en projetant le fichier d'un binôme volontaire."
+    },
+    {
+      "type": "quiz",
+      "question": "Par quel caractère commence toujours une formule ?",
+      "propositions": ["Le signe +", "Le signe =", "Le symbole $", "Une parenthèse"],
+      "bonne": 1,
+      "explication": "Toute formule commence par =, sinon Excel la traite comme du texte."
+    },
+    {
+      "type": "quiz",
+      "question": "Quelle touche transforme A1 en $A$1 ?",
+      "propositions": ["F2", "F4", "F9", "Échap"],
+      "bonne": 1
+    },
+    {
+      "type": "chapitre",
+      "titre": "Représenter les données",
+      "duree": "2 h",
+      "points": [
+        "Choisir le bon graphique",
+        "Personnaliser titres et couleurs",
+        "Mise en page et impression"
+      ]
+    },
+    {
+      "type": "chiffre-cle",
+      "chiffre": "73",
+      "unite": "%",
+      "phrase": "des tableaux d'entreprise contiennent au moins une erreur",
+      "explication": "Un graphique clair aide à repérer une valeur aberrante que l'on ne voit pas dans un tableau de chiffres.",
+      "reperes": [
+        { "valeur": "x3", "texte": "plus de temps pour lire un tableau qu'un graphique" },
+        { "valeur": "5 s", "texte": "pour comprendre un bon graphique" }
+      ],
+      "source": "chiffres d'illustration, à remplacer par une source vérifiée"
+    },
+    {
+      "type": "graphique",
+      "titre": "Les ventes de la boutique",
+      "barres": [
+        { "label": "Janv.", "valeur": 32 },
+        { "label": "Févr.", "valeur": 45 },
+        { "label": "Mars", "valeur": 41 },
+        { "label": "Avr.", "valeur": 58 },
+        { "label": "Mai", "valeur": 66 },
+        { "label": "Juin", "valeur": 84 }
+      ],
+      "chiffre": "+27 %",
+      "message": "Mettez en couleur la barre qui porte le message, laissez les autres en gris.",
+      "source": "données d'exercice"
+    },
+    {
+      "type": "frise",
+      "titre": "Excel en quelques dates",
+      "intro": "Situez l'outil dans le temps, en 4 à 6 étapes.",
+      "etapes": [
+        { "date": "1985", "texte": "Première version, sur Macintosh" },
+        { "date": "1987", "texte": "Arrivée sous Windows" },
+        { "date": "2007", "texte": "Le ruban remplace les menus" },
+        { "date": "2019", "texte": "Tableaux dynamiques et nouvelles fonctions" },
+        { "date": "Aujourd'hui", "texte": "Copilot propose des formules" }
+      ]
+    },
+    {
+      "type": "avant-apres",
+      "titre": "Avant, après",
+      "avant": { "texte": "Un tableau brut, difficile à lire" },
+      "apres": { "texte": "Le même tableau mis en forme" }
+    },
+    {
+      "type": "texte",
+      "titre": "Choisir son graphique",
+      "intro": "Le bon graphique dépend du message à faire passer.",
+      "paragraphes": [
+        "**Comparer des valeurs** : un histogramme ou des barres horizontales.",
+        "**Montrer une évolution** : une courbe, avec le temps en abscisse.",
+        "**Montrer une répartition** : un graphique en secteurs, avec cinq parts au plus.",
+        "Dans le doute, préférez l'histogramme : c'est le plus facile à lire."
+      ]
+    },
+    {
+      "type": "citation",
+      "citation": "Un bon graphique vaut mieux qu'un long tableau.",
+      "auteur": "Proverbe de formateur"
+    },
+    {
+      "type": "image",
+      "titre": "Votre tableau de bord est prêt",
+      "texte": "Prenez le temps de le présenter au groupe."
+    },
+    {
+      "type": "exercice",
+      "titre": "Projet final : le suivi des ventes",
+      "contexte": "Construisez le tableau de bord des ventes du premier trimestre.",
+      "consignes": [
+        "Calculez les totaux et moyennes par mois",
+        "Signalez en rouge les mois sous l'objectif",
+        "Créez un graphique de l'évolution des ventes",
+        "Mettez en page pour une impression sur une feuille"
+      ],
+      "duree": "1 h",
+      "fichier": "projet-ventes.xlsx",
+      "livrable": "Un tableau de bord imprimable"
+    },
+    {
+      "type": "evaluation",
+      "notes": "Lancez le quiz final, puis laissez 3 minutes pour le questionnaire de satisfaction."
+    },
+    {
+      "type": "ressources",
+      "ressources": [
+        {
+          "titre": "Aide officielle",
+          "texte": "La documentation de Microsoft, en français.",
+          "lien": "https://support.microsoft.com/fr-fr/excel"
+        },
+        {
+          "titre": "S'entraîner",
+          "texte": "Des exercices corrigés, du débutant au confirmé.",
+          "lien": "https://www.excel-exercice.com"
+        },
+        {
+          "titre": "Les outils Skazy",
+          "texte": "Quiz, mini-jeux et exercices pour réviser.",
+          "lien": "https://gharel.github.io/home/"
+        },
+        {
+          "titre": "La suite chez Skazy",
+          "texte": "Excel intermédiaire : tableaux croisés et RECHERCHEX.",
+          "lien": "https://formation.skazy.nc"
+        }
+      ]
+    },
+    { "type": "questions" },
+    { "type": "battle" },
+    { "type": "accompagnement-360" },
+    { "type": "autres-formations" }
+  ]
+}

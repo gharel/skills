@@ -1,0 +1,700 @@
+/* Mise en page du catalogue des skills et de l'atelier : bandeau commun des outils, héros sombre,
+   cartes de skills, onglets d'installation, pied. Les couleurs viennent de charte.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: calc(var(--hauteur-bandeau) + var(--e-4));
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: var(--texte-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--texte-fort);
+  line-height: 1.2;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--primaire-texte);
+}
+
+code,
+kbd {
+  font-family: ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-size: 0.92em;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--primaire);
+  outline-offset: 2px;
+}
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Icônes Lucide (trait), comme le design system. */
+.icone {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.2em;
+}
+
+.lien-evitement {
+  position: absolute;
+  left: var(--e-4);
+  top: -100px;
+  z-index: 100;
+  background: var(--primaire-fonce);
+  color: var(--sur-primaire);
+  padding: var(--e-2) var(--e-4);
+  border-radius: var(--rayon-pilule);
+  font-weight: 600;
+}
+.lien-evitement:focus {
+  top: var(--e-2);
+}
+
+/* ── Bandeau commun des outils ─────────────────────────── */
+.bandeau {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--bord);
+}
+.bandeau__interieur {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding-inline: var(--e-6);
+  height: var(--hauteur-bandeau);
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+}
+.bandeau__logo {
+  display: flex;
+  flex: none;
+  border-radius: var(--rayon-md);
+}
+.bandeau__logo .logo {
+  height: 36px;
+  width: auto;
+}
+.logo--sombre {
+  display: none;
+}
+.bandeau__nom {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px 6px 4px;
+  margin-left: -4px;
+  border-radius: var(--rayon-pilule);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--texte-fort);
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--transition-rapide);
+}
+.bandeau__nom:hover {
+  background: var(--surface-2);
+}
+.bandeau__pastille {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+.bandeau__nom-texte {
+  margin-left: 10px;
+}
+.bandeau__filet {
+  flex: none;
+  width: 1px;
+  height: 24px;
+  margin-inline: var(--e-2);
+  background: var(--bord);
+}
+.bandeau__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.bouton-icone {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--texte);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: background var(--transition-rapide);
+}
+.bouton-icone:hover {
+  background: var(--surface-2);
+}
+.bouton-texte {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  height: 42px;
+  padding-inline: var(--e-4);
+  border-radius: var(--rayon-pilule);
+  color: var(--texte-fort);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--transition-rapide);
+}
+.bouton-texte:hover {
+  background: var(--surface-2);
+}
+
+/* ── Boutons (pilule, comme le design system) ──────────── */
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-height: 44px;
+  padding: var(--e-2) var(--e-5);
+  border: 2px solid transparent;
+  border-radius: var(--rayon-pilule);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--transition-rapide),
+    border-color var(--transition-rapide),
+    color var(--transition-rapide);
+}
+.bouton--primaire {
+  background: var(--primaire-fonce);
+  color: var(--sur-primaire);
+}
+.bouton--primaire:hover {
+  background: var(--primaire-texte);
+}
+.bouton--secondaire {
+  border-color: var(--bord-fort);
+  color: var(--texte-fort);
+  background: var(--surface);
+}
+.bouton--secondaire:hover {
+  border-color: var(--primaire);
+  color: var(--primaire-texte);
+}
+.bouton--scene {
+  border-color: var(--scene-bord);
+  color: var(--scene-texte);
+  background: transparent;
+}
+.bouton--scene:hover {
+  border-color: var(--scene-accent);
+}
+
+/* ── Héros (scène sombre) ──────────────────────────────── */
+.heros {
+  background: var(--scene);
+  color: var(--scene-texte);
+}
+.heros :focus-visible {
+  outline-color: var(--scene-accent);
+}
+.heros h1 {
+  color: var(--scene-texte);
+  font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.heros__interieur {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: var(--e-16) var(--e-6);
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--e-12);
+  align-items: center;
+}
+.heros__texte {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-5);
+}
+.surtitre {
+  font-size: var(--texte-xs);
+  font-weight: 800;
+  letter-spacing: var(--interlettre-tres-large);
+  text-transform: uppercase;
+  color: var(--scene-accent);
+}
+.heros__chapo {
+  font-size: var(--texte-md);
+  color: var(--scene-doux);
+  max-width: 62ch;
+}
+.heros__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-3);
+  margin-top: var(--e-2);
+}
+.chaine {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+  counter-reset: chaine;
+}
+.chaine__etape {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding: var(--e-4) var(--e-5);
+  background: var(--scene-2);
+  border: 1px solid var(--scene-bord);
+  border-radius: var(--rayon-xl);
+}
+.chaine__etape + .chaine__etape::before {
+  content: '';
+  position: absolute;
+  left: 46px;
+  top: calc(-1 * var(--e-4) - 1px);
+  width: 2px;
+  height: var(--e-4);
+  background: var(--scene-accent);
+}
+.chaine__etape img {
+  flex: none;
+  width: 56px;
+  height: 56px;
+}
+.chaine__etape span {
+  display: flex;
+  flex-direction: column;
+  color: var(--scene-doux);
+  font-size: var(--texte-sm);
+}
+.chaine__etape strong {
+  color: var(--scene-texte);
+  font-size: var(--texte-md);
+}
+
+/* ── Sections ──────────────────────────────────────────── */
+.section {
+  padding-block: var(--e-16);
+}
+.section--alt {
+  background: var(--surface);
+  border-block: 1px solid var(--bord);
+}
+.section__interieur {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding-inline: var(--e-6);
+}
+.section__titre {
+  font-size: var(--texte-xl);
+  font-weight: 800;
+  margin-bottom: var(--e-3);
+}
+.section__chapo {
+  max-width: 70ch;
+  color: var(--texte-doux);
+  margin-bottom: var(--e-8);
+}
+.deux-colonnes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-12);
+}
+
+/* ── Catalogue ─────────────────────────────────────────── */
+.categorie + .categorie {
+  margin-top: var(--e-12);
+}
+.categorie__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--e-2) var(--e-4);
+  margin-bottom: var(--e-2);
+}
+.categorie__titre {
+  font-size: var(--texte-lg);
+  font-weight: 800;
+}
+.categorie__sous-titre {
+  font-size: var(--texte-sm);
+  font-weight: 700;
+  letter-spacing: var(--interlettre-large);
+  text-transform: uppercase;
+  color: var(--primaire-texte);
+}
+.categorie__description {
+  color: var(--texte-doux);
+  margin-bottom: var(--e-5);
+}
+.grille {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-6);
+}
+.carte {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+  padding: var(--e-6) var(--e-5) var(--e-5);
+  background: var(--surface);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon-xl);
+  box-shadow: var(--ombre-md);
+  overflow: hidden;
+}
+.carte::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+  background: var(--primaire);
+}
+.carte__tete {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+.carte__tete img {
+  flex: none;
+  width: 52px;
+  height: 52px;
+}
+.carte__titre {
+  font-size: var(--texte-md);
+  font-weight: 800;
+}
+.carte__nom {
+  display: block;
+  color: var(--texte-doux);
+  font-size: var(--texte-xs);
+  overflow-wrap: anywhere;
+}
+.carte__resume {
+  color: var(--texte);
+}
+.carte__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--rayon-pilule);
+  background: var(--surface-2);
+  color: var(--texte-fort);
+  font-size: var(--texte-xs);
+  font-weight: 700;
+  letter-spacing: var(--interlettre-large);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.badge--version {
+  background: var(--primaire-pale);
+  color: var(--primaire-texte);
+}
+.badge--nouveau {
+  background: var(--orange-pale);
+  color: var(--orange-texte);
+}
+.carte details {
+  font-size: var(--texte-sm);
+  color: var(--texte-doux);
+}
+.carte summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--texte-fort);
+}
+.carte details p {
+  margin-top: var(--e-2);
+}
+.carte__actions {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+}
+.carte__actions .bouton {
+  min-height: 40px;
+  padding: 6px var(--e-4);
+  font-size: var(--texte-sm);
+}
+.carte__liens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-1) var(--e-4);
+  font-size: var(--texte-sm);
+}
+.carte__liens button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primaire-texte);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.carte--vide {
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 160px;
+  background: var(--surface-2);
+  box-shadow: none;
+  border-style: dashed;
+  color: var(--texte-doux);
+}
+.carte--vide::before {
+  background: var(--bord-fort);
+}
+
+/* ── Installation ──────────────────────────────────────── */
+.onglets__liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  margin-bottom: var(--e-5);
+}
+.onglets__liste [role='tab'] {
+  min-height: 44px;
+  padding: var(--e-2) var(--e-4);
+  border: 2px solid var(--bord);
+  border-radius: var(--rayon-pilule);
+  background: var(--surface);
+  color: var(--texte-fort);
+  font-weight: 700;
+  cursor: pointer;
+}
+.onglets__liste [role='tab'][aria-selected='true'] {
+  background: var(--primaire-fonce);
+  border-color: var(--primaire-fonce);
+  color: var(--sur-primaire);
+}
+.panneau {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  max-width: 80ch;
+}
+.panneau + .panneau {
+  margin-top: var(--e-10);
+}
+.onglets--actifs .panneau + .panneau {
+  margin-top: 0;
+}
+.panneau__titre {
+  font-size: var(--texte-lg);
+  font-weight: 800;
+}
+.etapes {
+  margin: 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+.commande {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-3) var(--e-3) var(--e-4);
+  background: var(--scene);
+  color: var(--scene-texte);
+  border-radius: var(--rayon-lg);
+}
+.commande code {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.copier {
+  flex: none;
+  min-height: 36px;
+  padding: 4px 14px;
+  border: 1px solid var(--scene-bord);
+  border-radius: var(--rayon-pilule);
+  background: var(--scene-2);
+  color: var(--scene-texte);
+  font-size: var(--texte-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+.copier:hover {
+  border-color: var(--scene-accent);
+}
+.note {
+  padding: var(--e-3) var(--e-4);
+  border-left: 4px solid var(--primaire);
+  background: var(--primaire-pale);
+  border-radius: 0 var(--rayon-md) var(--rayon-md) 0;
+  font-size: var(--texte-sm);
+}
+
+/* ── Pied ──────────────────────────────────────────────── */
+.pied {
+  border-top: 1px solid var(--bord);
+  background: var(--surface);
+  font-size: var(--texte-sm);
+  color: var(--texte-doux);
+}
+.pied__interieur {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: var(--e-8) var(--e-6) calc(var(--e-8) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--e-2) var(--e-6);
+}
+.pied strong {
+  color: var(--texte-fort);
+}
+
+/* ── Thème sombre : logo blanc ─────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .logo--clair {
+    display: none;
+  }
+  :root:not([data-theme='light']) .logo--sombre {
+    display: block;
+  }
+}
+:root[data-theme='dark'] .logo--clair {
+  display: none;
+}
+:root[data-theme='dark'] .logo--sombre {
+  display: block;
+}
+
+/* ── Écrans moyens et petits ───────────────────────────── */
+@media (max-width: 1100px) {
+  .grille {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .heros__interieur,
+  .deux-colonnes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 720px) {
+  .grille {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .bandeau__interieur,
+  .heros__interieur,
+  .section__interieur,
+  .pied__interieur {
+    padding-inline: var(--e-4);
+  }
+  .bandeau__interieur {
+    gap: var(--e-2);
+  }
+  .bandeau__filet {
+    margin-inline: var(--e-1);
+  }
+  .bandeau__logo .logo {
+    height: 30px;
+  }
+  .bandeau__pastille {
+    width: 24px;
+    height: 24px;
+  }
+  .bouton-texte span {
+    display: none;
+  }
+  .bouton-texte {
+    width: 42px;
+    padding: 0;
+    justify-content: center;
+  }
+  .heros__interieur {
+    padding-block: var(--e-10);
+  }
+  .section {
+    padding-block: var(--e-10);
+  }
+  /* En thème clair, le héros prend les couleurs claires de la page (comme l'accueil des outils). */
+  :root:not([data-theme='dark']) .heros {
+    --scene: var(--fond);
+    --scene-2: var(--surface);
+    --scene-bord: var(--bord);
+    --scene-texte: var(--texte-fort);
+    --scene-doux: var(--texte-doux);
+    --scene-accent: var(--primaire-texte);
+  }
+  .commande {
+    flex-wrap: wrap;
+  }
+}
+/* Très petits écrans : le lien GitHub du bandeau laisse sa place (il reste dans le pied). */
+@media (max-width: 400px) {
+  .bandeau__github {
+    display: none;
+  }
+}

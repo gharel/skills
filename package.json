@@ -1,0 +1,34 @@
+{
+  "name": "skills-ia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Skills IA génériques de Guillaume Harel (Perso, Pro Skazy Formation, UNC) : sources, catalogue et installation pour ChatGPT, Claude, Codex, Gemini et les autres",
+  "type": "module",
+  "scripts": {
+    "dev": "node outils/dev.mjs",
+    "construire": "node outils/construire.mjs",
+    "synchroniser": "node outils/synchroniser-charte.mjs",
+    "icones": "node outils/icones.mjs",
+    "format": "prettier --write .",
+    "check": "prettier --check . && eslint . && node outils/synchroniser-charte.mjs --verifier && node outils/construire.mjs --verifier",
+    "test": "vitest run",
+    "test:py": "python -m pytest tests/py -q",
+    "test:e2e": "playwright test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "eslint": "^10.12.0",
+    "fflate": "^0.8.3",
+    "globals": "^17.13.0",
+    "lucide-static": "0.460.0",
+    "prettier": "^3.9.9",
+    "vitest": "^5.0.4",
+    "yaml": "^2.9.1"
+  }
+}

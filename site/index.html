@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Skills IA · Skazy Formation</title>
+    <meta
+      name="description"
+      content="Skills IA génériques pour ChatGPT, Claude, Gemini et les autres assistants : plan de formation, support de formation et quiz Skazy Formation. Installation et mise à jour en une commande."
+    />
+    <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="darkreader-lock" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1f1f1f" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="assets/fonts/georama-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="assets/css/charte.css" />
+    <link rel="stylesheet" href="assets/css/skills.css" />
+    <script>
+      // Thème commun aux outils Skazy Formation, appliqué avant l'affichage.
+      try {
+        const theme = JSON.parse(localStorage.getItem('skazy-outils:theme'));
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {
+        // stockage indisponible : thème du système
+      }
+    </script>
+    <script type="module" src="assets/js/theme.js"></script>
+    <script type="module" src="assets/js/catalogue.js"></script>
+  </head>
+  <body>
+    <!-- @icones -->
+    <a class="lien-evitement" href="#catalogue">Aller au catalogue</a>
+
+    <header class="bandeau">
+      <div class="bandeau__interieur">
+        <a class="bandeau__nom" href="./" aria-current="page">
+          <img class="bandeau__pastille" src="favicon.svg" width="28" height="28" alt="" />
+          <span class="bandeau__nom-texte">Skills IA</span>
+        </a>
+        <div class="bandeau__actions">
+          <a class="bouton-texte" href="atelier/">
+            <svg class="icone" aria-hidden="true"><use href="#i-wand-sparkles" /></svg>
+            <span>Atelier</span>
+          </a>
+          <a
+            class="bouton-icone bandeau__github"
+            href="https://github.com/gharel/skills"
+            aria-label="Code source sur GitHub (nouvel onglet)"
+            title="Code source sur GitHub (nouvel onglet)"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg class="icone" aria-hidden="true"><use href="#i-github" /></svg>
+          </a>
+          <button type="button" class="bouton-icone" id="bouton-theme" hidden>
+            <svg class="icone" aria-hidden="true"><use href="#i-circle-half-stroke" /></svg>
+          </button>
+          <span class="bandeau__filet" aria-hidden="true"></span>
+          <a
+            class="bandeau__logo"
+            href="https://formation.skazy.nc"
+            target="_blank"
+            rel="noopener"
+            aria-label="Site de Skazy Formation (nouvel onglet)"
+            title="Site de Skazy Formation (nouvel onglet)"
+          >
+            <img
+              class="logo logo--clair"
+              src="assets/img/logo-skazy-formation.svg"
+              alt=""
+              width="109"
+              height="36"
+            />
+            <img
+              class="logo logo--sombre"
+              src="assets/img/logo-skazy-formation-blanc.svg"
+              alt=""
+              width="109"
+              height="36"
+            />
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="heros" aria-labelledby="titre-page">
+        <div class="heros__interieur">
+          <div class="heros__texte">
+            <p class="surtitre">Skazy Formation · UNC · Perso</p>
+            <h1 id="titre-page">Des skills IA prêts à l’emploi, pour tous vos assistants</h1>
+            <p class="heros__chapo">
+              Un skill est un savoir-faire que l’assistant suit pas à pas&nbsp;: consignes, modèles,
+              scripts. Ceux-ci fonctionnent avec ChatGPT, Claude, Gemini, Codex et les autres, et
+              produisent des documents aux couleurs de Skazy Formation.
+            </p>
+            <div class="heros__actions">
+              <a class="bouton bouton--primaire" href="#installer">
+                <svg class="icone" aria-hidden="true"><use href="#i-download" /></svg>
+                Installer les skills
+              </a>
+              <a class="bouton bouton--scene" href="atelier/">
+                <svg class="icone" aria-hidden="true"><use href="#i-wand-sparkles" /></svg>
+                Ouvrir l’atelier
+              </a>
+            </div>
+          </div>
+          <ol class="chaine" aria-label="La chaîne Skazy Formation">
+            <li class="chaine__etape">
+              <img
+                src="sources/skazy-plan-formation/assets/icon.svg"
+                alt=""
+                width="56"
+                height="56"
+              />
+              <span><strong>Plan de formation</strong>Fiche A4, HTML et DOCX</span>
+            </li>
+            <li class="chaine__etape">
+              <img
+                src="sources/skazy-support-formation/assets/icon.svg"
+                alt=""
+                width="56"
+                height="56"
+              />
+              <span><strong>Support de formation</strong>Diaporama HTML et PPTX</span>
+            </li>
+            <li class="chaine__etape">
+              <img src="sources/skazy-quiz/assets/icon.svg" alt="" width="56" height="56" />
+              <span><strong>Quiz</strong>Kahoot, Google Forms, Quiz Skazy</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section" id="catalogue" aria-labelledby="titre-catalogue" tabindex="-1">
+        <div class="section__interieur">
+          <h2 id="titre-catalogue" class="section__titre">Le catalogue</h2>
+          <p class="section__chapo">
+            <!-- @resume -->
+          </p>
+          <!-- @catalogue -->
+        </div>
+      </section>
+
+      <section class="section section--alt" id="installer" aria-labelledby="titre-installer">
+        <div class="section__interieur">
+          <h2 id="titre-installer" class="section__titre">Installer et mettre à jour</h2>
+          <p class="section__chapo">
+            Choisissez votre assistant. Pour mettre à jour, on refait la même opération&nbsp;: la
+            nouvelle version remplace l’ancienne.
+          </p>
+
+          <div class="onglets" data-onglets>
+            <div class="onglets__liste" role="tablist" aria-label="Assistant à équiper" hidden>
+              <button type="button" role="tab" id="onglet-claude" aria-controls="panneau-claude">
+                Claude
+              </button>
+              <button type="button" role="tab" id="onglet-chatgpt" aria-controls="panneau-chatgpt">
+                ChatGPT
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="onglet-claude-code"
+                aria-controls="panneau-claude-code"
+              >
+                Claude Code
+              </button>
+              <button type="button" role="tab" id="onglet-agents" aria-controls="panneau-agents">
+                Codex, Gemini CLI, Cursor…
+              </button>
+              <button type="button" role="tab" id="onglet-autres" aria-controls="panneau-autres">
+                Autres assistants
+              </button>
+            </div>
+
+            <div
+              class="panneau"
+              role="tabpanel"
+              id="panneau-claude"
+              aria-labelledby="onglet-claude"
+            >
+              <h3 class="panneau__titre">Claude (claude.ai et Claude Desktop)</h3>
+              <ol class="etapes">
+                <li>
+                  Téléchargez le skill (bouton <strong>Télécharger le skill</strong> de sa carte).
+                </li>
+                <li>
+                  Dans Claude, ouvrez <strong>Paramètres &gt; Capacités</strong>, section
+                  <strong>Skills</strong>, puis <strong>Importer un skill</strong> et choisissez le
+                  fichier <code>.zip</code>.
+                </li>
+                <li>Activez le skill. Claude l’utilise dès qu’une demande le concerne.</li>
+              </ol>
+              <p class="note">
+                <strong>Mise à jour</strong>&nbsp;: supprimez l’ancienne version du skill, puis
+                importez le nouveau <code>.zip</code>. Pensez à désactiver les anciens skills
+                <code>plan-creator</code>, <code>support-creator</code> et <code>qcm-creator</code>,
+                remplacés par les skills Skazy Formation.
+              </p>
+            </div>
+
+            <div
+              class="panneau"
+              role="tabpanel"
+              id="panneau-chatgpt"
+              aria-labelledby="onglet-chatgpt"
+            >
+              <h3 class="panneau__titre">ChatGPT</h3>
+              <p>
+                <strong>Avec les Skills de ChatGPT</strong>&nbsp;: importez le fichier
+                <code>.zip</code> du skill depuis la gestion des skills de votre compte. ChatGPT
+                l’utilise dès qu’une demande le concerne.
+              </p>
+              <p><strong>Sinon, avec un GPT personnalisé ou un projet</strong>&nbsp;:</p>
+              <ol class="etapes">
+                <li>
+                  Créez un GPT (ou un projet) et collez ses instructions courtes (bouton
+                  <strong>Copier les instructions</strong> de la carte).
+                </li>
+                <li>
+                  Ajoutez en fichiers de connaissance la version un fichier (<code>.md</code>) et le
+                  contenu du <code>.zip</code> (scripts et charte).
+                </li>
+                <li>Activez l’<strong>interpréteur de code</strong> pour produire les fichiers.</li>
+              </ol>
+              <p class="note">
+                <strong>Mise à jour</strong>&nbsp;: remplacez les fichiers par ceux de la nouvelle
+                version.
+              </p>
+            </div>
+
+            <div
+              class="panneau"
+              role="tabpanel"
+              id="panneau-claude-code"
+              aria-labelledby="onglet-claude-code"
+            >
+              <h3 class="panneau__titre">Claude Code (et Cowork)</h3>
+              <p>Ajoutez le dépôt comme place de marché de plugins, une seule fois&nbsp;:</p>
+              <div class="commande">
+                <code>/plugin marketplace add gharel/skills</code>
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
+              <p>Puis installez une catégorie de skills&nbsp;:</p>
+              <div class="commande">
+                <code>/plugin install skazy-formation@gharel-skills</code>
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
+              <p class="note">
+                <strong>Mise à jour</strong>&nbsp;:
+                <code>/plugin marketplace update gharel-skills</code>, ou activez la mise à jour
+                automatique dans <code>/plugin</code>.
+              </p>
+            </div>
+
+            <div
+              class="panneau"
+              role="tabpanel"
+              id="panneau-agents"
+              aria-labelledby="onglet-agents"
+            >
+              <h3 class="panneau__titre">Codex, Gemini CLI, Cursor, GitHub Copilot, OpenCode…</h3>
+              <p>
+                Avec Node.js, l’outil <code>skills</code> détecte vos assistants et installe
+                tout&nbsp;:
+              </p>
+              <div class="commande">
+                <code>npx skills add gharel/skills -g</code>
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
+              <p>Mise à jour de tous les skills installés&nbsp;:</p>
+              <div class="commande">
+                <code>npx skills update -g</code>
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
+              <p>Sans Node.js, sous Windows (PowerShell)&nbsp;:</p>
+              <div class="commande">
+                <code>irm https://gharel.github.io/skills/installer.ps1 | iex</code>
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
+              <p>Sous macOS ou Linux&nbsp;:</p>
+              <div class="commande">
+                <code>curl -fsSL https://gharel.github.io/skills/installer.sh | sh</code>
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
+              <p class="note">
+                Le script copie les skills dans les dossiers des assistants présents
+                (<code>~/.claude/skills</code>, <code>~/.agents/skills</code>,
+                <code>~/.gemini/skills</code>, <code>~/.cursor/skills</code>,
+                <code>~/.copilot/skills</code>…). Relancez-le pour mettre à jour.
+              </p>
+            </div>
+
+            <div
+              class="panneau"
+              role="tabpanel"
+              id="panneau-autres"
+              aria-labelledby="onglet-autres"
+            >
+              <h3 class="panneau__titre">Gemini, Mistral Le Chat, Copilot, Perplexity…</h3>
+              <ol class="etapes">
+                <li>
+                  Créez un Gem, un agent ou un espace, et collez les instructions courtes du skill.
+                </li>
+                <li>Ajoutez la version un fichier (<code>.md</code>) en document de référence.</li>
+                <li>
+                  L’assistant rédige le contenu (un JSON)&nbsp;: collez-le dans
+                  <a href="atelier/">l’atelier</a> pour obtenir les fichiers HTML, DOCX, PPTX,
+                  Kahoot ou Google Forms.
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="titre-versions">
+        <div class="section__interieur deux-colonnes">
+          <div>
+            <h2 id="titre-versions" class="section__titre">Versions et nouveautés</h2>
+            <p>
+              Chaque skill porte un numéro de version (affiché sur sa carte). Une carte marquée
+              <span class="badge badge--nouveau">Nouvelle version</span> a changé depuis votre
+              dernière visite. Le détail des changements est dans le
+              <a href="https://github.com/gharel/skills/blob/main/CHANGELOG.md"
+                >journal des versions</a
+              >.
+            </p>
+          </div>
+          <div>
+            <h2 class="section__titre">Un skill, c’est quoi&nbsp;?</h2>
+            <p>
+              Un dossier au format ouvert <a href="https://agentskills.io">Agent Skills</a>&nbsp;:
+              un fichier <code>SKILL.md</code> (les consignes), des références, des modèles et des
+              scripts. L’assistant ne le charge que lorsque la demande le concerne.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pied">
+      <div class="pied__interieur">
+        <p>
+          <strong>Skills IA</strong> · Guillaume Harel, Skazy Formation ·
+          <a href="https://github.com/gharel/skills">github.com/gharel/skills</a>
+        </p>
+        <p>
+          Mis à jour le
+          <!-- @date -->
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

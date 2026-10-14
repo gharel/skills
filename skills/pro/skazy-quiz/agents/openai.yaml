@@ -1,0 +1,12 @@
+interface:
+  display_name: Quiz de formation Skazy
+  short_description: Crée le quiz d'une formation à partir de son support, pour Kahoot, Google Forms ou le Quiz Skazy.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+    - chatgpt
+    - codex
+    - api
+    - atlas
+  allow_implicit_invocation: true

@@ -1,0 +1,83 @@
+{
+  "format": "skazy-plan",
+  "version": 1,
+  "intitule": "Excel : les bases",
+  "categorie": "Bureautique",
+  "niveau": "Initiation",
+  "description": "Prenez en main Excel pour créer, mettre en forme et exploiter vos premiers tableaux de calcul. Vous apprenez à saisir des données, à écrire des formules simples et à présenter vos chiffres sous forme de graphiques clairs.",
+  "objectifs": [
+    "**Créer** un classeur et organiser des données dans un tableau structuré",
+    "**Utiliser** les formules et fonctions de base (SOMME, MOYENNE, SI)",
+    "**Mettre en forme** un tableau et appliquer une mise en forme conditionnelle",
+    "**Produire** un graphique adapté aux données et l'imprimer proprement"
+  ],
+  "prerequis": "Savoir utiliser un ordinateur et Internet",
+  "public": "Toute personne amenée à manipuler des tableaux de chiffres",
+  "duree": "2 jours (14 h)",
+  "programme": [
+    {
+      "titre": "Découvrir l'environnement Excel",
+      "duree": "1 h 30",
+      "points": [
+        "Classeur, feuilles, cellules, plages",
+        "Ruban, barre de formule et zone Nom",
+        "Ouvrir, enregistrer et retrouver un classeur"
+      ]
+    },
+    {
+      "titre": "Saisir et organiser les données",
+      "duree": "2 h",
+      "points": [
+        "Types de données : texte, nombres, dates",
+        "Recopie incrémentée et séries",
+        "Insérer, déplacer et masquer lignes et colonnes"
+      ]
+    },
+    {
+      "titre": "Calculer avec des formules",
+      "duree": "3 h",
+      "points": [
+        "Opérateurs et priorités de calcul",
+        "Fonctions SOMME, MOYENNE, MIN, MAX",
+        "Références relatives et absolues ($A$1)",
+        "Atelier pratique : budget prévisionnel"
+      ]
+    },
+    {
+      "titre": "Mettre en forme un tableau",
+      "duree": "2 h",
+      "points": [
+        "Formats de nombres, bordures, alignements",
+        "Mise sous forme de tableau",
+        "Mise en forme conditionnelle"
+      ]
+    },
+    {
+      "titre": "Aller plus loin avec la fonction SI",
+      "duree": "2 h",
+      "points": ["Syntaxe et tests logiques", "Combiner SI avec ET et OU"]
+    },
+    {
+      "titre": "Représenter les données",
+      "duree": "2 h",
+      "points": [
+        "Choisir le bon graphique",
+        "Personnaliser titres, légendes et couleurs",
+        "Mise en page et impression"
+      ]
+    },
+    {
+      "titre": "Projet final",
+      "duree": "1 h 30",
+      "points": [
+        "Construire le suivi des ventes d'une boutique",
+        "Présenter son tableau de bord au groupe"
+      ]
+    }
+  ],
+  "modalites": {
+    "effectif": "8 personnes max.",
+    "lieu": "Nouméa ou vos locaux",
+    "tarif": "Sur devis"
+  }
+}

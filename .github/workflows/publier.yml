@@ -1,0 +1,84 @@
+# À chaque push sur main : on vérifie les skills (format, charte, versions, rendus Python, site),
+# puis on construit le site (catalogue, téléchargements, atelier) et on le publie sur GitHub Pages.
+# Le site n'est publié que si tout passe.
+name: Vérifier puis publier sur GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  verifier:
+    name: Tests (skills, rendus, site)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Installer les outils
+        run: |
+          npm ci
+          python -m pip install --quiet python-docx python-pptx openpyxl pillow pytest
+      - name: Installer Chromium pour Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Format, charte synchronisée, skills conformes et versions montées
+        run: npm run check
+        env:
+          BASE: ${{ github.event.before }}
+      - name: Tests des outils (Vitest)
+        run: npm test
+      - name: Tests des rendus (plan, support, quiz)
+        run: npm run test:py
+      - name: Construire le site
+        run: npm run construire
+      - name: Tests du site et de l'atelier (Playwright)
+        run: npm run test:e2e
+      - name: Garder le rapport Playwright en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rapport-playwright
+          path: playwright-report/
+          retention-days: 7
+
+  publier:
+    name: Publication sur GitHub Pages
+    needs: verifier
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Construire le site
+        run: npm run construire
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deploiement
+        uses: actions/deploy-pages@v5

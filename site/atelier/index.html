@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Atelier · Skills IA · Skazy Formation</title>
+    <meta
+      name="description"
+      content="Transformez le JSON produit par un assistant IA en plan de formation (HTML, DOCX), support (HTML, PPTX) ou quiz (Kahoot, Google Forms, Quiz Skazy), directement dans le navigateur."
+    />
+    <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="darkreader-lock" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1f1f1f" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/css/charte.css" />
+    <link rel="stylesheet" href="../assets/css/skills.css" />
+    <link rel="stylesheet" href="../assets/css/atelier.css" />
+    <script>
+      try {
+        const theme = JSON.parse(localStorage.getItem('skazy-outils:theme'));
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {
+        // stockage indisponible : thème du système
+      }
+    </script>
+    <script type="module" src="../assets/js/theme.js"></script>
+    <script type="module" src="../assets/js/atelier.js"></script>
+  </head>
+  <body>
+    <!-- @icones -->
+    <header class="bandeau">
+      <div class="bandeau__interieur">
+        <a class="bandeau__nom" href="../">
+          <img class="bandeau__pastille" src="../favicon.svg" width="28" height="28" alt="" />
+          <span class="bandeau__nom-texte">Skills IA</span>
+        </a>
+        <div class="bandeau__actions">
+          <a class="bouton-texte" href="./" aria-current="page">
+            <svg class="icone" aria-hidden="true"><use href="#i-wand-sparkles" /></svg>
+            <span>Atelier</span>
+          </a>
+          <button type="button" class="bouton-icone" id="bouton-theme" hidden>
+            <svg class="icone" aria-hidden="true"><use href="#i-circle-half-stroke" /></svg>
+          </button>
+          <span class="bandeau__filet" aria-hidden="true"></span>
+          <a
+            class="bandeau__logo"
+            href="https://formation.skazy.nc"
+            target="_blank"
+            rel="noopener"
+            aria-label="Site de Skazy Formation (nouvel onglet)"
+            title="Site de Skazy Formation (nouvel onglet)"
+          >
+            <img
+              class="logo logo--clair"
+              src="../assets/img/logo-skazy-formation.svg"
+              alt=""
+              width="109"
+              height="36"
+            />
+            <img
+              class="logo logo--sombre"
+              src="../assets/img/logo-skazy-formation-blanc.svg"
+              alt=""
+              width="109"
+              height="36"
+            />
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="section__interieur atelier">
+        <div class="atelier__intro">
+          <h1 class="section__titre">Atelier</h1>
+          <p class="section__chapo">
+            Collez ici le JSON rédigé par votre assistant (ChatGPT, Gemini, Mistral…) avec un skill
+            Skazy Formation. L’atelier produit les fichiers dans votre navigateur&nbsp;: rien n’est
+            envoyé sur un serveur. Le premier passage charge le moteur Python (une vingtaine de
+            secondes).
+          </p>
+        </div>
+
+        <form class="atelier__formulaire" id="formulaire">
+          <label class="etiquette" for="entree">JSON du plan, du support ou du quiz</label>
+          <textarea
+            id="entree"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder='{ "format": "skazy-plan", … }'
+          ></textarea>
+          <div class="atelier__outils">
+            <label class="bouton bouton--secondaire fichier">
+              <svg class="icone" aria-hidden="true"><use href="#i-upload" /></svg>
+              Ouvrir un fichier .json
+              <input type="file" id="fichier" accept=".json,application/json" />
+            </label>
+            <span class="atelier__exemples">
+              Exemples&nbsp;:
+              <button
+                type="button"
+                class="lien"
+                data-exemple="skazy-plan-formation/exemples/plan-exemple.json"
+              >
+                plan</button
+              >,
+              <button
+                type="button"
+                class="lien"
+                data-exemple="skazy-support-formation/exemples/support-exemple.json"
+              >
+                support</button
+              >,
+              <button
+                type="button"
+                class="lien"
+                data-exemple="skazy-quiz/exemples/quiz-exemple.json"
+              >
+                quiz
+              </button>
+            </span>
+          </div>
+          <fieldset class="atelier__formats" id="formats" hidden>
+            <legend>Fichiers à produire</legend>
+            <div id="cases"></div>
+          </fieldset>
+          <button type="submit" class="bouton bouton--primaire" id="produire">
+            <svg class="icone" aria-hidden="true"><use href="#i-wand-sparkles" /></svg>
+            Produire les fichiers
+          </button>
+        </form>
+
+        <section class="atelier__resultat" aria-labelledby="titre-resultat">
+          <h2 id="titre-resultat" class="panneau__titre">Résultat</h2>
+          <p id="etat" class="etat" role="status" aria-live="polite">
+            Le type de document est reconnu automatiquement.
+          </p>
+          <ul id="fichiers" class="fichiers"></ul>
+          <div id="rapport" class="rapport"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="pied">
+      <div class="pied__interieur">
+        <p><a href="../">Retour au catalogue des skills</a></p>
+        <p>Rendu par les scripts Python des skills, exécutés avec Pyodide.</p>
+      </div>
+    </footer>
+  </body>
+</html>

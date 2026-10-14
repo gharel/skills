@@ -11,6 +11,9 @@
 # chaque assistant présent. Relancez-le pour mettre à jour : l'ancienne version est remplacée.
 
 $ErrorActionPreference = 'Stop'
+# Messages en ASCII : Windows PowerShell 5.1 lit ce script en Latin-1 via irm, les accents passent
+# donc par leur code (é = 0xE9, à = 0xE0, … = 0x2026).
+$e = [char]0xE9; $a = [char]0xE0; $pp = [char]0x2026
 $ProgressPreference = 'SilentlyContinue'
 
 $archive = 'https://github.com/gharel/skills/archive/refs/heads/main.zip'
@@ -29,7 +32,7 @@ $assistants = @(
 )
 
 try {
-  Write-Host 'Téléchargement de gharel/skills…'
+  Write-Host "T${e}l${e}chargement de gharel/skills$pp"
   New-Item -ItemType Directory -Path $temp | Out-Null
   Invoke-WebRequest -Uri $archive -OutFile "$temp\depot.zip" -UseBasicParsing
   Expand-Archive -Path "$temp\depot.zip" -DestinationPath $temp -Force
@@ -42,14 +45,14 @@ try {
     Where-Object { -not $_.Name.StartsWith('_') } |
     Where-Object { -not $env:SKILLS_CATEGORIE -or $_.Parent.Name -eq $env:SKILLS_CATEGORIE } |
     Where-Object { $choix.Count -eq 0 -or $choix -contains $_.Name }
-  if (-not $skills) { throw 'Aucun skill ne correspond à la sélection.' }
+  if (-not $skills) { throw "Aucun skill ne correspond $a la s${e}lection." }
 
   if ($env:SKILLS_DOSSIER) {
     $cibles = @(@{ Nom = 'Dossier choisi'; Chemin = $env:SKILLS_DOSSIER })
   } else {
-    $cibles = foreach ($a in $assistants) {
-      if (-not $a.Signe -or (Test-Path (Join-Path $accueil $a.Signe))) {
-        @{ Nom = $a.Nom; Chemin = (Join-Path $accueil $a.Cible) }
+    $cibles = foreach ($assistant in $assistants) {
+      if (-not $assistant.Signe -or (Test-Path (Join-Path $accueil $assistant.Signe))) {
+        @{ Nom = $assistant.Nom; Chemin = (Join-Path $accueil $assistant.Cible) }
       }
     }
   }
@@ -63,8 +66,8 @@ try {
     }
     Write-Host ("  {0} : {1}" -f $cible.Nom, $cible.Chemin)
   }
-  Write-Host ("{0} skill(s) installé(s) : {1}" -f $skills.Count, (($skills | ForEach-Object Name) -join ', '))
-  Write-Host 'Relancez cette commande pour mettre à jour. Catalogue : https://gharel.github.io/skills/'
+  Write-Host ("{0} skill(s) install${e}(s) : {1}" -f $skills.Count, (($skills | ForEach-Object Name) -join ', '))
+  Write-Host "Relancez cette commande pour mettre $a jour. Catalogue : https://gharel.github.io/skills/"
 } finally {
   if (Test-Path $temp) { Remove-Item -Recurse -Force -Path $temp }
 }

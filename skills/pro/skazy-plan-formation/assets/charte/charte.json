@@ -197,10 +197,35 @@
   },
   "photoQuestions": "photo-1758270704286-83476deb3bd1",
   "modalitesParDefaut": {
-    "methodes": "Alternance d'apports théoriques et d'ateliers pratiques. Mises en situation en sous-groupes sur un cas réel apporté par les participants. Support de formation remis à chaque participant.",
-    "evaluation": "Quiz de positionnement en début et en fin de formation pour mesurer la progression. Évaluation des acquis par la mise en pratique. Questionnaire de satisfaction et attestation de fin de formation.",
     "effectif": "8 personnes max.",
     "lieu": "Nouméa ou vos locaux",
-    "tarif": "Sur devis"
+    "tarif": "Sur devis",
+    "formats": [
+      {
+        "titre": "En présentiel",
+        "texte": "Dans vos locaux ou dans les nôtres, à Nouméa.",
+        "icone": "users"
+      },
+      {
+        "titre": "En distanciel",
+        "texte": "En visioconférence (Teams, Meet ou Zoom), pour les participants qui ne peuvent pas se déplacer.",
+        "icone": "video"
+      },
+      {
+        "titre": "Hybride",
+        "texte": "Activités et théorie transmises en amont pour aborder les premières notions, puis revues en présentiel : plus de temps pour les exercices et une meilleure assimilation.",
+        "icone": "blend"
+      }
+    ],
+    "accompagnement": "la formation s’appuie sur vos besoins métiers.",
+    "methodes": "Alternance d'apports théoriques et d'ateliers pratiques. Mises en situation en sous-groupes sur un cas réel apporté par les participants.",
+    "moyens": [
+      "Salle équipée d’un matériel de projection",
+      "Poste informatique individuel avec les logiciels de la formation",
+      "Support de formation remis à chaque participant"
+    ],
+    "encadrement": "Formateur qualifié. Ses références professionnelles et pédagogiques sont en annexe ou sur demande.",
+    "evaluation": "Quiz de positionnement en début et en fin de formation pour mesurer la progression. Évaluation des acquis par la mise en pratique. Questionnaire de satisfaction en fin de formation.",
+    "validation": "Attestation de formation délivrée aux participants ayant validé les acquis."
   }
 }

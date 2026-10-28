@@ -28,6 +28,11 @@ const ICONES = [
     'circle-check',
     'clock',
     'link',
+    // Page 2 du plan de formation : modalités et accompagnement.
+    'users',
+    'video',
+    'blend',
+    'handshake',
   ]),
 ];
 

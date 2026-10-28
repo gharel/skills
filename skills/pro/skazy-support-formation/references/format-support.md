@@ -29,6 +29,7 @@ Une image (`photo`, `image`, `qrCode`) peut prendre trois formes : une URL `http
 | `photoCouverture`    | non         | Par défaut : la première photo de la banque de la catégorie                                                                                |
 | `photoFormateur`     | non         | Photo ronde de la slide « Faisons connaissance »                                                                                           |
 | `stickers`           | non         | `false` pour retirer les stickers                                                                                                          |
+| `animations`         | non         | `false` pour un PPTX sans animations (voir « Animations du PPTX »)                                                                         |
 
 ## Champs communs à toutes les slides
 
@@ -90,6 +91,28 @@ Les champs marqués `*` sont obligatoires. Les nombres entre crochets donnent la
 | `battle`             | Jeu en équipes : chaque équipe prépare des questions pour l'autre | `titre`, `accroche`, `regles` [4]                                                                             |
 | `accompagnement-360` | Les pôles Skazy (com, numérique, data, formation)                 | —                                                                                                             |
 | `autres-formations`  | Les 9 catégories du catalogue Skazy Formation                     | `texte`                                                                                                       |
+
+## Animations du PPTX
+
+Le PPTX dévoile chaque slide de contenu clic par clic, sans jamais montrer d'encart vide. Le HTML n'est pas animé.
+
+- **Effet unique** : fondu en entrée, 0,4 s, au clic.
+- **Un clic, un bloc complet** : fond, icône, titre, texte et lien apparaissent ensemble, dans le sens de lecture.
+- **Toujours fixes** : titre, sous-titre (`intro`, `contexte`, `accroche`, `remarque`), surtitre en pastille, pied de page, logo et stickers.
+- **Conteneurs** : une carte, un panneau ou un fond coloré apparaît au même clic que son premier contenu, jamais avant.
+- **Sans animation** : `couverture`, `chapitre`, `image` (pause), `questions`, et la slide réponse d'un `quiz`, qui sert elle-même de révélation.
+
+| Type                                                                                                                                                                 | Un clic par…                                                                                    |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `objectifs`, `programme`, `texte`, `a-retenir`, `pas-a-pas`, `raccourcis`, `bon-a-savoir`, `ressources`, `accompagnement-360`, `quiz` (question), `frise`, `capture` | élément de la liste (objectif, partie, paragraphe, étape, encadré, proposition, repère…)        |
+| `contenu`                                                                                                                                                            | texte, puis chaque point, puis la carte de l'image                                              |
+| `notion-cle`, `chiffre-cle`                                                                                                                                          | définition ou chiffre et phrase, puis explication, chaque terme ou repère, source               |
+| `graphique`                                                                                                                                                          | barres et axe, puis encadré « À retenir »                                                       |
+| `comparatif`                                                                                                                                                         | ligne du tableau (l'en-tête est fixe, sans cadre global), puis la recommandation                |
+| `avant-apres`                                                                                                                                                        | avant, puis après (étiquette et légende comprises)                                              |
+| `code`                                                                                                                                                               | élément expliqué, puis encadré de syntaxe, exemple, résultat                                    |
+| `exercice`, `exercice-etapes`                                                                                                                                        | consigne ou étape, puis chaque encart (durée, fichier, livrable), puis « Pour aller plus loin » |
+| `faisons-connaissance`, `citation`, `evaluation`, `battle`, `autres-formations`                                                                                      | bloc visible : formateur, info, question du tour de table ; citation, auteur ; carte ; équipe…  |
 
 ## Longueurs conseillées
 

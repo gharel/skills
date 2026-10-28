@@ -180,6 +180,7 @@ def normaliser_support(brut: dict) -> tuple[dict, ch.Rapport]:
     f["email"] = f.get("email") or ch.CONTACT["email"]
     f["role"] = f.get("role") or ch.CONTACT["role"]
     f["stickers"] = f.get("stickers", True) is not False
+    f["animations"] = f.get("animations", True) is not False
     f["_couverture"] = ch.url_photo(f.get("photoCouverture") or cat["photos"][0])
     s["formation"] = f
 

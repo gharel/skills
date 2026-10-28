@@ -1,18 +1,59 @@
 import io
 import json
 
+import pytest
 from conftest import SKILLS
 
 import charte as ch
 import support_modele as m
 
 EXEMPLE = SKILLS / "skazy-support-formation" / "exemples" / "support-exemple.json"
+P = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
+PX = 6350
 
 
 def support(**modifs):
     donnees = json.loads(EXEMPLE.read_text(encoding="utf-8"))
     donnees.update(modifs)
     return m.normaliser_support(donnees)
+
+
+def presentation(s):
+    from pptx import Presentation
+    from support_pptx import rendre_pptx
+
+    return Presentation(io.BytesIO(rendre_pptx(s)))
+
+
+@pytest.fixture(scope="module")
+def anime():
+    """Le support d'exemple rendu une seule fois : couples (slide du JSON, slide du PPTX)."""
+    ch.IMAGES_LOCALES.clear()
+    s, _ = support()
+    return list(zip(s["_slides"], presentation(s).slides))
+
+
+def clics(slide) -> list[list[int]]:
+    """Identifiants des formes de chaque clic, lus dans le XML p:timing."""
+    timing = slide._element.find(P + "timing")
+    if timing is None:
+        return []
+    seq = timing.find(".//{}cTn[@nodeType='mainSeq']".format(P))
+    return [list(dict.fromkeys(int(t.get("spid")) for t in clic.iter(P + "spTgt"))) for clic in seq.find(P + "childTnLst")]
+
+
+def a_du_contenu(sh) -> bool:
+    return sh.shape_type == 13 or (sh.has_text_frame and sh.text_frame.text.strip() != "")  # 13 : image
+
+
+def dedans(a, b, marge=2 * PX) -> bool:
+    """La forme a tient-elle dans le cadre de b ?"""
+    return (
+        a.left >= b.left - marge
+        and a.top >= b.top - marge
+        and a.left + a.width <= b.left + b.width + marge
+        and a.top + a.height <= b.top + b.height + marge
+    )
 
 
 def test_exemple_couvre_les_30_mises_en_page():
@@ -74,3 +115,85 @@ def test_pptx_slides_notes_et_pied():
     textes = " ".join(sh.text_frame.text for sh in prs.slides[1].shapes if sh.has_text_frame)
     assert "Excel : les bases" in textes.replace(" ", " ")
     assert "02" in textes
+
+
+def test_animations_seulement_sur_les_slides_de_contenu(anime):
+    from support_pptx import animee
+
+    for donnees, slide in anime:
+        if animee(donnees):
+            assert clics(slide), donnees["type"]
+        else:
+            assert slide._element.find(P + "timing") is None, donnees["type"]
+    types = {d["type"] for d, _ in anime if not animee(d)}
+    assert types == {"couverture", "chapitre", "image", "questions", "quiz"}
+
+
+def test_fondu_au_clic(anime):
+    for _, slide in anime:
+        for effet in slide._element.iter(P + "cTn"):
+            if effet.get("presetClass") is None:
+                continue
+            assert (effet.get("presetClass"), effet.get("presetID")) == ("entr", "10")
+            fondu = effet.find(".//{}animEffect".format(P))
+            assert fondu.get("filter") == "fade" and fondu.get("transition") == "in"
+            assert fondu.find(".//{}cTn".format(P)).get("dur") == "400"
+        timing = slide._element.find(P + "timing")
+        if timing is None:
+            continue
+        seq = timing.find(".//{}cTn[@nodeType='mainSeq']".format(P))
+        for clic in seq.find(P + "childTnLst"):
+            noeuds = [c.get("nodeType") for c in clic.iter(P + "cTn") if c.get("presetClass")]
+            assert noeuds[0] == "clickEffect" and set(noeuds[1:]) <= {"withEffect"}
+
+
+def test_titre_et_pied_restent_fixes(anime):
+    for donnees, slide in anime:
+        animes = {i for clic in clics(slide) for i in clic}
+        for sh in slide.shapes:
+            if sh.shape_id in animes:
+                assert sh.top < 1000 * PX, donnees["type"]
+        titre = ch.sans_gras(donnees.get("titre") or "").replace(" ", " ").replace(" ", " ")
+        if titre:
+            for sh in slide.shapes:
+                if sh.has_text_frame and sh.text_frame.text.replace(" ", " ").replace(" ", " ") == titre:
+                    assert sh.shape_id not in animes, donnees["type"]
+
+
+def test_chaque_clic_montre_du_contenu(anime):
+    for donnees, slide in anime:
+        formes = {sh.shape_id: sh for sh in slide.shapes}
+        for clic in clics(slide):
+            assert any(a_du_contenu(formes[i]) for i in clic), donnees["type"]
+
+
+def test_aucun_conteneur_avant_son_contenu(anime):
+    for donnees, slide in anime:
+        numero = {i: k for k, clic in enumerate(clics(slide), 1) for i in clic}
+        formes = list(slide.shapes)
+        for r in formes:
+            vide = r.shape_type == 1 and not r.text_frame.text.strip()  # 1 : forme automatique
+            if not vide or min(r.width, r.height) < 40 * PX:
+                continue
+            contenu = [f for f in formes if f is not r and dedans(f, r)]
+            if contenu:
+                attendu = min(numero.get(f.shape_id, 0) for f in contenu)
+                assert numero.get(r.shape_id, 0) == attendu, "{} : conteneur au clic {}, contenu au clic {}".format(
+                    donnees["type"], numero.get(r.shape_id, 0), attendu
+                )
+
+
+def test_sans_animations():
+    donnees = json.loads(EXEMPLE.read_text(encoding="utf-8"))
+    comparatif = next(x for x in donnees["slides"] if x["type"] == "comparatif")
+
+    def cadres(animations):
+        s, _ = m.normaliser_support(dict(donnees, formation=dict(donnees["formation"], animations=animations), slides=[comparatif]))
+        slide = presentation(s).slides[0]
+        return slide, [sh for sh in slide.shapes if sh.width == 1680 * PX and sh.height > 100 * PX]
+
+    slide, cadre = cadres(False)
+    assert slide._element.find(P + "timing") is None
+    assert len(cadre) == 1
+    slide, cadre = cadres(True)
+    assert clics(slide) and not cadre

@@ -81,6 +81,8 @@ Renseigne `notes` sur chaque slide de contenu, d'exercice et de quiz. Les notes 
 - la durée indicative ;
 - la transition vers la slide suivante.
 
+Dans le PPTX, chaque point, carte, étape ou ligne de tableau apparaît à son tour, au clic. L'ordre des éléments du JSON est donc l'ordre de la présentation. Les notes peuvent suivre ce rythme : « Clic : … » pour ce qu'il faut dire à chaque apparition.
+
 ## Liens et ressources
 
 - Dès qu'un sujet appelle un outil (site d'entraînement, documentation, gabarit), mets le lien dans la slide ou dans les notes.

@@ -2,7 +2,8 @@
 
 Reprend les coordonnées du modèle HTML 1920 × 1080 (1 px = 6 350 EMU = 0,5 pt). Les éléments que
 Google Slides importe mal (rotations groupées, ombres, dégradés) sont composés en images avec Pillow.
-Chaque slide reçoit les notes formateur du JSON.
+Chaque slide reçoit les notes formateur du JSON. Les slides de contenu se dévoilent clic par clic :
+chaque bloc (carte, étape, ligne de tableau…) apparaît en fondu, titre et pied restant fixes.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from __future__ import annotations
 import io
 import math
 import re
+from contextlib import contextmanager
 
 import charte as ch
 from support_modele import touches
@@ -22,6 +24,7 @@ from pptx.dml.color import RGBColor  # noqa: E402
 from pptx.enum.dml import MSO_LINE_DASH_STYLE  # noqa: E402
 from pptx.enum.shapes import MSO_SHAPE  # noqa: E402
 from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN  # noqa: E402
+from pptx.oxml import parse_xml  # noqa: E402
 from pptx.oxml.ns import qn  # noqa: E402
 from pptx.util import Emu, Pt  # noqa: E402
 
@@ -84,8 +87,37 @@ class Slide:
     def __init__(self, deck: "Deck", fond: str = "#FFFFFF") -> None:
         self.deck = deck
         self.s = deck.prs.slides.add_slide(deck.prs.slide_layouts[6])
+        self.blocs: list[list[int]] = []
         if fond.upper() != "#FFFFFF":
             self.rect(0, 0, W, H, fond)
+
+    # -- animations
+    @contextmanager
+    def bloc(self, *avec):
+        """Les formes dessinées dans le `with` apparaissent ensemble, au même clic.
+
+        `avec` : formes déjà dessinées (panneau, axe) qui apparaissent avec ce premier contenu,
+        sans changer leur ordre d'empilement.
+        """
+        avant = {sh.shape_id for sh in self.s.shapes}
+        yield
+        ids = [sh.shape_id for sh in avec if sh is not None]
+        ids += [sh.shape_id for sh in self.s.shapes if sh.shape_id not in avant and sh.shape_id not in ids]
+        if ids:
+            self.blocs.append(ids)
+
+    def animer(self):
+        """Écrit les animations des blocs (python-pptx n'a pas d'API pour cela)."""
+        if not self.blocs:
+            return
+        formes = {sh.shape_id for sh in self.s.shapes if sh._element.tag == qn("p:sp")}
+        sld = self.s._element
+        timing = parse_xml(xml_animations(self.blocs, formes))
+        fin = sld.find(qn("p:extLst"))
+        if fin is not None:
+            fin.addprevious(timing)
+        else:
+            sld.append(timing)
 
     # -- formes
     def rect(self, x, y, w, h, fond=None, rayon=0, trait=None, epaisseur=2, tirets=False, alpha=None):
@@ -274,6 +306,54 @@ class Slide:
             self.s.notes_slide.notes_text_frame.text = ch.typographie(ch.sans_gras(texte))
 
 
+P_NS = "http://schemas.openxmlformats.org/presentationml/2006/main"
+DUREE_FONDU = 400  # ms
+
+
+def xml_animations(blocs: list[list[int]], formes: set[int]) -> str:
+    """Séquence principale PowerPoint : un clic par bloc, fondu en entrée pour chacune de ses formes.
+
+    La première forme du bloc part au clic, les autres avec elle. `formes` : identifiants des `p:sp`,
+    qui reçoivent un `p:bldP` (forme et texte animés d'un seul tenant) ; les images n'en ont pas.
+    """
+    compteur = iter(range(3, 1_000_000))
+    clics = []
+    for bloc in blocs:
+        id_clic, id_groupe = next(compteur), next(compteur)
+        effets = []
+        for k, spid in enumerate(bloc):
+            id_effet, id_set, id_fondu = next(compteur), next(compteur), next(compteur)
+            cible = '<p:tgtEl><p:spTgt spid="{}"/></p:tgtEl>'.format(spid)
+            effets.append(
+                '<p:par><p:cTn id="{}" presetID="10" presetClass="entr" presetSubtype="0" fill="hold" grpId="0" nodeType="{}">'
+                '<p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>'
+                '<p:set><p:cBhvr><p:cTn id="{}" dur="1" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>{}'
+                "<p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst></p:cBhvr>"
+                '<p:to><p:strVal val="visible"/></p:to></p:set>'
+                '<p:animEffect transition="in" filter="fade"><p:cBhvr><p:cTn id="{}" dur="{}"/>{}</p:cBhvr></p:animEffect>'
+                "</p:childTnLst></p:cTn></p:par>".format(
+                    id_effet, "clickEffect" if k == 0 else "withEffect", id_set, cible, id_fondu, DUREE_FONDU, cible
+                )
+            )
+        clics.append(
+            '<p:par><p:cTn id="{}" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst><p:childTnLst>'
+            '<p:par><p:cTn id="{}" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>{}'
+            "</p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par>".format(id_clic, id_groupe, "".join(effets))
+        )
+    vus: list[int] = []
+    for spid in (i for bloc in blocs for i in bloc):
+        if spid in formes and spid not in vus:
+            vus.append(spid)
+    construction = "".join('<p:bldP spid="{}" grpId="0" animBg="1"/>'.format(i) for i in vus)
+    return (
+        '<p:timing xmlns:p="{}"><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst>'
+        '<p:seq concurrent="1" nextAc="seek"><p:cTn id="2" dur="indefinite" nodeType="mainSeq"><p:childTnLst>{}</p:childTnLst></p:cTn>'
+        '<p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst>'
+        '<p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst>'
+        "</p:seq></p:childTnLst></p:cTn></p:par></p:tnLst>{}</p:timing>"
+    ).format(P_NS, "".join(clics), "<p:bldLst>{}</p:bldLst>".format(construction) if construction else "")
+
+
 def url_image(url: str) -> str:
     """URL réellement téléchargée (photos Unsplash en 1600 px, suffisant pour une demi-slide)."""
     return re.sub(r"([?&])w=\d+", r"\1w=1600", url)
@@ -349,8 +429,9 @@ def puces(sl: Slide, x, y, w, items, taille, ecart, coul=C["texte3"], interligne
     for item in items:
         t = formater_point(item)
         h = hauteur(t, w - 32, taille, interligne)
-        sl.rect(x, y + taille * interligne / 2 - 6, 12, 12, sl.deck.c["couleur"], rayon=2)
-        sl.texte(x + 32, y, w - 32, h + 4, t, taille, coul, interligne=interligne, gras_coul=C["texte"])
+        with sl.bloc():
+            sl.rect(x, y + taille * interligne / 2 - 6, 12, 12, sl.deck.c["couleur"], rayon=2)
+            sl.texte(x + 32, y, w - 32, h + 4, t, taille, coul, interligne=interligne, gras_coul=C["texte"])
         y += h + ecart
     return y - ecart
 
@@ -419,32 +500,34 @@ def faisons_connaissance(sl: Slide, s):
     bloc = h_titre + 40 + 200 + (40 + h_infos if infos else 0)
     y = (96 + 928) / 2 - bloc / 2
     y = titre(sl, 120, y, 640, s.get("titre") or "Faisons connaissance") + 40
-    if s.get("photo") and d.telecharger(s["photo"]):
-        img = ch.image_recadree(d.telecharger(s["photo"]), 400, 400)
-        masque = Image.new("L", (400, 400), 0)
-        ImageDraw.Draw(masque).ellipse((0, 0, 399, 399), fill=255)
-        rond = img.convert("RGBA")
-        rond.putalpha(masque)
-        sl.image(ch.png(rond), 120, y, 200, 200)
-    else:
-        sl.rond(120, y, 200, c["teinte"])
-        sl.icone("user-round", 172, y + 52, 96, c["encre"])
-    sl.texte(352, y + 50, 420, 50, f["formateur"], 38, gras=True)
-    sl.texte(352, y + 104, 420, 40, f["role"], 26, C["texte4"])
+    with sl.bloc():
+        if s.get("photo") and d.telecharger(s["photo"]):
+            img = ch.image_recadree(d.telecharger(s["photo"]), 400, 400)
+            masque = Image.new("L", (400, 400), 0)
+            ImageDraw.Draw(masque).ellipse((0, 0, 399, 399), fill=255)
+            rond = img.convert("RGBA")
+            rond.putalpha(masque)
+            sl.image(ch.png(rond), 120, y, 200, 200)
+        else:
+            sl.rond(120, y, 200, c["teinte"])
+            sl.icone("user-round", 172, y + 52, 96, c["encre"])
+        sl.texte(352, y + 50, 420, 50, f["formateur"], 38, gras=True)
+        sl.texte(352, y + 104, 420, 40, f["role"], 26, C["texte4"])
     y += 240
     if infos:
         puces(sl, 120, y, 640, infos, 28, 18)
-    # Panneau « Tour de table ».
-    sl.rect(856, 96, 944, 832, c["teinte"], rayon=32)
+    # Panneau « Tour de table » : il apparaît avec son libellé et la première question.
+    panneau = sl.rect(856, 96, 944, 832, c["teinte"], rayon=32)
     tour = s["tourDeTable"]
     hauteurs = [max(64, hauteur(t, 944 - 144 - 92, 36, 1.2)) for t in tour]
     bloc = 30 + 36 + sum(hauteurs) + 36 * (len(tour) - 1)
     y = 96 + 832 / 2 - bloc / 2
-    sl.texte(928, y, 800, 32, "Tour de table", 24, c["encre"], gras=True, majuscules=True, espacement=0.14)
+    libelle = sl.texte(928, y, 800, 32, "Tour de table", 24, c["encre"], gras=True, majuscules=True, espacement=0.14)
     y += 30 + 36
     for k, (t, h) in enumerate(zip(tour, hauteurs), 1):
-        sl.numero(928, y + (h - 64) / 2, 64, k, 28)
-        sl.texte(1020, y, 944 - 144 - 92, h, t, 36, ancre=MILIEU)
+        with sl.bloc(*((panneau, libelle) if k == 1 else ())):
+            sl.numero(928, y + (h - 64) / 2, 64, k, 28)
+            sl.texte(1020, y, 944 - 144 - 92, h, t, 36, ancre=MILIEU)
         y += h + 36
     sl.sticker(1680, 70, 150, 8, "hand")
 
@@ -457,8 +540,9 @@ def objectifs(sl: Slide, s):
     hauteurs = [hauteur(o, 868, taille, 1.4) for o in s["objectifs"]]
     y = 920 - sum(hauteurs) - 34 * (len(hauteurs) - 1)
     for k, (o, h) in enumerate(zip(s["objectifs"], hauteurs), 1):
-        sl.texte(120, y + (taille - 28) * 0.9, 60, 40, "{:02d}".format(k), 28, sl.deck.c["encre"], gras=True)
-        sl.texte(196, y, 868, h + 4, o, taille, C["texte3"], interligne=1.4, gras_coul=C["texte"])
+        with sl.bloc():
+            sl.texte(120, y + (taille - 28) * 0.9, 60, 40, "{:02d}".format(k), 28, sl.deck.c["encre"], gras=True)
+            sl.texte(196, y, 868, h + 4, o, taille, C["texte3"], interligne=1.4, gras_coul=C["texte"])
         y += h + 34
     sl.sticker(1075, 150, 170, -10, "target")
 
@@ -471,7 +555,7 @@ def programme(sl: Slide, s):
     w, h = img.width / 2, img.height / 2
     sl.image(ch.png(img), 400 - w / 2, 600 - h / 2, w, h)
     sl.sticker(530, 690, 140, 10)
-    sl.rect(820, 0, 1100, BAS, c["couleur"])
+    panneau = sl.rect(820, 0, 1100, BAS, c["couleur"])
     parties = s["parties"]
     pad = 20 if len(parties) <= 8 else 14
     taille = 32 if len(parties) <= 8 else 28
@@ -481,11 +565,12 @@ def programme(sl: Slide, s):
     for k, (p, h) in enumerate(zip(parties, hauteurs), 1):
         titre_p = p["titre"] if isinstance(p, dict) else p
         duree = p.get("duree", "") if isinstance(p, dict) else ""
-        sl.texte(930, y + pad, 60, h - 2 * pad, "{}.".format(k), taille, c["surCouleur"], gras=True)
-        sl.texte(1014, y + pad, 640, h - 2 * pad, titre_p, taille, c["surCouleur"], gras=True)
-        sl.texte(1660, y + pad + 4, 150, h - 2 * pad, duree, 26, c["surCouleur"], align=DROITE)
-        if k < len(parties):
-            sl.ligne(930, y + h - 2, 880, 2, filet)
+        with sl.bloc(*((panneau,) if k == 1 else ())):
+            sl.texte(930, y + pad, 60, h - 2 * pad, "{}.".format(k), taille, c["surCouleur"], gras=True)
+            sl.texte(1014, y + pad, 640, h - 2 * pad, titre_p, taille, c["surCouleur"], gras=True)
+            sl.texte(1660, y + pad + 4, 150, h - 2 * pad, duree, 26, c["surCouleur"], align=DROITE)
+            if k < len(parties):
+                sl.ligne(930, y + h - 2, 880, 2, filet)
         y += h
 
 
@@ -511,10 +596,12 @@ def contenu(sl: Slide, s):
     x, w = 120, 824
     y = titre(sl, x, 96, w, s["titre"]) + 36
     if s.get("texte"):
-        y = sl.pile(x, y, w, [(s["texte"], 32, {"coul": C["texte3"], "interligne": 1.5, "gras_coul": C["texte"]})]) + 36
+        with sl.bloc():
+            y = sl.pile(x, y, w, [(s["texte"], 32, {"coul": C["texte3"], "interligne": 1.5, "gras_coul": C["texte"]})]) + 36
     puces(sl, x, y, w, s.get("points") or [], 30, 22)
-    sl.rect(1040, 180, 760, 640, C["fondCarte"], rayon=28)
-    sl.visuel(s.get("image"), 1068, 208, 704, 584, s.get("legendeImage") or "Capture d'écran ou schéma")
+    with sl.bloc():
+        sl.rect(1040, 180, 760, 640, C["fondCarte"], rayon=28)
+        sl.visuel(s.get("image"), 1068, 208, 704, 584, s.get("legendeImage") or "Capture d'écran ou schéma")
 
 
 def chiffre_cle(sl: Slide, s):
@@ -524,29 +611,33 @@ def chiffre_cle(sl: Slide, s):
     h_phrase = hauteur(s["phrase"], 780, 44, 1.2, True)
     bloc = taille * 0.85 + 32 + h_phrase
     y = 508 - bloc / 2
-    tb = sl.texte(120, y, 780, taille * 0.9, chiffre, taille, c["encre"], gras=True, interligne=0.85)
-    if s.get("unite"):
-        r = tb.text_frame.paragraphs[0].add_run()
-        r.text = s["unite"]
-        r.font.name, r.font.size, r.font.bold = POLICE, Pt(taille * 0.54 / 2), True
-        r.font.color.rgb = couleur(c["encre"])
-    sl.texte(120, y + taille * 0.85 + 32, 780, h_phrase + 4, s["phrase"], 44, gras=True)
+    with sl.bloc():
+        tb = sl.texte(120, y, 780, taille * 0.9, chiffre, taille, c["encre"], gras=True, interligne=0.85)
+        if s.get("unite"):
+            r = tb.text_frame.paragraphs[0].add_run()
+            r.text = s["unite"]
+            r.font.name, r.font.size, r.font.bold = POLICE, Pt(taille * 0.54 / 2), True
+            r.font.color.rgb = couleur(c["encre"])
+        sl.texte(120, y + taille * 0.85 + 32, 780, h_phrase + 4, s["phrase"], 44, gras=True)
     # Colonne droite.
     reperes = s.get("reperes") or []
     h_expl = hauteur(s.get("explication", ""), 780, 34, 1.5)
     h_rep = max([hauteur(r.get("texte"), 300, 26, 1.4) for r in reperes] or [0]) + 64 + 10 + 64
     bloc = h_expl + (40 + h_rep if reperes else 0) + (40 + 30 if s.get("source") else 0)
     y = 508 - bloc / 2
-    y = sl.pile(1020, y, 780, [(s.get("explication", ""), 34, {"coul": C["texte3"], "interligne": 1.5, "gras_coul": C["texte"]})]) + 40
+    with sl.bloc():
+        y = sl.pile(1020, y, 780, [(s.get("explication", ""), 34, {"coul": C["texte3"], "interligne": 1.5, "gras_coul": C["texte"]})]) + 40
     if reperes:
         for k, r in enumerate(reperes[:2]):
             x = 1020 + k * (378 + 24)
-            sl.rect(x, y, 378, h_rep, c["teinte"], rayon=24)
-            sl.texte(x + 36, y + 32, 310, 70, r.get("valeur"), 64, c["encre"], gras=True, interligne=1.0)
-            sl.texte(x + 36, y + 32 + 74, 310, h_rep - 110, r.get("texte"), 26, C["texte2"], interligne=1.4)
+            with sl.bloc():
+                sl.rect(x, y, 378, h_rep, c["teinte"], rayon=24)
+                sl.texte(x + 36, y + 32, 310, 70, r.get("valeur"), 64, c["encre"], gras=True, interligne=1.0)
+                sl.texte(x + 36, y + 32 + 74, 310, h_rep - 110, r.get("texte"), 26, C["texte2"], interligne=1.4)
         y += h_rep + 40
     if s.get("source"):
-        sl.texte(1020, y, 780, 34, "Source : " + s["source"], 24, C["gris"])
+        with sl.bloc():
+            sl.texte(1020, y, 780, 34, "Source : " + s["source"], 24, C["gris"])
 
 
 def frise(sl: Slide, s):
@@ -556,19 +647,20 @@ def frise(sl: Slide, s):
         sl.texte(120, y, 1680, 44, s["intro"], 30, C["texte4"])
     haut, bas = y + 64, 920
     milieu = (haut + bas) / 2
-    sl.rect(120, milieu - 3, 1680, 6, c["teinte"], rayon=3)
+    axe = sl.rect(120, milieu - 3, 1680, 6, c["teinte"], rayon=3)
     etapes = s["etapes"]
     n = len(etapes)
     lc = (1680 - 32 * (n - 1)) / n
     for k, et in enumerate(etapes):
         x = 120 + k * (lc + 32)
         derniere = k == n - 1
-        sl.rond(x, milieu - 18, 36, c["couleur"] if derniere else "#FFFFFF", trait=c["couleur"], epaisseur=6)
         h_t = hauteur(et.get("texte"), lc, 28, 1.4)
         bloc = 56 + 10 + h_t
         yb = milieu - 18 - 32 - bloc if k % 2 == 0 else milieu + 18 + 32
-        sl.texte(x, yb, lc, 60, et.get("date"), 52, c["encre"] if derniere else C["texte"], gras=True, interligne=1.0)
-        sl.texte(x, yb + 66, lc, h_t + 4, et.get("texte"), 28, C["texte3"], interligne=1.4)
+        with sl.bloc(*((axe,) if k == 0 else ())):
+            sl.rond(x, milieu - 18, 36, c["couleur"] if derniere else "#FFFFFF", trait=c["couleur"], epaisseur=6)
+            sl.texte(x, yb, lc, 60, et.get("date"), 52, c["encre"] if derniere else C["texte"], gras=True, interligne=1.0)
+            sl.texte(x, yb + 66, lc, h_t + 4, et.get("texte"), 28, C["texte3"], interligne=1.4)
 
 
 def graphique(sl: Slide, s):
@@ -582,14 +674,15 @@ def graphique(sl: Slide, s):
     base = 860
     lc = (944 - 28 * (n - 1)) / n
     zone = base - y - 56
-    for k, b in enumerate(barres):
-        x = 128 + k * (lc + 28)
-        hb = zone * valeurs[k] / maxi
-        sl.rect(x, base - hb, lc, hb, c["couleur"] if k == cible else C["barreGrise"])
-        valeur = b.get("affichage") or _nombre(b.get("valeur"))
-        sl.texte(x - 20, base - hb - 48, lc + 40, 40, valeur, 28, c["encre"] if k == cible else C["texte4"], gras=True, align=CENTRE)
-        sl.texte(x - 20, base + 12, lc + 40, 36, b.get("label"), 24, C["gris"], gras=True, align=CENTRE)
-    sl.rect(120, base, 960, 3, C["texte"])
+    with sl.bloc():
+        for k, b in enumerate(barres):
+            x = 128 + k * (lc + 28)
+            hb = zone * valeurs[k] / maxi
+            sl.rect(x, base - hb, lc, hb, c["couleur"] if k == cible else C["barreGrise"])
+            valeur = b.get("affichage") or _nombre(b.get("valeur"))
+            sl.texte(x - 20, base - hb - 48, lc + 40, 40, valeur, 28, c["encre"] if k == cible else C["texte4"], gras=True, align=CENTRE)
+            sl.texte(x - 20, base + 12, lc + 40, 36, b.get("label"), 24, C["gris"], gras=True, align=CENTRE)
+        sl.rect(120, base, 960, 3, C["texte"])
     elements = [
         (s.get("surtitre") or "À retenir", 24, {"coul": c["encre"], "gras": True, "majuscules": True, "espacement": 0.14}),
         (s.get("chiffre", ""), 128, {"coul": c["encre"], "gras": True, "interligne": 0.95}),
@@ -597,7 +690,8 @@ def graphique(sl: Slide, s):
         ("Source : " + s["source"] if s.get("source") else "", 24, {"coul": C["gris"]}),
     ]
     total = sum(hauteur(t, 600, tl, o.get("interligne", 1.2), o.get("gras", False)) for t, tl, o in elements if t) + 28 * 3
-    sl.pile(1200, 508 - total / 2, 600, elements, 28)
+    with sl.bloc():
+        sl.pile(1200, 508 - total / 2, 600, elements, 28)
 
 
 def _nombre(v) -> str:
@@ -648,7 +742,8 @@ def texte(sl: Slide, s):
         total = sum(h for _, h in col) + 28 * max(0, len(col) - 1)
         y = 508 - total / 2
         for p, h in col:
-            sl.texte(760 + k * (484 + 72), y, lc, h + 4, p, 30, C["texte2"], interligne=1.6, gras_coul=C["texte"])
+            with sl.bloc():
+                sl.texte(760 + k * (484 + 72), y, lc, h + 4, p, 30, C["texte2"], interligne=1.6, gras_coul=C["texte"])
             y += h + 28
 
 
@@ -661,11 +756,13 @@ def citation(sl: Slide, s):
     y = 500 - bloc / 2
     sl.texte(200, y - 40, 300, 200, "«", 220, c["surCouleur"], gras=True, interligne=1.0)
     y += 110 + 56
-    sl.texte(200, y, 1500, h_q + 8, s["citation"], taille, c["surCouleur"], gras=True, interligne=1.2)
+    with sl.bloc():
+        sl.texte(200, y, 1500, h_q + 8, s["citation"], taille, c["surCouleur"], gras=True, interligne=1.2)
     y += h_q + 56
-    sl.rond(200, y, 120, "#FFFFFF")
-    sl.icone("user-round", 228, y + 28, 64)
-    sl.texte(348, y, 1200, 120, s.get("auteur") or "", 34, c["surCouleur"], gras=True, ancre=MILIEU)
+    with sl.bloc():
+        sl.rond(200, y, 120, "#FFFFFF")
+        sl.icone("user-round", 228, y + 28, 64)
+        sl.texte(348, y, 1200, 120, s.get("auteur") or "", 34, c["surCouleur"], gras=True, ancre=MILIEU)
 
 
 def avant_apres(sl: Slide, s):
@@ -676,12 +773,13 @@ def avant_apres(sl: Slide, s):
         d = s.get(cle) or {}
         x = 120 + k * (lc + 48)
         h_box = 920 - y - 28 - 54
-        sl.rect(x, y, lc, h_box, C["fondCarte"], rayon=28)
-        sl.visuel(d.get("image"), x + 20, y + 20, lc - 40, h_box - 40, "Capture " + libelle.lower())
         yb = y + h_box + 28
         fond, coul = (C["bordure"], C["texte"]) if k == 0 else (c["couleur"], c["surCouleur"])
-        w, _ = sl.pastille(x, yb, libelle, 24, fond, coul, pad_x=26)
-        sl.texte(x + w + 24, yb, lc - w - 24, 54, d.get("texte", ""), 30, C["texte3"], ancre=MILIEU)
+        with sl.bloc():
+            sl.rect(x, y, lc, h_box, C["fondCarte"], rayon=28)
+            sl.visuel(d.get("image"), x + 20, y + 20, lc - 40, h_box - 40, "Capture " + libelle.lower())
+            w, _ = sl.pastille(x, yb, libelle, 24, fond, coul, pad_x=26)
+            sl.texte(x + w + 24, yb, lc - w - 24, 54, d.get("texte", ""), 30, C["texte3"], ancre=MILIEU)
 
 
 def notion_cle(sl: Slide, s):
@@ -697,21 +795,23 @@ def notion_cle(sl: Slide, s):
     y += 53 + 40
     sl.texte(160, y, 1600, h_t + 8, s["titre"], taille, gras=True, interligne=1.0)
     y += h_t + 40
-    sl.texte(160, y, 1400, h_d + 6, s["definition"], 44, C["texte2"], interligne=1.4, gras_coul=C["texte"])
+    with sl.bloc():
+        sl.texte(160, y, 1400, h_d + 6, s["definition"], 44, C["texte2"], interligne=1.4, gras_coul=C["texte"])
     y += h_d + 56
     x = 160
     for t in termes:
         lt = largeur_texte(t.get("terme"), 28, True) * 1.15 + 14 + largeur_texte(t.get("definition"), 28) + 56
         if x + lt > 1800:
             break
-        sl.rect(x, y, lt, 76, "#FFFFFF", rayon=18)
-        tb = sl.texte(x + 28, y, lt - 56, 76, "", 28, ancre=MILIEU)
-        p = tb.text_frame.paragraphs[0]
-        for contenu, police, gras, coul in ((t.get("terme", "") + "  ", MONO, True, c["encre"]), (ch.typographie(t.get("definition", "")), POLICE, False, C["texte3"])):
-            r = p.add_run()
-            r.text = contenu
-            r.font.name, r.font.size, r.font.bold = police, Pt(14), gras
-            r.font.color.rgb = couleur(coul)
+        with sl.bloc():
+            sl.rect(x, y, lt, 76, "#FFFFFF", rayon=18)
+            tb = sl.texte(x + 28, y, lt - 56, 76, "", 28, ancre=MILIEU)
+            p = tb.text_frame.paragraphs[0]
+            for contenu, police, gras, coul in ((t.get("terme", "") + "  ", MONO, True, c["encre"]), (ch.typographie(t.get("definition", "")), POLICE, False, C["texte3"])):
+                r = p.add_run()
+                r.text = contenu
+                r.font.name, r.font.size, r.font.bold = police, Pt(14), gras
+                r.font.color.rgb = couleur(coul)
         x += lt + 20
 
 
@@ -725,31 +825,35 @@ def code(sl: Slide, s):
     if s.get("intro"):
         y = sl.pile(120, y, 724, [(s["intro"], 32, {"coul": C["texte3"], "interligne": 1.55})]) + 36
     for x in elements:
-        sl.texte(120, y, 724, 40, x.get("code"), 28, c["encre"], gras=True, police=MONO)
         h = hauteur(x.get("texte"), 724, 28, 1.45)
-        sl.texte(120, y + 40, 724, h + 4, x.get("texte"), 28, C["texte3"], interligne=1.45)
+        with sl.bloc():
+            sl.texte(120, y, 724, 40, x.get("code"), 28, c["encre"], gras=True, police=MONO)
+            sl.texte(120, y + 40, 724, h + 4, x.get("texte"), 28, C["texte3"], interligne=1.45)
         y += 40 + h + 24
-    # Encadré sombre.
+    # Encadré sombre : il apparaît avec la syntaxe, puis l'exemple et le résultat.
     h_syn = hauteur(s["syntaxe"], 748, 34, 1.5, mono=True)
     h_ex = hauteur(s.get("exemple", ""), 748, 34, 1.5, mono=True) if s.get("exemple") else 0
     h_res = hauteur(s.get("resultat", ""), 748, 28, 1.4) if s.get("resultat") else 0
     h = 104 + 30 + 22 + h_syn + (12 + 2 + 12 + 22 + 30 + 22 + h_ex if h_ex else 0) + (22 + h_res if h_res else 0)
     y = 508 - h / 2
-    sl.rect(940, y, 860, h, C["codeFond"], rayon=28)
-    y += 52
-    sl.texte(996, y, 748, 32, s.get("libelle") or "Syntaxe", 24, C["codeLibelle"], gras=True, majuscules=True, espacement=0.14)
-    y += 52
-    code_colore(sl, 996, y, 748, h_syn, s["syntaxe"], c["couleur"])
+    with sl.bloc():
+        sl.rect(940, y, 860, h, C["codeFond"], rayon=28)
+        y += 52
+        sl.texte(996, y, 748, 32, s.get("libelle") or "Syntaxe", 24, C["codeLibelle"], gras=True, majuscules=True, espacement=0.14)
+        y += 52
+        code_colore(sl, 996, y, 748, h_syn, s["syntaxe"], c["couleur"])
     y += h_syn + 12
     if h_ex:
-        sl.ligne(996, y, 748, 2, "#3A3A40")
-        y += 14 + 22
-        sl.texte(996, y, 748, 32, "Exemple", 24, C["codeLibelle"], gras=True, majuscules=True, espacement=0.14)
-        y += 52
-        code_colore(sl, 996, y, 748, h_ex, s["exemple"], c["couleur"])
+        with sl.bloc():
+            sl.ligne(996, y, 748, 2, "#3A3A40")
+            y += 14 + 22
+            sl.texte(996, y, 748, 32, "Exemple", 24, C["codeLibelle"], gras=True, majuscules=True, espacement=0.14)
+            y += 52
+            code_colore(sl, 996, y, 748, h_ex, s["exemple"], c["couleur"])
         y += h_ex + 22
     if h_res:
-        sl.texte(996, y, 748, h_res + 4, s["resultat"], 28, C["codeTexte"], interligne=1.4, gras_coul="#FFFFFF")
+        with sl.bloc():
+            sl.texte(996, y, 748, h_res + 4, s["resultat"], 28, C["codeTexte"], interligne=1.4, gras_coul="#FFFFFF")
 
 
 def code_colore(sl: Slide, x, y, w, h, source, coul_fonction):
@@ -776,21 +880,23 @@ def capture(sl: Slide, s):
     c = sl.deck.c
     titre(sl, 120, 88, 1680, s["titre"])
     y0, y1 = 208, 928
-    sl.rect(120, y0, 1140, y1 - y0, C["fondCarte"], rayon=24)
     zx, zy, zw, zh = 140, y0 + 20, 1100, y1 - y0 - 40
-    sl.visuel(s.get("image"), zx, zy, zw, zh, "Capture d'écran à annoter", 12)
+    with sl.bloc():
+        sl.rect(120, y0, 1140, y1 - y0, C["fondCarte"], rayon=24)
+        sl.visuel(s.get("image"), zx, zy, zw, zh, "Capture d'écran à annoter", 12)
+    # Chaque repère apparaît avec sa légende.
     reperes = s["reperes"]
-    for k, r in enumerate(reperes, 1):
-        px = zx + zw * float(r.get("x", 15 + 70 * ((k - 1) % 2))) / 100 - 32
-        py = zy + zh * float(r.get("y", 15 + 25 * ((k - 1) // 2))) / 100 - 32
-        sl.rond(px - 4, py - 4, 72, "#FFFFFF")
-        sl.numero(px, py, 64, k, 28)
     hauteurs = [40 + hauteur(r.get("texte"), 420, 28, 1.4) for r in reperes]
     y = (y0 + y1) / 2 - (sum(hauteurs) + 36 * (len(reperes) - 1)) / 2
     for k, (r, h) in enumerate(zip(reperes, hauteurs), 1):
-        sl.texte(1332, y, 40, 44, str(k), 32, c["encre"], gras=True)
-        sl.texte(1382, y, 420, 44, r.get("titre"), 32, gras=True)
-        sl.texte(1382, y + 42, 420, h - 40, r.get("texte"), 28, C["texte3"], interligne=1.4)
+        px = zx + zw * float(r.get("x", 15 + 70 * ((k - 1) % 2))) / 100 - 32
+        py = zy + zh * float(r.get("y", 15 + 25 * ((k - 1) // 2))) / 100 - 32
+        with sl.bloc():
+            sl.rond(px - 4, py - 4, 72, "#FFFFFF")
+            sl.numero(px, py, 64, k, 28)
+            sl.texte(1332, y, 40, 44, str(k), 32, c["encre"], gras=True)
+            sl.texte(1382, y, 420, 44, r.get("titre"), 32, gras=True)
+            sl.texte(1382, y + 42, 420, h - 40, r.get("texte"), 28, C["texte3"], interligne=1.4)
         y += h + 36
 
 
@@ -802,10 +908,11 @@ def pas_a_pas(sl: Slide, s):
     for k, et in enumerate(etapes):
         x = 120 + k * (lc + 32)
         d = et if isinstance(et, dict) else {"texte": et}
-        sl.rect(x, 236, lc, 260, C["fondCarte"], rayon=20)
-        sl.visuel(d.get("image"), x + 12, 248, lc - 24, 236, "Capture étape {}".format(k + 1), 12)
-        sl.numero(x, 524, 64, k + 1, 28)
-        sl.texte(x, 616, lc, 300, d.get("texte"), 30, C["texte3"], interligne=1.4, gras_coul=C["texte"])
+        with sl.bloc():
+            sl.rect(x, 236, lc, 260, C["fondCarte"], rayon=20)
+            sl.visuel(d.get("image"), x + 12, 248, lc - 24, 236, "Capture étape {}".format(k + 1), 12)
+            sl.numero(x, 524, 64, k + 1, 28)
+            sl.texte(x, 616, lc, 300, d.get("texte"), 30, C["texte3"], interligne=1.4, gras_coul=C["texte"])
 
 
 def comparatif(sl: Slide, s):
@@ -817,7 +924,10 @@ def comparatif(sl: Slide, s):
     h_tete = 30 * 1.4 + 52
     hauteurs = [max(hauteur(l.get("critere"), 376, 28, 1.4, True), *[hauteur(v, 556, 28, 1.4) for v in (l.get("valeurs") or ["", ""])[:2]]) + 52 for l in lignes]
     total = h_tete + sum(hauteurs)
-    sl.rect(120, y, 1680, total, "#FFFFFF", rayon=24, trait=C["filet"], epaisseur=2)
+    # Animé, le tableau n'a pas de cadre global : l'en-tête est fixe et chaque ligne apparaît seule.
+    anime = sl.deck.f["animations"]
+    if not anime:
+        sl.rect(120, y, 1680, total, "#FFFFFF", rayon=24, trait=C["filet"], epaisseur=2)
     sl.rect(122, y + 2, 1056, h_tete - 2, C["fondGris"])
     sl.rect(1180, y + 2, 618, h_tete - 2, c["couleur"])
     sl.texte(xs[1] + 32, y, 556, h_tete, colonnes[0], 30, gras=True, ancre=MILIEU)
@@ -825,14 +935,19 @@ def comparatif(sl: Slide, s):
     yl = y + h_tete
     for l, h in zip(lignes, hauteurs):
         v = (l.get("valeurs") or []) + ["", ""]
-        sl.rect(1180, yl, 618, h - (2 if l is lignes[-1] else 0), c["teinte"])
-        sl.ligne(122, yl, 1676, 2, C["filet"])
-        sl.texte(xs[0] + 32, yl + 26, 376, h - 52, l.get("critere"), 28, gras=True, interligne=1.4)
-        sl.texte(xs[1] + 32, yl + 26, 556, h - 52, v[0], 28, C["texte3"], interligne=1.4, gras_coul=C["texte"])
-        sl.texte(xs[2] + 32, yl + 26, 556, h - 52, v[1], 28, interligne=1.4)
+        derniere = l is lignes[-1]
+        with sl.bloc():
+            sl.rect(1180, yl, 618, h - (2 if derniere else 0), c["teinte"])
+            sl.ligne(122, yl, 1676, 2, C["filet"])
+            sl.texte(xs[0] + 32, yl + 26, 376, h - 52, l.get("critere"), 28, gras=True, interligne=1.4)
+            sl.texte(xs[1] + 32, yl + 26, 556, h - 52, v[0], 28, C["texte3"], interligne=1.4, gras_coul=C["texte"])
+            sl.texte(xs[2] + 32, yl + 26, 556, h - 52, v[1], 28, interligne=1.4)
+            if anime and derniere:
+                sl.ligne(122, yl + h - 2, 1676, 2, C["filet"])
         yl += h
     if s.get("recommandation"):
-        sl.texte(120, yl + 56, 1680, 90, "**Recommandation** : " + s["recommandation"], 28, C["texte4"], gras_coul=c["encre"])
+        with sl.bloc():
+            sl.texte(120, yl + 56, 1680, 90, "**Recommandation** : " + s["recommandation"], 28, C["texte4"], gras_coul=c["encre"])
 
 
 def raccourcis(sl: Slide, s):
@@ -843,17 +958,18 @@ def raccourcis(sl: Slide, s):
     for k, r in enumerate(s["raccourcis"]):
         x = 120 + (k % 2) * 860
         yy = y + (k // 2) * 106
-        sl.rect(x, yy, 820, 90, C["fondCarte"], rayon=20)
-        xk = x + 32
-        for i, t in enumerate(touches(r)):
-            if i:
-                sl.texte(xk, yy, 24, 90, "+", 24, C["grisClair"], align=CENTRE, ancre=MILIEU)
-                xk += 30
-            lt = largeur_texte(t, 26, True) + 40
-            sl.rect(xk, yy + 20, lt, 50, "#FFFFFF", rayon=12, trait=C["barreGrise"], epaisseur=2)
-            sl.texte(xk, yy + 20, lt, 50, t, 26, gras=True, align=CENTRE, ancre=MILIEU)
-            xk += lt + 6
-        sl.texte(x + 32 + 320 + 24, yy, 820 - 408, 90, r.get("action"), 30, ancre=MILIEU)
+        with sl.bloc():
+            sl.rect(x, yy, 820, 90, C["fondCarte"], rayon=20)
+            xk = x + 32
+            for i, t in enumerate(touches(r)):
+                if i:
+                    sl.texte(xk, yy, 24, 90, "+", 24, C["grisClair"], align=CENTRE, ancre=MILIEU)
+                    xk += 30
+                lt = largeur_texte(t, 26, True) + 40
+                sl.rect(xk, yy + 20, lt, 50, "#FFFFFF", rayon=12, trait=C["barreGrise"], epaisseur=2)
+                sl.texte(xk, yy + 20, lt, 50, t, 26, gras=True, align=CENTRE, ancre=MILIEU)
+                xk += lt + 6
+            sl.texte(x + 32 + 320 + 24, yy, 820 - 408, 90, r.get("action"), 30, ancre=MILIEU)
 
 
 def bon_a_savoir(sl: Slide, s):
@@ -868,17 +984,18 @@ def bon_a_savoir(sl: Slide, s):
         fond = sl.deck.c["teinte"] if fond.startswith("var") else fond
         encre = sl.deck.c["encre"] if encre.startswith("var") else encre
         x = 120 + k * (lc + 32)
-        sl.rect(x, y, lc, 920 - y, fond, rayon=28)
-        sl.pile(x + 48, y + 48, lc - 96, [
-            (en.get("libelle") or libelle, 24, {"coul": encre, "gras": True, "majuscules": True, "espacement": 0.14}),
-            (en.get("titre", ""), 40, {"gras": True, "interligne": 1.15}),
-            (en.get("texte", ""), 30, {"coul": C["texte2"], "interligne": 1.5, "gras_coul": C["texte"]}),
-        ], 24)
+        with sl.bloc():
+            sl.rect(x, y, lc, 920 - y, fond, rayon=28)
+            sl.pile(x + 48, y + 48, lc - 96, [
+                (en.get("libelle") or libelle, 24, {"coul": encre, "gras": True, "majuscules": True, "espacement": 0.14}),
+                (en.get("titre", ""), 40, {"gras": True, "interligne": 1.15}),
+                (en.get("texte", ""), 30, {"coul": C["texte2"], "interligne": 1.5, "gras_coul": C["texte"]}),
+            ], 24)
 
 
 def exercice(sl: Slide, s):
     c = sl.deck.c
-    sl.rect(1160, 0, 760, BAS, C["fondCarte"])
+    panneau = sl.rect(1160, 0, 760, BAS, C["fondCarte"])
     x, w = 120, 920
     sl.pastille(x, 88, "Exercice {}".format(s["numero"]), 24)
     y = titre(sl, x, 88 + 53 + 32, w, s["titre"], 64) + 32
@@ -886,8 +1003,9 @@ def exercice(sl: Slide, s):
         y = sl.pile(x, y, w, [(s["contexte"], 30, {"coul": C["texte3"], "interligne": 1.5, "gras_coul": C["texte"]})]) + 40
     for k, consigne in enumerate(s["consignes"], 1):
         h = max(48, hauteur(consigne, w - 70, 30, 1.4))
-        sl.numero(x, y, 48, k, 24)
-        sl.texte(x + 70, y + 2, w - 70, h, consigne, 30, C["texte3"], interligne=1.4, gras_coul=C["texte"])
+        with sl.bloc():
+            sl.numero(x, y, 48, k, 24)
+            sl.texte(x + 70, y + 2, w - 70, h, consigne, 30, C["texte3"], interligne=1.4, gras_coul=C["texte"])
         y += h + 20
     cartes = []
     if s.get("duree"):
@@ -900,11 +1018,13 @@ def exercice(sl: Slide, s):
         cartes.append(("Pour aller plus loin", s["bonus"], 28, True, POLICE, True))
     hauteurs = [56 + 6 + hauteur(v, 496, t, 1.4, g, p == MONO) + 4 for _, v, t, g, p, _ in cartes]
     y = 500 - (sum(hauteurs) + 20 * max(0, len(cartes) - 1)) / 2
-    for (libelle, valeur, taille, gras, police, plein), h in zip(cartes, hauteurs):
+    # Le panneau gris apparaît avec la première carte, puis chaque carte à son tour.
+    for k, ((libelle, valeur, taille, gras, police, plein), h) in enumerate(zip(cartes, hauteurs)):
         fond, coul_l, coul_v = (c["couleur"], c["surCouleur"], c["surCouleur"]) if plein else ("#FFFFFF", c["encre"], C["texte"])
-        sl.rect(1240, y, 560, h, fond, rayon=22)
-        sl.texte(1272, y + 28, 496, 32, libelle, 24, coul_l, gras=True, majuscules=True, espacement=0.1)
-        sl.texte(1272, y + 28 + 36, 496, h - 70, valeur, taille, coul_v, gras=gras, police=police, interligne=1.4)
+        with sl.bloc(*((panneau,) if k == 0 else ())):
+            sl.rect(1240, y, 560, h, fond, rayon=22)
+            sl.texte(1272, y + 28, 496, 32, libelle, 24, coul_l, gras=True, majuscules=True, espacement=0.1)
+            sl.texte(1272, y + 28 + 36, 496, h - 70, valeur, taille, coul_v, gras=gras, police=police, interligne=1.4)
         y += h + 20
 
 
@@ -919,11 +1039,8 @@ def exercice_etapes(sl: Slide, s):
     nombre, _, unite = duree.partition(" ")
     if not nombre.isdigit():
         nombre, unite = duree, ""
-    cy = (88 + y) / 2 - 120
-    sl.rond(1560, max(64, cy), 240, "#FFFFFF", trait=c["couleur"], epaisseur=10)
-    sl.texte(1560, max(64, cy) + 60, 240, 90, nombre or "–", 84 if len(nombre) <= 3 else 56, c["encre"], gras=True, align=CENTRE, interligne=1.0)
-    sl.texte(1560, max(64, cy) + 150, 240, 40, unite or ("minutes" if nombre.isdigit() else ""), 26, C["texte4"], gras=True, align=CENTRE)
-    y = max(y, max(64, cy) + 240) + 44
+    cy = max(64, (88 + y) / 2 - 120)
+    y = max(y, cy + 240) + 44
     infos = [(lib, s[cle]) for lib, cle in (("Fichier", "fichier"), ("Modalité", "modalite"), ("Livrable", "livrable")) if s.get(cle)]
     bas_etapes = 1000 - 64 - (30 + 28 + 40 if infos else 0) - 44
     etapes = s["etapes"]
@@ -932,17 +1049,24 @@ def exercice_etapes(sl: Slide, s):
     for k, et in enumerate(etapes):
         d = et if isinstance(et, dict) else {"texte": et}
         x = 120 + k * (lc + 28)
-        sl.rect(x, y, lc, bas_etapes - y, C["fondCarte"], rayon=28)
-        sl.pile(x + 44, y + 40, lc - 88, [
-            (str(k + 1), 96, {"coul": c["encre"], "gras": True, "interligne": 0.9}),
-            (d.get("titre", ""), 34, {"gras": True}),
-            (d.get("texte", ""), 28, {"coul": C["texte3"], "interligne": 1.45, "gras_coul": C["texte"]}),
-        ], 18)
+        with sl.bloc():
+            sl.rect(x, y, lc, bas_etapes - y, C["fondCarte"], rayon=28)
+            sl.pile(x + 44, y + 40, lc - 88, [
+                (str(k + 1), 96, {"coul": c["encre"], "gras": True, "interligne": 0.9}),
+                (d.get("titre", ""), 34, {"gras": True}),
+                (d.get("texte", ""), 28, {"coul": C["texte3"], "interligne": 1.45, "gras_coul": C["texte"]}),
+            ], 18)
+    # Cercle de durée, puis infos : ils viennent après les étapes.
+    with sl.bloc():
+        sl.rond(1560, cy, 240, "#FFFFFF", trait=c["couleur"], epaisseur=10)
+        sl.texte(1560, cy + 60, 240, 90, nombre or "–", 84 if len(nombre) <= 3 else 56, c["encre"], gras=True, align=CENTRE, interligne=1.0)
+        sl.texte(1560, cy + 150, 240, 40, unite or ("minutes" if nombre.isdigit() else ""), 26, C["texte4"], gras=True, align=CENTRE)
     if infos:
         yi = bas_etapes + 44
-        sl.ligne(120, yi, 1680, 2, C["filet"])
         texte_infos = "     ".join("**{}** : {}".format(lib, ch.sans_gras(v)) for lib, v in infos)
-        sl.texte(120, yi + 28, 1680, 44, texte_infos, 28, C["texte3"], gras_coul=c["encre"])
+        with sl.bloc():
+            sl.ligne(120, yi, 1680, 2, C["filet"])
+            sl.texte(120, yi + 28, 1680, 44, texte_infos, 28, C["texte3"], gras_coul=c["encre"])
 
 
 def quiz(sl: Slide, s):
@@ -957,17 +1081,18 @@ def quiz(sl: Slide, s):
         x = 120 + (k % 2) * (826 + 28)
         yy = y + (k // 2) * (ht + 28)
         bonne = s["_reponse"] and k == s["bonne"]
-        if bonne:
-            sl.rect(x, yy, 826, ht, c["teinte"], rayon=28, trait=c["couleur"], epaisseur=4)
-            sl.rect(x + 44, yy + ht / 2 - 36, 72, 72, c["couleur"], rayon=18)
-            sl.texte(x + 44, yy + ht / 2 - 36, 72, 72, "ABCD"[k], 34, c["surCouleur"], gras=True, align=CENTRE, ancre=MILIEU)
-            sl.texte(x + 148, yy, 470, ht, p, 40, gras=True, ancre=MILIEU)
-            sl.texte(x + 600, yy, 190, ht, "Bonne réponse", 26, c["encre"], gras=True, align=DROITE, ancre=MILIEU)
-        else:
-            sl.rect(x, yy, 826, ht, C["fondCarte"], rayon=28)
-            sl.rect(x + 44, yy + ht / 2 - 36, 72, 72, "#FFFFFF", rayon=18)
-            sl.texte(x + 44, yy + ht / 2 - 36, 72, 72, "ABCD"[k], 34, gras=True, align=CENTRE, ancre=MILIEU)
-            sl.texte(x + 148, yy, 640, ht, p, 40, gras=True, ancre=MILIEU)
+        with sl.bloc():
+            if bonne:
+                sl.rect(x, yy, 826, ht, c["teinte"], rayon=28, trait=c["couleur"], epaisseur=4)
+                sl.rect(x + 44, yy + ht / 2 - 36, 72, 72, c["couleur"], rayon=18)
+                sl.texte(x + 44, yy + ht / 2 - 36, 72, 72, "ABCD"[k], 34, c["surCouleur"], gras=True, align=CENTRE, ancre=MILIEU)
+                sl.texte(x + 148, yy, 470, ht, p, 40, gras=True, ancre=MILIEU)
+                sl.texte(x + 600, yy, 190, ht, "Bonne réponse", 26, c["encre"], gras=True, align=DROITE, ancre=MILIEU)
+            else:
+                sl.rect(x, yy, 826, ht, C["fondCarte"], rayon=28)
+                sl.rect(x + 44, yy + ht / 2 - 36, 72, 72, "#FFFFFF", rayon=18)
+                sl.texte(x + 44, yy + ht / 2 - 36, 72, 72, "ABCD"[k], 34, gras=True, align=CENTRE, ancre=MILIEU)
+                sl.texte(x + 148, yy, 640, ht, p, 40, gras=True, ancre=MILIEU)
 
 
 def a_retenir(sl: Slide, s):
@@ -980,8 +1105,9 @@ def a_retenir(sl: Slide, s):
     hauteurs = [max(72, hauteur(m, 840, 38, 1.4)) for m in messages]
     y = 500 - (sum(hauteurs) + 56 * (len(messages) - 1)) / 2
     for k, (m, h) in enumerate(zip(messages, hauteurs), 1):
-        sl.texte(840, y - 14, 100, 80, str(k), 72, c["couleur"], gras=True, interligne=1.0)
-        sl.texte(960, y, 840, h + 4, m, 38, C["texte2"], interligne=1.4, gras_coul=C["texte"])
+        with sl.bloc():
+            sl.texte(840, y - 14, 100, 80, str(k), 72, c["couleur"], gras=True, interligne=1.0)
+            sl.texte(960, y, 840, h + 4, m, 38, C["texte2"], interligne=1.4, gras_coul=C["texte"])
         y += h + 56
 
 
@@ -996,12 +1122,13 @@ def ressources(sl: Slide, s):
         yy = y + (k // 2) * (hc + 28)
         lien = r.get("lien") or ""
         skazy = r.get("skazy") or "skazy.nc" in lien
-        sl.rect(x, yy, 826, hc, c["teinte"] if skazy else C["fondCarte"], rayon=28)
-        sl.texte(x + 48, yy + 44, 730, 50, r.get("titre"), 36, gras=True)
-        sl.texte(x + 48, yy + 44 + 56, 730, hc - 44 - 56 - 90, r.get("texte"), 28, C["texte3"], interligne=1.45)
-        if lien:
-            affiche = re.sub(r"^https?://(www\.)?", "", lien).rstrip("/")
-            sl.texte(x + 48, yy + hc - 44 - 40, 730, 40, affiche, 28, c["encre"], gras=True, lien=lien)
+        with sl.bloc():
+            sl.rect(x, yy, 826, hc, c["teinte"] if skazy else C["fondCarte"], rayon=28)
+            sl.texte(x + 48, yy + 44, 730, 50, r.get("titre"), 36, gras=True)
+            sl.texte(x + 48, yy + 44 + 56, 730, hc - 44 - 56 - 90, r.get("texte"), 28, C["texte3"], interligne=1.45)
+            if lien:
+                affiche = re.sub(r"^https?://(www\.)?", "", lien).rstrip("/")
+                sl.texte(x + 48, yy + hc - 44 - 40, 730, 40, affiche, 28, c["encre"], gras=True, lien=lien)
 
 
 def evaluation(sl: Slide, s):
@@ -1009,25 +1136,28 @@ def evaluation(sl: Slide, s):
     y = titre(sl, 120, 96, 1680, s.get("titre") or "Votre avis compte") + 56
     bas = 920 - 28 - 56
     lc = (1680 - 32) / 2
-    sl.rect(120, y, lc, bas - y, c["teinte"], rayon=32)
-    sl.pile(176, y + 56, lc - 112, [
-        ("1 · Quiz final", 24, {"coul": c["encre"], "gras": True, "majuscules": True, "espacement": 0.14}),
-        ("Mesurez votre progression", 44, {"gras": True, "interligne": 1.15}),
-        ("Quelques questions pour vérifier ce que vous avez retenu de la formation.", 30, {"coul": C["texte2"], "interligne": 1.5}),
-    ], 22)
-    sl.pastille(176, bas - 56 - 66, s.get("quiz") or "Sur kahoot.it, code affiché à l'écran", 30, pad_x=32, pad_y=14, majuscules=False)
+    with sl.bloc():
+        sl.rect(120, y, lc, bas - y, c["teinte"], rayon=32)
+        sl.pile(176, y + 56, lc - 112, [
+            ("1 · Quiz final", 24, {"coul": c["encre"], "gras": True, "majuscules": True, "espacement": 0.14}),
+            ("Mesurez votre progression", 44, {"gras": True, "interligne": 1.15}),
+            ("Quelques questions pour vérifier ce que vous avez retenu de la formation.", 30, {"coul": C["texte2"], "interligne": 1.5}),
+        ], 22)
+        sl.pastille(176, bas - 56 - 66, s.get("quiz") or "Sur kahoot.it, code affiché à l'écran", 30, pad_x=32, pad_y=14, majuscules=False)
     x2 = 120 + lc + 32
-    sl.rect(x2, y, lc, bas - y, C["fondCarte"], rayon=32)
-    total = 24 + 22 + 2 * 44 * 1.15 + 22 + 3 * 30 * 1.5
-    sl.pile(x2 + 56, (y + bas) / 2 - total / 2, lc - 112 - 320, [
-        ("2 · Satisfaction", 24, {"coul": c["encre"], "gras": True, "majuscules": True, "espacement": 0.14}),
-        ("Trois minutes, anonyme", 44, {"gras": True, "interligne": 1.15}),
-        ("Vos retours font évoluer la formation. Scannez le QR code.", 30, {"coul": C["texte2"], "interligne": 1.5}),
-    ], 22)
-    qx, qy = x2 + lc - 56 - 280, (y + bas) / 2 - 140
-    sl.rect(qx, qy, 280, 280, "#FFFFFF", rayon=24)
-    sl.visuel(s.get("qrCode"), qx + 16, qy + 16, 248, 248, "QR code", 12)
-    sl.texte(120, bas + 28, 1680, 44, s.get("message") or "Votre attestation de fin de formation vous parvient par e-mail.", 28, C["texte4"])
+    with sl.bloc():
+        sl.rect(x2, y, lc, bas - y, C["fondCarte"], rayon=32)
+        total = 24 + 22 + 2 * 44 * 1.15 + 22 + 3 * 30 * 1.5
+        sl.pile(x2 + 56, (y + bas) / 2 - total / 2, lc - 112 - 320, [
+            ("2 · Satisfaction", 24, {"coul": c["encre"], "gras": True, "majuscules": True, "espacement": 0.14}),
+            ("Trois minutes, anonyme", 44, {"gras": True, "interligne": 1.15}),
+            ("Vos retours font évoluer la formation. Scannez le QR code.", 30, {"coul": C["texte2"], "interligne": 1.5}),
+        ], 22)
+        qx, qy = x2 + lc - 56 - 280, (y + bas) / 2 - 140
+        sl.rect(qx, qy, 280, 280, "#FFFFFF", rayon=24)
+        sl.visuel(s.get("qrCode"), qx + 16, qy + 16, 248, 248, "QR code", 12)
+    with sl.bloc():
+        sl.texte(120, bas + 28, 1680, 44, s.get("message") or "Votre attestation de fin de formation vous parvient par e-mail.", 28, C["texte4"])
 
 
 def questions(sl: Slide, s):
@@ -1057,21 +1187,25 @@ def battle(sl: Slide, s):
         ("Équipe B", C["fondCarte"], C["texte"], "#A5A5A7"),
     )):
         x = 120 + k * (lc + 220)
-        sl.rect(x, y0, lc, y1 - y0, fond, rayon=32, trait=None if k == 0 else C["bordure"], epaisseur=3)
-        sl.texte(x + 52, y0 + 48, lc - 104, 32, nom, 24, coul, gras=True, majuscules=True, espacement=0.14)
-        sl.texte(x + 52, y0 + 104, lc - 104, 34, "Nom de l'équipe", 26, coul, gras=True)
-        sl.ligne(x + 52, y0 + 252, lc - 104, 3, trait)
-        sl.texte(x + 52, y0 + 284, lc - 104, 34, "Score", 26, coul, gras=True)
-        sl.rect(x + 52, y0 + 330, lc - 104, y1 - y0 - 330 - 48, None, rayon=20, trait=trait, epaisseur=3, tirets=True)
-    sl.rond(120 + lc + 40, (y0 + y1) / 2 - 70, 140, c["teinte"])
-    sl.texte(120 + lc + 40, (y0 + y1) / 2 - 70, 140, 140, "VS", 52, c["encre"], gras=True, align=CENTRE, ancre=MILIEU)
+        with sl.bloc():
+            sl.rect(x, y0, lc, y1 - y0, fond, rayon=32, trait=None if k == 0 else C["bordure"], epaisseur=3)
+            sl.texte(x + 52, y0 + 48, lc - 104, 32, nom, 24, coul, gras=True, majuscules=True, espacement=0.14)
+            sl.texte(x + 52, y0 + 104, lc - 104, 34, "Nom de l'équipe", 26, coul, gras=True)
+            sl.ligne(x + 52, y0 + 252, lc - 104, 3, trait)
+            sl.texte(x + 52, y0 + 284, lc - 104, 34, "Score", 26, coul, gras=True)
+            sl.rect(x + 52, y0 + 330, lc - 104, y1 - y0 - 330 - 48, None, rayon=20, trait=trait, epaisseur=3, tirets=True)
+        if k == 0:
+            with sl.bloc():
+                sl.rond(120 + lc + 40, (y0 + y1) / 2 - 70, 140, c["teinte"])
+                sl.texte(120 + lc + 40, (y0 + y1) / 2 - 70, 140, 140, "VS", 52, c["encre"], gras=True, align=CENTRE, ancre=MILIEU)
     regles = s["regles"]
     n = len(regles)
     lr = (1680 - 32 * (n - 1)) / n
     for k, r in enumerate(regles):
         x = 120 + k * (lr + 32)
-        sl.numero(x, y1 + 44, 48, k + 1, 24, c["teinte"], c["encre"])
-        sl.texte(x + 66, y1 + 44, lr - 66, 110, r, 26, C["texte3"], interligne=1.4)
+        with sl.bloc():
+            sl.numero(x, y1 + 44, 48, k + 1, 24, c["teinte"], c["encre"])
+            sl.texte(x + 66, y1 + 44, lr - 66, 110, r, 26, C["texte3"], interligne=1.4)
 
 
 def accompagnement_360(sl: Slide, s):
@@ -1083,10 +1217,11 @@ def accompagnement_360(sl: Slide, s):
     lc = (1680 - 28 * 3) / 4
     for k, (nom, coul, texte_) in enumerate(POLES):
         x = 120 + k * (lc + 28)
-        sl.rect(x, y, lc, 920 - y, C["fondCarte"], rayon=28)
-        sl.texte(x + 40, y + 48, lc - 80, 52, "skazy", 52, C["texte2"], gras=True, interligne=0.9)
-        sl.texte(x + 40, y + 48 + 50, lc - 80, 40, nom, 30, coul, gras=True)
-        sl.texte(x + 40, y + 48 + 50 + 40 + 28, lc - 80, 400, texte_, 26, C["texte3"], interligne=1.5)
+        with sl.bloc():
+            sl.rect(x, y, lc, 920 - y, C["fondCarte"], rayon=28)
+            sl.texte(x + 40, y + 48, lc - 80, 52, "skazy", 52, C["texte2"], gras=True, interligne=0.9)
+            sl.texte(x + 40, y + 48 + 50, lc - 80, 40, nom, 30, coul, gras=True)
+            sl.texte(x + 40, y + 48 + 50 + 40 + 28, lc - 80, 400, texte_, 26, C["texte3"], interligne=1.5)
     sl.sticker(1920 - 120 - 150, 80, 150, 8, "rocket")
 
 
@@ -1095,24 +1230,26 @@ def autres_formations(sl: Slide, s):
     sl.texte(120, 88 + 76 + 10, 1680, 50, "Le catalogue complet : **{}**".format(ch.CONTACT["site"]), 34, C["texte2"], gras_coul=sl.deck.c["encre"])
     y0, y1 = 88 + 76 + 10 + 48 + 48, 1000 - 64 - 40 - 48
     lc, hc = (1680 - 24 * 4) / 5, (y1 - y0 - 24) / 2
-    for k, c in enumerate(ch.CHARTE["categories"] + [None]):
-        x = 120 + (k % 5) * (lc + 24)
-        y = y0 + (k // 5) * (hc + 24)
-        if c is None:
-            sl.rect(x, y, lc, hc, C["texte"], rayon=22)
-            sl.texte(x + 32, y + hc - 32 - 120, lc - 64, 80, "Tout le catalogue", 30, "#FFFFFF", gras=True, ancre=BAS_)
-            sl.texte(x + 32, y + hc - 32 - 36, lc - 64, 36, ch.CONTACT["site"], 24, "#FFFFFF", gras=True, lien=ch.CONTACT["url"])
-            continue
-        sl.rect(x, y, lc, hc, c["couleur"], rayon=22)
-        sl.polygone([(x, y), (x + lc * 0.62, y), (x + lc * 0.62 * 0.78, y + hc), (x, y + hc)], "#FFFFFF", alpha=0.24)
-        blanc = c["surCouleur"].upper() == "#FFFFFF"
-        sl.icone(c["icone"], x + lc * 0.62 * 0.44 - 42, y + (hc - 64) / 2 - 42, 84, "#FFFFFF" if blanc else C["texte"])
-        lt = min(lc - 40, max(120, largeur_texte(c["nom"], 26, True) + 48))
-        hl = 26 * 1.2 * nb_lignes(c["nom"], lt - 40, 26, True) + 20
-        sl.rect(x + 20, y + hc - 20 - hl, lt, hl, "#FFFFFF", rayon=12)
-        sl.texte(x + 40, y + hc - 20 - hl, lt - 40, hl, c["nom"], 26, gras=True, ancre=MILIEU)
+    with sl.bloc():
+        for k, c in enumerate(ch.CHARTE["categories"] + [None]):
+            x = 120 + (k % 5) * (lc + 24)
+            y = y0 + (k // 5) * (hc + 24)
+            if c is None:
+                sl.rect(x, y, lc, hc, C["texte"], rayon=22)
+                sl.texte(x + 32, y + hc - 32 - 120, lc - 64, 80, "Tout le catalogue", 30, "#FFFFFF", gras=True, ancre=BAS_)
+                sl.texte(x + 32, y + hc - 32 - 36, lc - 64, 36, ch.CONTACT["site"], 24, "#FFFFFF", gras=True, lien=ch.CONTACT["url"])
+                continue
+            sl.rect(x, y, lc, hc, c["couleur"], rayon=22)
+            sl.polygone([(x, y), (x + lc * 0.62, y), (x + lc * 0.62 * 0.78, y + hc), (x, y + hc)], "#FFFFFF", alpha=0.24)
+            blanc = c["surCouleur"].upper() == "#FFFFFF"
+            sl.icone(c["icone"], x + lc * 0.62 * 0.44 - 42, y + (hc - 64) / 2 - 42, 84, "#FFFFFF" if blanc else C["texte"])
+            lt = min(lc - 40, max(120, largeur_texte(c["nom"], 26, True) + 48))
+            hl = 26 * 1.2 * nb_lignes(c["nom"], lt - 40, 26, True) + 20
+            sl.rect(x + 20, y + hc - 20 - hl, lt, hl, "#FFFFFF", rayon=12)
+            sl.texte(x + 40, y + hc - 20 - hl, lt - 40, hl, c["nom"], 26, gras=True, ancre=MILIEU)
     texte_ = s.get("texte") or "**L'IA au quotidien** : ChatGPT, Claude, Copilot, Mistral, Gemini. Et aussi Make, Canva, Figma, Power BI, Microsoft 365."
-    sl.texte(120, y1 + 40, 1680, 44, texte_, 28, C["texte3"], gras_coul=C["texte"])
+    with sl.bloc():
+        sl.texte(120, y1 + 40, 1680, 44, texte_, 28, C["texte3"], gras_coul=C["texte"])
 
 
 RENDUS = {
@@ -1126,6 +1263,12 @@ RENDUS = {
 }
 
 SANS_PIED = {"couverture", "image", "questions"}
+# Titre, intercalaires, pauses et questions restent fixes ; la slide réponse d'un quiz est elle-même la révélation.
+SANS_ANIMATION = {"couverture", "chapitre", "image", "questions"}
+
+
+def animee(slide: dict) -> bool:
+    return slide["type"] not in SANS_ANIMATION and not slide.get("_reponse")
 
 
 def rendre_pptx(s: dict) -> bytes:
@@ -1137,6 +1280,8 @@ def rendre_pptx(s: dict) -> bytes:
         if t not in SANS_PIED:
             sl.pied(couleur_cat=(t == "chapitre"))
         sl.notes(slide.get("notes"))
+        if deck.f["animations"] and animee(slide):
+            sl.animer()
     tampon = io.BytesIO()
     deck.prs.save(tampon)
     _ = math  # gardé pour les calculs de mise en page futurs

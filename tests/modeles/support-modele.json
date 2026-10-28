@@ -1,0 +1,491 @@
+{
+  "format": "skazy-support",
+  "formation": {
+    "intitule": "Intitulé de la formation",
+    "categorie": "Bureautique",
+    "niveau": "Initiation",
+    "duree": "X jours · XX h",
+    "formateur": "Guillaume Harel",
+    "email": "formation@skazy.nc"
+  },
+  "slides": [
+    {
+      "type": "couverture"
+    },
+    {
+      "type": "faisons-connaissance"
+    },
+    {
+      "type": "objectifs",
+      "objectifs": [
+        "**Un verbe d'action** suivi de ce que l'apprenant saura faire",
+        "**Un objectif** par ligne, mesurable et observable",
+        "**Respecter** la taxonomie de Bloom : comprendre, appliquer, analyser, créer",
+        "**Reprendre** les objectifs du plan de formation, 3 à 5 au total"
+      ]
+    },
+    {
+      "type": "programme",
+      "parties": [
+        {
+          "titre": "Introduction et prise en main",
+          "duree": "X h"
+        },
+        {
+          "titre": "Titre de la partie 2",
+          "duree": "X h"
+        },
+        {
+          "titre": "Titre de la partie 3",
+          "duree": "X h"
+        },
+        {
+          "titre": "Titre de la partie 4",
+          "duree": "X h"
+        },
+        {
+          "titre": "Titre de la partie 5",
+          "duree": "X h"
+        },
+        {
+          "titre": "Titre de la partie 6",
+          "duree": "X h"
+        },
+        {
+          "titre": "Titre de la partie 7",
+          "duree": "X h"
+        },
+        {
+          "titre": "Projet final ou mise en pratique",
+          "duree": "X h"
+        }
+      ]
+    },
+    {
+      "type": "chapitre",
+      "titre": "Titre du chapitre",
+      "duree": "1h30",
+      "points": [
+        "Notion abordée dans ce chapitre",
+        "Reprendre les points du programme",
+        "3 à 5 points maximum",
+        "Une ligne par point"
+      ]
+    },
+    {
+      "type": "contenu",
+      "titre": "Titre de la notion",
+      "texte": "Une phrase d'explication, avec **l'idée principale en gras**. Une seule idée par slide : si vous en avez deux, faites deux slides.",
+      "points": [
+        {
+          "label": "Point clé",
+          "texte": "une explication courte, en une ligne"
+        },
+        {
+          "label": "Exemple",
+          "texte": "un cas concret tiré du quotidien des apprenants"
+        },
+        {
+          "label": "Astuce",
+          "texte": "un raccourci ou un réflexe associé"
+        }
+      ]
+    },
+    {
+      "type": "chiffre-cle",
+      "chiffre": "73",
+      "unite": "%",
+      "phrase": "Le chiffre à faire retenir, en une phrase",
+      "explication": "Expliquez ce que ce chiffre veut dire pour les apprenants et pourquoi il compte dans leur métier.",
+      "reperes": [
+        {
+          "valeur": "x3",
+          "texte": "Un chiffre secondaire"
+        },
+        {
+          "valeur": "12 min",
+          "texte": "Un autre repère utile"
+        }
+      ],
+      "source": "organisme, étude, année"
+    },
+    {
+      "type": "frise",
+      "titre": "Les grandes dates",
+      "intro": "Situez l'outil ou la discipline dans le temps, en 4 à 6 étapes.",
+      "etapes": [
+        {
+          "date": "1990",
+          "texte": "Un premier événement marquant"
+        },
+        {
+          "date": "2000",
+          "texte": "Une évolution importante"
+        },
+        {
+          "date": "2010",
+          "texte": "Un changement d'usage"
+        },
+        {
+          "date": "2020",
+          "texte": "Une nouvelle étape"
+        },
+        {
+          "date": "Aujourd'hui",
+          "texte": "Où en est-on maintenant"
+        }
+      ]
+    },
+    {
+      "type": "graphique",
+      "titre": "Ce que montrent les données",
+      "barres": [
+        {
+          "label": "2020",
+          "valeur": 32
+        },
+        {
+          "label": "2021",
+          "valeur": 45
+        },
+        {
+          "label": "2022",
+          "valeur": 41
+        },
+        {
+          "label": "2023",
+          "valeur": 58
+        },
+        {
+          "label": "2024",
+          "valeur": 66
+        },
+        {
+          "label": "2025",
+          "valeur": 84
+        }
+      ],
+      "chiffre": "+27 %",
+      "message": "Le message que le graphique doit faire passer. Mettez en couleur la barre qui le porte, laissez les autres en gris.",
+      "source": "à préciser"
+    },
+    {
+      "type": "image",
+      "titre": "Une image forte, une phrase courte",
+      "texte": "Pour marquer une pause, montrer un résultat ou ouvrir une discussion."
+    },
+    {
+      "type": "texte",
+      "titre": "Un texte à lire",
+      "intro": "Pour une définition détaillée, une étude de cas ou une consigne longue.",
+      "paragraphes": [
+        "**Commencez par l'essentiel.** La première phrase dit ce que l'apprenant doit comprendre. Le reste du texte l'explique ou le nuance.",
+        "Gardez des paragraphes courts, trois ou quatre phrases au plus. Un paragraphe porte une seule idée, introduite par quelques mots en gras.",
+        "Cette slide se lit plus qu'elle ne s'écoute : laissez le temps aux participants, ou distribuez le texte en support papier.",
+        "Au-delà de 150 mots, découpez en deux slides ou passez à un document à part."
+      ]
+    },
+    {
+      "type": "citation",
+      "citation": "Une citation courte qui résume l'esprit de la formation ou d'un chapitre.",
+      "auteur": "Prénom Nom"
+    },
+    {
+      "type": "avant-apres",
+      "titre": "Avant, après",
+      "avant": {
+        "texte": "La situation de départ, en une ligne"
+      },
+      "apres": {
+        "texte": "Le résultat obtenu avec la méthode"
+      }
+    },
+    {
+      "type": "notion-cle",
+      "titre": "Le concept à retenir",
+      "definition": "Une définition en une ou deux phrases, que les apprenants doivent pouvoir **répéter à la fin de la journée**.",
+      "termes": [
+        {
+          "terme": "Terme 1",
+          "definition": "définition courte"
+        },
+        {
+          "terme": "Terme 2",
+          "definition": "définition courte"
+        },
+        {
+          "terme": "Terme 3",
+          "definition": "définition courte"
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "titre": "Syntaxe d'une commande",
+      "intro": "Présentez une formule, une commande ou un extrait de code, puis détaillez chaque élément.",
+      "elements": [
+        {
+          "code": "paramètre_1",
+          "texte": "ce que représente le premier élément"
+        },
+        {
+          "code": "paramètre_2",
+          "texte": "ce que représente le deuxième"
+        },
+        {
+          "code": "paramètre_3",
+          "texte": "facultatif, à préciser si besoin"
+        }
+      ],
+      "syntaxe": "FONCTION(paramètre_1;\n    paramètre_2;\n    paramètre_3)",
+      "exemple": "FONCTION(A1;\"texte\";10)",
+      "resultat": "Expliquez **le résultat obtenu** avec cet exemple."
+    },
+    {
+      "type": "capture",
+      "titre": "L'interface de l'outil",
+      "reperes": [
+        {
+          "titre": "Menu principal",
+          "texte": "Déplacez les pastilles sur la capture",
+          "x": 48.3636,
+          "y": 9.994
+        },
+        {
+          "titre": "Barre d'outils",
+          "texte": "Une ligne d'explication par zone",
+          "x": 9.2727,
+          "y": 29.6881
+        },
+        {
+          "titre": "Zone de travail",
+          "texte": "Là où l'apprenant passe le plus de temps",
+          "x": 48.3636,
+          "y": 29.6881
+        },
+        {
+          "titre": "Panneau latéral",
+          "texte": "4 à 6 repères au maximum",
+          "x": 15.6364,
+          "y": 92.3575
+        }
+      ]
+    },
+    {
+      "type": "pas-a-pas",
+      "titre": "Réaliser une action en 4 étapes",
+      "etapes": [
+        {
+          "texte": "Le point de départ : ce que l'apprenant ouvre ou sélectionne"
+        },
+        {
+          "texte": "**Menu > Commande** : le chemin exact à suivre"
+        },
+        {
+          "texte": "Le réglage à vérifier, avec **le libellé exact**"
+        },
+        {
+          "texte": "Le résultat attendu, illustré par une capture"
+        }
+      ]
+    },
+    {
+      "type": "comparatif",
+      "titre": "Option A ou option B ?",
+      "colonnes": ["Option A", "Option B"],
+      "lignes": [
+        {
+          "critere": "Usage",
+          "valeurs": ["Cas simples, besoin ponctuel", "Cas avancés, usage régulier"]
+        },
+        {
+          "critere": "Avantage",
+          "valeurs": ["Rapide à prendre en main", "Plus souple et plus fiable"]
+        },
+        {
+          "critere": "Limite",
+          "valeurs": ["Vite limitée sur les cas complexes", "Demande un peu de pratique"]
+        },
+        {
+          "critere": "Disponibilité",
+          "valeurs": ["Toutes les versions", "Versions récentes uniquement"]
+        }
+      ],
+      "recommandation": "dites quelle option privilégier, et dans quel cas."
+    },
+    {
+      "type": "raccourcis",
+      "remarque": "Sur Mac, Ctrl devient Cmd. Adaptez la liste à l'outil enseigné.",
+      "raccourcis": [
+        {
+          "touches": ["Ctrl", "C"],
+          "action": "Copier"
+        },
+        {
+          "touches": ["F1"],
+          "action": "Afficher l'aide"
+        },
+        {
+          "touches": ["Ctrl", "V"],
+          "action": "Coller"
+        },
+        {
+          "touches": ["Ctrl", "F"],
+          "action": "Rechercher"
+        },
+        {
+          "touches": ["Ctrl", "Z"],
+          "action": "Annuler"
+        },
+        {
+          "touches": ["Ctrl", "Maj", "S"],
+          "action": "Enregistrer sous"
+        },
+        {
+          "touches": ["Ctrl", "S"],
+          "action": "Enregistrer"
+        },
+        {
+          "touches": ["Alt", "Tab"],
+          "action": "Changer de fenêtre"
+        },
+        {
+          "touches": ["Ctrl", "A"],
+          "action": "Tout sélectionner"
+        },
+        {
+          "touches": ["Ctrl", "P"],
+          "action": "Imprimer"
+        },
+        {
+          "touches": ["Ctrl", "Y"],
+          "action": "Rétablir"
+        },
+        {
+          "touches": ["Ctrl", "N"],
+          "action": "Nouveau document"
+        }
+      ]
+    },
+    {
+      "type": "bon-a-savoir",
+      "encadres": [
+        {
+          "genre": "astuce",
+          "titre": "Titre de l'astuce",
+          "texte": "Un gain de temps ou un raccourci que les apprenants vont réutiliser."
+        },
+        {
+          "genre": "attention",
+          "titre": "Titre de la mise en garde",
+          "texte": "L'erreur la plus fréquente, et **comment l'éviter**."
+        },
+        {
+          "genre": "bonne-pratique",
+          "titre": "Titre de la bonne pratique",
+          "texte": "La façon de faire recommandée, en une ou deux phrases."
+        }
+      ]
+    },
+    {
+      "type": "exercice",
+      "titre": "Titre de l'exercice",
+      "contexte": "Le contexte en une ou deux phrases : la situation, et ce qu'on attend de l'apprenant.",
+      "consignes": [
+        "Première consigne, avec un verbe d'action",
+        "Deuxième consigne",
+        "Troisième consigne",
+        "Vérifiez le résultat obtenu"
+      ],
+      "duree": "XX min",
+      "fichier": "nom-du-fichier.ext",
+      "livrable": "Ce que l'apprenant doit avoir produit à la fin",
+      "bonus": "Une consigne bonus pour les plus rapides"
+    },
+    {
+      "type": "exercice-etapes",
+      "titre": "Titre de l'exercice",
+      "contexte": "Le contexte en une ou deux phrases : la situation, et ce qu'on attend de l'apprenant.",
+      "duree": "XX minutes",
+      "etapes": [
+        {
+          "titre": "Préparer",
+          "texte": "Ouvrir le fichier, lire la consigne, repérer les données utiles."
+        },
+        {
+          "titre": "Réaliser",
+          "texte": "La manipulation principale, décrite avec un verbe d'action."
+        },
+        {
+          "titre": "Vérifier",
+          "texte": "Comparer son résultat avec le livrable attendu."
+        }
+      ],
+      "fichier": "nom-du-fichier.ext",
+      "modalite": "seul, en binôme ou en groupe",
+      "livrable": "ce que l'apprenant doit produire"
+    },
+    {
+      "type": "quiz",
+      "numero": 1,
+      "total": 5,
+      "question": "Intitulé de la question, en une phrase ?",
+      "propositions": [
+        "Proposition A",
+        "Proposition B, la bonne réponse",
+        "Proposition C",
+        "Proposition D"
+      ],
+      "bonne": 1
+    },
+    {
+      "type": "a-retenir",
+      "sousTitre": "Chapitre 1\nTitre du chapitre",
+      "messages": [
+        "Le premier message clé, en une phrase",
+        "Le deuxième, avec **le mot important en gras**",
+        "Trois messages au maximum par chapitre"
+      ]
+    },
+    {
+      "type": "ressources",
+      "ressources": [
+        {
+          "titre": "Documentation officielle",
+          "texte": "L'aide de l'éditeur, en français si elle existe.",
+          "lien": "https://adresse-du-site.com"
+        },
+        {
+          "titre": "Tutoriels et exercices",
+          "texte": "Un site gratuit pour s'entraîner après la formation.",
+          "lien": "https://adresse-du-site.com"
+        },
+        {
+          "titre": "Modèles et ressources",
+          "texte": "Fichiers, gabarits ou extensions prêts à l'emploi.",
+          "lien": "https://adresse-du-site.com"
+        },
+        {
+          "titre": "La suite chez Skazy",
+          "texte": "Les formations de niveau supérieur ou complémentaires.",
+          "lien": "https://formation.skazy.nc"
+        }
+      ]
+    },
+    {
+      "type": "evaluation"
+    },
+    {
+      "type": "questions"
+    },
+    {
+      "type": "battle"
+    },
+    {
+      "type": "accompagnement-360"
+    },
+    {
+      "type": "autres-formations"
+    }
+  ]
+}

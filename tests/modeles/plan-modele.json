@@ -1,0 +1,62 @@
+{
+  "format": "skazy-plan",
+  "version": 1,
+  "intitule": "Intitulé de la formation",
+  "categorie": "Graphisme & UX",
+  "niveau": "Initiation",
+  "description": "Description de la formation en deux à quatre lignes : ce que l'apprenant découvre et ce que la formation lui apporte au quotidien. Commencez par un verbe d'action (Découvrez, Maîtrisez, Créez…).",
+  "objectifs": [
+    "Objectif pédagogique commençant par un verbe d'action mesurable (utiliser, créer, analyser…)",
+    "Ce que l'apprenant saura faire à la fin de la formation",
+    "Un objectif par ligne, 3 à 5 au total, en respectant la taxonomie de Bloom"
+  ],
+  "prerequis": "Connaissances nécessaires avant la formation",
+  "public": "Profils ou postes concernés",
+  "duree": "X jours (X h)",
+  "programme": [
+    {
+      "titre": "Titre de la première partie",
+      "points": [
+        "Notion abordée dans cette partie",
+        "Un élément par ligne, en quelques mots",
+        "Entre 3 et 7 éléments par partie"
+      ]
+    },
+    {
+      "titre": "Titre de la deuxième partie",
+      "points": [
+        "Notion abordée",
+        "Commencer par un nom ou un verbe",
+        "Garder le même niveau de détail d'une partie à l'autre"
+      ]
+    },
+    {
+      "titre": "Titre de la troisième partie",
+      "points": ["Notion abordée", "Notion abordée", "Notion abordée"]
+    },
+    {
+      "titre": "Titre de la quatrième partie",
+      "points": [
+        "Notion abordée",
+        "Notion abordée",
+        "Notion abordée",
+        "Atelier pratique : préciser l'exercice réalisé"
+      ]
+    },
+    {
+      "titre": "Titre de la cinquième partie",
+      "points": ["Notion abordée", "Notion abordée"]
+    },
+    {
+      "titre": "Titre de la sixième partie",
+      "points": ["Notion abordée", "Notion abordée", "Notion abordée"]
+    },
+    {
+      "titre": "Projet final ou mise en pratique",
+      "points": [
+        "Décrire le projet réalisé en fin de formation",
+        "Supprimer ou ajouter des parties selon la durée"
+      ]
+    }
+  ]
+}

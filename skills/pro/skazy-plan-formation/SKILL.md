@@ -3,7 +3,7 @@ name: skazy-plan-formation
 description: "Crée, restructure ou enrichit un plan de formation (fiche programme A4 d'une ou deux pages) aux couleurs de Skazy Formation, à partir d'un simple sujet, de notes ou d'un plan existant. Rédige l'intitulé, la description, 3 à 5 objectifs pédagogiques observables (taxonomie de Bloom), les prérequis, le public, la durée, le programme en parties et les modalités, puis produit un HTML imprimable en PDF et un DOCX pour Word ou Google Docs, fidèles au modèle « Plan de formation » du design system Skazy Formation. À utiliser dès que l'on demande un plan de formation, un programme ou une fiche de formation, un déroulé ou un syllabus, même sans citer Skazy."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.3.0'
+  version: '1.3.1'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills
@@ -111,4 +111,4 @@ Le rendu est donc identique quel que soit l'assistant utilisé.
 - `exemples/plan-exemple.json` : plan complet (Excel, les bases), modalités standard.
 - `exemples/plan-ia-reportings.json` : plan complet (L’IA pour vos reportings), page 2 adaptée au sujet.
 
-Version 1.3.0. Sources, mises à jour et autres skills : https://gharel.github.io/skills/
+Version 1.3.1. Sources, mises à jour et autres skills : https://gharel.github.io/skills/

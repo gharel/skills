@@ -12,6 +12,7 @@ commun/charte/icones/
 commun/charte/charte.json
 commun/charte/plan-formation.*
 commun/charte/origine.json
+commun/charte/alignement.json
 .claude/
 # Généré par npm run construire (JSON.stringify), contrôlé par construire --verifier
 .claude-plugin/marketplace.json

@@ -3,13 +3,16 @@
  * seule source de vérité. Deux étapes :
  *   1. design-skazy → commun/charte : charte/charte.json, charte/plan-formation.{css,js} (générés par
  *      npm run charte dans design-skazy) et les logos des modèles (assets/logo-color.png, logo-white.png).
+ *      Les modèles eux-mêmes restent dans design-skazy : aucune autre version n'en existe ici.
  *      Le dépôt design-skazy est cherché dans $DESIGN_SKAZY, puis à côté de ce dépôt (…/www/design-skazy).
  *      Introuvable : étape sautée, commun/charte reste tel quel.
  *   2. commun/charte → chaque skill qui la déclare (metadata.charte dans SKILL.md), pour qu'il reste autonome :
  *        charte: skazy-formation          → scripts/charte.py + assets/charte/ complet (logos, icônes ;
  *                                           <modèle>.css et .js seulement pour le skill skazy-<modèle>)
  *        charte: skazy-formation-donnees  → scripts/charte.py + assets/charte/charte.json seulement
- * Avec --verifier, ne copie rien : échoue si une copie diffère de sa source (npm run check, CI).
+ * Avec --verifier, ne copie rien : échoue si une copie diffère de sa source (npm run check, CI), ou si un
+ * modèle de design-skazy a changé depuis la dernière comparaison des rendus des skills avec lui
+ * (npm run modeles, qui verrouille l'empreinte des modèles dans commun/charte/alignement.json).
  * charte.py et les icônes Lucide (npm run icones) restent propres à ce dépôt : du code et une bibliothèque
  * d'icônes, pas la charte.
  */
@@ -17,7 +20,14 @@ import { readFile, writeFile, mkdir, readdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, dirname, resolve } from 'node:path';
-import { RACINE, listerSkills } from './skills.mjs';
+import {
+  RACINE,
+  listerSkills,
+  MODELES as MODELES_DESIGN,
+  ALIGNEMENT,
+  empreintesModeles,
+  trouverDesign,
+} from './skills.mjs';
 
 const SOURCE = join(RACINE, 'commun/charte');
 const verifier = process.argv.includes('--verifier');
@@ -32,13 +42,6 @@ const DEPUIS_DESIGN = {
 };
 // Fichiers propres à un modèle : copiés seulement dans le skill skazy-<modèle>.
 const MODELES = /^(plan-formation|support-formation)\.(css|js)$/;
-
-function trouverDesign() {
-  const candidats = [process.env.DESIGN_SKAZY];
-  for (let d = RACINE; dirname(d) !== d; d = dirname(d))
-    candidats.push(join(dirname(d), 'design-skazy'));
-  return candidats.find((d) => d && existsSync(join(d, 'charte/charte.json')));
-}
 
 const ecarts = [];
 let copies = 0;
@@ -89,7 +92,7 @@ async function fichiersCharte(skill, complet) {
   const nom = skill.donnees.name;
   const liste = (await readdir(SOURCE)).filter(
     (f) =>
-      !['charte.py', 'icones', 'origine.json'].includes(f) &&
+      !['charte.py', 'icones', 'origine.json', 'alignement.json'].includes(f) &&
       (!MODELES.test(f) || nom === `skazy-${f.replace(MODELES, '$1')}`),
   );
   const icones = (await readdir(join(SOURCE, 'icones'))).map((f) => `icones/${f}`);
@@ -116,6 +119,16 @@ for (const skill of await listerSkills()) {
     }
   }
   for (const [source, cible] of paires) await copier(source, cible);
+}
+
+// 3. Verrou : les rendus des skills ont été comparés à la version actuelle des modèles de design-skazy.
+const verrou = existsSync(ALIGNEMENT) ? JSON.parse(await readFile(ALIGNEMENT, 'utf8')).modeles : {};
+for (const [nom, empreinte] of Object.entries(design ? await empreintesModeles(design) : {})) {
+  if (verrou?.[nom]?.empreinte !== empreinte) {
+    const message = `le modèle ${nom} a changé depuis la dernière comparaison avec le skill ${MODELES_DESIGN[nom].skill} : réalignez le skill, puis lancez npm run modeles`;
+    if (verifier) ecarts.push(message);
+    else console.warn('ATTENTION : ' + message + '.');
+  }
 }
 
 if (verifier) {

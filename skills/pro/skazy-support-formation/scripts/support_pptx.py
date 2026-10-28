@@ -1427,7 +1427,7 @@ def exercice_etapes(sl: Slide, s):
     # Cercle de durée (240 px, trait de 10 à l'intérieur), puis infos : ils viennent après les étapes.
     duree = str(s.get("duree", "")).strip()
     nombre, _, unite = duree.partition(" ")
-    if not nombre.isdigit():
+    if not unite or " " in unite:  # « 20 minutes » : nombre et unité ; « 1 h 30 » : d'un bloc
         nombre, unite = duree, ""
     unite = unite or ("minutes" if nombre.isdigit() else "")
     tn = 84 if len(nombre) <= 3 else 56

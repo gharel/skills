@@ -4,6 +4,29 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-28
 
+### Dépôt : rendus comparés aux modèles de design-skazy
+
+- `npm run modeles` compare au pixel les rendus HTML des skills plan et support à leurs modèles, lus directement dans design-skazy (aucune copie des modèles dans ce dépôt) : même place à 1 px près, même police, taille, interligne, graisse et couleur pour chaque texte du modèle (86 pour le plan, 435 pour le support). Sans écart, il verrouille l'empreinte des modèles dans `commun/charte/alignement.json`.
+- `npm run check` refuse un modèle changé dans design-skazy tant que cette comparaison n'a pas été refaite.
+
+### skazy-support-formation 1.2.2
+
+- Titres équilibrés et texte sans mot isolé en fin de paragraphe, comme dans le moteur de diaporama du modèle.
+- « Bon à savoir » : le gras garde la couleur du texte. Exercice en étapes : durée « XX minutes » en nombre et unité, modalité et livrable écrits comme dans le modèle.
+- Espace insécable (et non plus fine) avant « ? », « ! » et « ; », comme dans le modèle.
+
+### skazy-plan-formation 1.3.1
+
+- Espace insécable (et non plus fine) avant « ? », « ! » et « ; », comme dans le modèle.
+
+### skazy-quiz 1.0.4
+
+- Espace insécable (et non plus fine) avant « ? », « ! » et « ; », comme dans les modèles de design-skazy.
+
+### notation-etudiants 1.0.4
+
+- Espace insécable (et non plus fine) avant « ? », « ! » et « ; », comme dans les modèles de design-skazy.
+
 ### skazy-support-formation 1.2.1
 
 - L'exemple n'impose plus ses propres lignes « Passions » et « Desserts » à « Faisons connaissance » : la slide affiche celles du modèle de design-skazy, téléphone et e-mail.

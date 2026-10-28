@@ -462,7 +462,7 @@ def bon_a_savoir(s, f):
     for e in s["encadres"]:
         libelle, fond, encre = genre_encadre(e)
         blocs += '<div style="background:{};border-radius:28px;padding:48px;display:flex;flex-direction:column;gap:24px"><span style="font-size:24px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:{}">{}</span><span style="font-size:40px;font-weight:700;line-height:1.15">{}</span><p style="margin:0;font-size:30px;line-height:1.5;color:#3B3B42">{}</p></div>'.format(
-            fond, encre, esc(e.get("libelle") or libelle), esc(e.get("titre")), g(e.get("texte")))
+            fond, encre, esc(e.get("libelle") or libelle), esc(e.get("titre")), g(e.get("texte"), ""))
     return """<div style="position:absolute;top:0;left:0;right:0;bottom:80px;padding:96px 120px 80px;display:flex;flex-direction:column;gap:56px">
 <h2 style="{h2}">{titre}</h2>
 <div style="flex:1;display:grid;grid-template-columns:repeat({n},1fr);gap:32px">{blocs}</div>
@@ -505,10 +505,11 @@ def exercice_etapes(s, f):
     infos = ""
     for libelle, cle, style in (("Fichier", "fichier", MONO + ";color:#1F1F24"), ("Modalité", "modalite", ""), ("Livrable", "livrable", "")):
         if s.get(cle):
-            infos += '<span><strong style="color:var(--ci)">{}</strong>&nbsp;: <span style="{}">{}</span></span>'.format(libelle, style, g(s[cle]))
+            valeur = '<span style="{}">{}</span>'.format(style, g(s[cle])) if style else g(s[cle])
+            infos += '<span><strong style="color:var(--ci)">{}</strong>&nbsp;: {}</span>'.format(libelle, valeur)
     duree = str(s.get("duree", "")).strip()
     nombre, _, unite = duree.partition(" ")
-    if not nombre.isdigit():
+    if not unite or " " in unite:  # « 20 minutes » : nombre et unité ; « 1 h 30 » : d'un bloc
         nombre, unite = duree, ""
     return """<div style="position:absolute;top:0;left:0;right:0;bottom:80px;padding:88px 120px 64px;display:flex;flex-direction:column;gap:44px">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:60px">
@@ -667,6 +668,7 @@ html,body{margin:0;height:100%;background:#111;font-family:Raleway,system-ui,san
 .scene{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .deck{position:relative;width:1920px;height:1080px;flex-shrink:0;transform-origin:center center;counter-reset:sf}
 .slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;background:#fff;counter-increment:sf;visibility:hidden;line-height:1.5;text-wrap:pretty}
+:where(h1,h2,h3,h4,h5,h6){text-wrap:balance}:where(p,li,blockquote,figcaption){text-wrap:pretty}
 .slide.active{visibility:visible}
 .pn::after{content:counter(sf,decimal-leading-zero)}
 .pied{position:absolute;left:0;right:0;bottom:0;height:80px;background:#F4F4F5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 64px;font-size:24px;font-weight:600;color:#55555E}

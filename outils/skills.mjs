@@ -3,7 +3,7 @@
  */
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, dirname } from 'node:path';
 import { parse as lireYaml } from 'yaml';
 import { fileURLToPath } from 'node:url';
 
@@ -200,4 +200,38 @@ export function controler(skill) {
     if (!present) erreurs.push(`${ou} : fichier cité introuvable « ${cite} ».`);
   }
   return erreurs;
+}
+
+// Modèles de design-skazy, seule référence du design des skills plan et support. Ils ne sont pas copiés dans
+// ce dépôt : npm run modeles les lit dans design-skazy, compare les rendus des skills avec eux et verrouille
+// leur empreinte dans commun/charte/alignement.json ; npm run check refuse ensuite un modèle changé depuis.
+export const MODELES = {
+  'plan-formation': {
+    source: 'templates/plan-formation/PlanFormation.dc.html',
+    skill: 'skazy-plan-formation',
+  },
+  'support-formation': {
+    source: 'templates/support-formation/SupportFormation.dc.html',
+    skill: 'skazy-support-formation',
+  },
+};
+export const ALIGNEMENT = join(RACINE, 'commun/charte/alignement.json');
+
+/** Empreinte SHA-256 de chaque modèle, lu dans le dépôt design-skazy. */
+export async function empreintesModeles(design) {
+  const { createHash } = await import('node:crypto');
+  const empreintes = {};
+  for (const [nom, m] of Object.entries(MODELES))
+    empreintes[nom] = createHash('sha256')
+      .update(await readFile(join(design, m.source)))
+      .digest('hex');
+  return empreintes;
+}
+
+/** Dépôt design-skazy : $DESIGN_SKAZY, sinon un dossier design-skazy à côté de ce dépôt ou d'un parent. */
+export function trouverDesign() {
+  const candidats = [process.env.DESIGN_SKAZY];
+  for (let d = RACINE; dirname(d) !== d; d = dirname(d))
+    candidats.push(join(dirname(d), 'design-skazy'));
+  return candidats.find((d) => d && existsSync(join(d, 'charte/charte.json')));
 }

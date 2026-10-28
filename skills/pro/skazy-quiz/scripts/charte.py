@@ -77,7 +77,7 @@ def typographie(texte: str) -> str:
         return ""
     t = str(texte)
     t = re.sub(r"\s+([:»])", NBSP + r"\1", t)
-    t = re.sub(r"\s+([;?!])", NNBSP + r"\1", t)
+    t = re.sub(r"\s+([;?!])", NBSP + r"\1", t)
     t = re.sub(r"«\s*", "«" + NBSP, t)
     t = re.sub(r"(\d)\s+(%|h\b|min\b|€|F\b|XPF\b|jours?\b|heures?\b|ans?\b|personnes?\b)", r"\1" + NBSP + r"\2", t)
     t = re.sub(r"\s·\s", NBSP + "· ", t)

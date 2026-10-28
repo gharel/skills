@@ -3,7 +3,7 @@ name: skazy-support-formation
 description: "Crée le support de formation (diaporama) d'une formation Skazy Formation à partir de son plan de formation (JSON du skill skazy-plan-formation, DOCX, PDF ou simple texte). Découpe chaque partie du programme en slides variées, une idée par slide, avec exercices pratiques, quiz, points à retenir et notes formateur, en suivant les 30 mises en page du modèle « Support de formation » du design system Skazy Formation (couleurs, photos et stickers de la catégorie). Produit un HTML à projeter ou à imprimer en PDF et un PPTX pour PowerPoint ou Google Slides. À utiliser dès que l'on demande un support, un diaporama, des slides, un deck ou une présentation de formation, ou de transformer un plan en support."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.2.2'
+  version: '1.3.0'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills
@@ -51,7 +51,7 @@ Tu rédiges le contenu dans un fichier JSON. Un script produit le HTML et le PPT
      python scripts/rendre_support.py support.json --sortie <dossier>
      ```
 
-     Corrige chaque `ERREUR`. Prends en compte les `ATTENTION` : texte trop long, chapitre sans exercice, notes manquantes. Les dépendances sont `python-pptx` et `pillow`. Si elles manquent, le script affiche la commande `pip install`. Les photos Unsplash de la banque de la charte sont téléchargées au moment du rendu. Sans accès réseau, le PPTX garde des emplacements à remplir.
+     Ajoute `--verifier` pour contrôler le JSON sans rien produire, et `--formats html` ou `--formats pptx` pour un seul format. Corrige chaque `ERREUR`. Prends en compte les `ATTENTION` : texte trop long, chapitre sans exercice, notes manquantes (une note par slide de contenu). Les dépendances sont `python-pptx` et `pillow`. Si elles manquent, le script affiche la commande `pip install`. Les photos Unsplash de la banque de la charte sont téléchargées au moment du rendu. Sans accès réseau, le PPTX garde des emplacements à remplir.
 
    - **Sinon** : donne le JSON complet dans un bloc de code. Invite ensuite l'utilisateur à le coller dans l'atelier https://gharel.github.io/skills/atelier/, qui produit le HTML et le PPTX.
 6. **Livrer** :
@@ -92,4 +92,4 @@ Tu rédiges le contenu dans un fichier JSON. Un script produit le HTML et le PPT
 - `references/pedagogie.md` : construction du déroulé à partir du plan, rythme, exercices, quiz, notes formateur.
 - `exemples/support-exemple.json` : support complet (Excel, les bases).
 
-Version 1.2.2. Sources, mises à jour et autres skills : https://gharel.github.io/skills/
+Version 1.3.0. Sources, mises à jour et autres skills : https://gharel.github.io/skills/

@@ -1,6 +1,6 @@
 """Support de formation Skazy Formation : lecture, valeurs par défaut et contrôle du support.json.
 
-Le format est décrit dans references/format-support.md ; les mises en page dans references/mises-en-page.md.
+Le format et les 30 mises en page sont décrits dans references/format-support.md.
 """
 
 from __future__ import annotations
@@ -277,8 +277,9 @@ def normaliser_support(brut: dict) -> tuple[dict, ch.Rapport]:
     if chapitres and exercices < chapitres:
         r.avertir("{} chapitres pour {} exercices : prévoyez au moins un exercice par chapitre.".format(chapitres, exercices))
     sans_notes = [x["_n"] for x in slides if not x.get("notes") and x["type"] not in ("couverture", "questions", "accompagnement-360", "autres-formations")]
-    if len(sans_notes) > len(slides) // 3:
-        r.avertir("{} slides sans notes formateur (par ex. {}) : ajoutez « notes » pour rendre le support animable.".format(len(sans_notes), ", ".join(map(str, sans_notes[:6]))))
+    if sans_notes:
+        r.avertir("{} slide(s) sans notes formateur ({}) : ajoutez « notes » à chaque slide de contenu.".format(
+            len(sans_notes), ", ".join(map(str, sans_notes[:12])) + (" …" if len(sans_notes) > 12 else "")))
     return s, r
 
 

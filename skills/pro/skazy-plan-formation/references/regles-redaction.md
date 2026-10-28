@@ -14,6 +14,7 @@ Ces règles réunissent celles de l'ancien skill `plan-creator` et les consignes
 ## Intitulé
 
 - Court, clair, accrocheur, orienté formation professionnelle : 60 caractères au plus, soit deux lignes dans le bandeau.
+- Un intitulé imposé par l'utilisateur se garde tel quel, même au-delà de 60 caractères : le titre du bandeau se réduit seul. Signale-lui seulement qu'un intitulé plus court se lirait mieux.
 - Évite les titres trop génériques (« Formation Excel ») ou trop longs.
 - Exemples : « Excel : les bases », « Prompter efficacement avec ChatGPT », « Piloter un projet en Scrum ».
 
@@ -54,7 +55,7 @@ Texte de la première pastille. Par défaut, c'est le nom de la catégorie. On p
 
 ## Public visé
 
-Profils ou postes concernés, en une ligne ou deux. Par exemple : « Assistants, gestionnaires et toute personne amenée à manipuler des tableaux de chiffres ».
+Profils ou postes concernés, en une ligne ou deux : 80 caractères environ, car l'encadré lui laisse deux à trois lignes. Au-delà, la page 1 déborde et le script le signale. Par exemple : « Assistants, gestionnaires et toute personne amenée à manipuler des tableaux de chiffres ».
 
 ## Durée
 

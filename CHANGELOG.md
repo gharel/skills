@@ -2,6 +2,24 @@
 
 Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md`). Les entrées les plus récentes sont en haut.
 
+## 2026-10-29
+
+### skazy-support-formation 1.3.0
+
+- Le HTML n'emploie plus que la feuille de style que design-skazy exporte pour le modèle « Support de formation » (`support-formation.css`, une classe par style du modèle) : il ne recopie plus aucune valeur de design. Seules restent en ligne les valeurs qui dépendent du contenu (position d'un repère, hauteur d'une barre, nombre de colonnes, taille réduite d'un texte trop long). Rendu identique au pixel (435 textes du modèle comparés, captures avant et après).
+- Un mot trop long pour sa colonne réduit la taille du texte au lieu d'être coupé (« communicatio / n ») : titre de couverture, dates de la frise, titres de chapitre, citations, chiffres, en HTML comme en PPTX.
+- Images : photos, polaroïds et stickers gardent leurs couleurs vraies, jusqu'au double de leur taille d'affichage ; seuls le logo et les icônes passent sur une palette, sans perte. La photo du polaroïd n'est plus réduite à quelques aplats.
+- Durée d'un exercice en étapes reconnue même avec une espace insécable. Avertissement pour chaque slide de contenu sans notes formateur ; notes ajoutées à l'exemple. Documentation des champs `affichage`, `surtitre`, `libelle` et des options `--verifier` et `--formats`.
+
+### skazy-plan-formation 1.4.0
+
+- DOCX : logo et sticker nets à l'impression (220 dpi, sticker en couleurs vraies) ; le fichier pèse 65 Ko environ. Option `--compact` de `docx_google_docs.py` pour un connecteur Google Drive (moins de 30 000 caractères de base64, images moins nettes).
+- L'avertissement de débordement de la page 1 nomme le champ qui prend le plus de place. Règles de rédaction : intitulé imposé par l'utilisateur, longueur du public visé.
+
+### skazy-quiz 1.0.5, notation-etudiants 1.0.5
+
+- Typographie : espace insécable aussi pour px, pt, mm, cm, ms, dpi, Ko, Mo, Go, minutes, semaines, mois, participants et le séparateur des milliers (« 1 250 000 »).
+
 ## 2026-10-28
 
 ### Dépôt : rendus comparés aux modèles de design-skazy

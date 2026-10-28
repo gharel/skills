@@ -79,7 +79,13 @@ def typographie(texte: str) -> str:
     t = re.sub(r"\s+([:»])", NBSP + r"\1", t)
     t = re.sub(r"\s+([;?!])", NBSP + r"\1", t)
     t = re.sub(r"«\s*", "«" + NBSP, t)
-    t = re.sub(r"(\d)\s+(%|h\b|min\b|€|F\b|XPF\b|jours?\b|heures?\b|ans?\b|personnes?\b)", r"\1" + NBSP + r"\2", t)
+    t = re.sub(r"(?<=\d)\s+(?=\d{3}(?!\d))", NBSP, t)  # séparateur des milliers : « 1 080 », « 1 250 000 »
+    t = re.sub(
+        r"(\d)\s+(%|h\b|min\b|minutes?\b|€|F\b|XPF\b|jours?\b|heures?\b|semaines?\b|mois\b|ans?\b|personnes?\b"
+        r"|participants?\b|px\b|pt\b|mm\b|cm\b|ms\b|dpi\b|ppp\b|Ko\b|Mo\b|Go\b)",
+        r"\1" + NBSP + r"\2",
+        t,
+    )
     t = re.sub(r"\s·\s", NBSP + "· ", t)
     return t
 
@@ -264,12 +270,13 @@ def sticker_png(fond: str, icone: str, taille: int = 300, rotation: float = 8) -
 # ---------------------------------------------------------------- images légères (DOCX, PPTX)
 
 
-def palette_transparente(im, niveaux: int = 6, maxi: int = 5):
+def palette_transparente(im, niveaux: int = 16, maxi: int = 8):
     """Image RGBA → palette (couleurs franches × niveaux de transparence) et sa table de transparence.
 
-    Un logo ou un sticker est fait de quelques aplats lissés sur fond transparent : ses couleurs franches
-    suffisent, les bords et l'ombre douce passent par la transparence. La quantification de Pillow, elle,
-    perd une couleur rare (le vert du logo) au profit des pixels transparents ou de l'ombre.
+    Pour un logo ou une icône seulement (voir est_graphique) : quelques aplats lissés sur fond transparent,
+    dont les couleurs franches suffisent ; les bords et l'ombre douce passent par les 16 niveaux de
+    transparence. La quantification de Pillow, elle, perd une couleur rare (le vert du logo) au profit des
+    pixels transparents ou de l'ombre. Une photo n'y passe jamais : elle serait réduite à quelques aplats.
     """
     from PIL import Image
 
@@ -284,6 +291,19 @@ def palette_transparente(im, niveaux: int = 6, maxi: int = 5):
     p = Image.frombytes("P", im.size, indices)
     p.putpalette([v for c in pal for _ in range(niveaux) for v in c])
     return p, bytes(round(n * pas) for _ in range(couleurs) for n in range(niveaux))
+
+
+def est_graphique(im, maxi: int = 8, couverture: float = 0.99) -> bool:
+    """Logo, icône : quelques couleurs franches couvrent tous les pixels opaques, la palette est sans perte.
+    Faux pour un sticker (le contour lissé sur l'aplat se crénellerait), une photo ou une photo composée."""
+    cases: dict[tuple, int] = {}
+    octets = im.convert("RGBA").tobytes()
+    for r, v, b, a in zip(octets[0::4], octets[1::4], octets[2::4], octets[3::4]):
+        if a > 200:
+            cle = (r >> 3, v >> 3, b >> 3)
+            cases[cle] = cases.get(cle, 0) + 1
+    opaques = sum(cases.values())
+    return opaques > 0 and sum(sorted(cases.values(), reverse=True)[:maxi]) >= couverture * opaques
 
 
 def couleurs_franches(im, part: float = 0.01, maxi: int = 8) -> list[tuple[int, int, int]]:

@@ -1,10 +1,11 @@
 {
   "depot": "https://github.com/gharel/design-skazy",
-  "commit": "c721a2b811f6ff30c330539633094b10b26c5b98",
+  "commit": "87f4cf3f0a01aef3f28abdeaca39fc81d8675d1d",
   "fichiers": {
     "charte/charte.json": "charte.json",
     "charte/plan-formation.css": "plan-formation.css",
     "charte/plan-formation.js": "plan-formation.js",
+    "charte/support-formation.css": "support-formation.css",
     "assets/logo-color.png": "logo-color.png",
     "assets/logo-white.png": "logo-white.png"
   }

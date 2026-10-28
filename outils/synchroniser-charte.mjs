@@ -37,6 +37,7 @@ const DEPUIS_DESIGN = {
   'charte/charte.json': 'charte.json',
   'charte/plan-formation.css': 'plan-formation.css',
   'charte/plan-formation.js': 'plan-formation.js',
+  'charte/support-formation.css': 'support-formation.css',
   'assets/logo-color.png': 'logo-color.png',
   'assets/logo-white.png': 'logo-white.png',
 };

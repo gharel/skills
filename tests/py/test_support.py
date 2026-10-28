@@ -1,5 +1,6 @@
 import io
 import json
+import re
 
 import pytest
 from conftest import SKILLS
@@ -96,9 +97,126 @@ def test_html():
 
     s, _ = support()
     html = rendre_html(s)
-    assert html.count('<section class="slide"') == len(s["_slides"])
+    assert html.count('<section class="slide ') == len(s["_slides"])
     assert 'template class="notes-slide"' in html
     assert "--c:#A977DA" in html
+
+
+# Propriétés permises dans un attribut style du HTML, avec la forme de leur valeur.
+EN_LIGNE = {
+    "--cover": r'url\("[^"]+"\)',
+    "background-image": r'url\(("[^"]+"|data:image/svg\+xml;base64,[\w+/=]+)\)',
+    "--i": r"url\(data:image/svg\+xml;base64,[\w+/=]+\)",
+    "left": r"calc\(-?[\d.]+% - 32px\)",
+    "top": r"calc\(-?[\d.]+% - 32px\)",
+    "height": r"calc\(\(100% - 56px\) \* [\d.]+\)",
+    "grid-template-columns": r"repeat\(\d+,1fr\)",
+    "grid-template-rows": r"repeat\(\d+,1fr\)",
+    "font-size": r"\d+px",
+    "padding-block": r"\d+px",
+    "column-count": r"1",
+}
+# Classes du skill qui ne viennent pas du modèle : structure du deck, emplacement d'image vide, lien discret
+# (défini par styles.css du design system), modèle des notes.
+CLASSES_SKILL = {"scene", "deck", "slide", "vide", "lk", "notes-slide", "notes", "barre"}
+POLICE = {"color", "font", "font-family", "font-size", "font-weight", "line-height", "letter-spacing", "border-radius"}
+
+
+def declarations(style: str) -> list[tuple[str, str]]:
+    """Déclarations d'un style, sans couper aux « ; » d'une URL data: ni d'un calc()."""
+    sortie, profondeur, debut = [], 0, 0
+    for i, c in enumerate(style + ";"):
+        profondeur += {"(": 1, ")": -1}.get(c, 0)
+        if c == ";" and profondeur == 0:
+            if style[debut:i].strip():
+                nom, _, valeur = style[debut:i].partition(":")
+                sortie.append((nom.strip(), valeur.strip()))
+            debut = i + 1
+    return sortie
+
+
+def test_html_employe_les_classes_du_modele():
+    """Le design du HTML vient du modèle de design-skazy, sans valeur recopiée.
+
+    (a) La feuille exportée par design-skazy (support-formation.css) est incluse telle quelle, avant le CSS du
+    skill, et chaque classe sf-… du balisage y existe ; les autres classes sont celles du deck (CLASSES_SKILL).
+
+    (b) Un attribut style ne porte que ce qui dépend du contenu, d'où la liste blanche EN_LIGNE :
+    --cover et background-image : URL de la photo ou de la capture du JSON, ou de l'icône d'un sticker
+    (données embarquées, le modèle les charge en ligne) ; --i : icône de l'emplacement vide ;
+    left et top : repère x et y (en %) d'une pastille de capture, centrée sur le repère ;
+    height : hauteur d'une barre de graphique, proportionnelle à sa valeur ;
+    grid-template-columns et grid-template-rows : une piste par élément du JSON (étapes, barres, encadrés,
+    règles, propositions du quiz) ; font-size : taille réduite pour un texte long ou pour un mot qui ne tient
+    pas dans sa colonne ; padding-block : lignes du programme resserrées au-delà de 8 parties ;
+    column-count : une seule colonne pour un texte d'un seul paragraphe.
+
+    (c) Le CSS propre au skill n'a ni couleur de texte, ni police, ni rayon, sauf pour la barre de navigation,
+    les notes et le composant image-slot du modèle (runtime Claude Design, sans classe exportée : image posée
+    et emplacement vide .vide). :root n'y définit que les variables de la catégorie.
+    """
+    from html.parser import HTMLParser
+
+    import support_html as h
+
+    s, _ = support()
+    html = h.rendre_html(s)
+    feuille = h.feuille()
+    assert "<style>" + feuille + "</style>\n<style>:root{" in html
+    classes_modele = set(re.findall(r"^\.(sf-[0-9a-f]{6})\{", feuille, re.M))
+
+    elements = []
+
+    class Lecteur(HTMLParser):
+        def handle_starttag(self, tag, attrs):
+            elements.append((tag, dict(attrs)))
+
+    Lecteur().feed(html.split("<body>")[1])
+    for tag, attrs in elements:
+        for c in (attrs.get("class") or "").split():
+            assert c in classes_modele or c in CLASSES_SKILL, (tag, c)
+        for nom, valeur in declarations(attrs.get("style") or ""):
+            assert nom in EN_LIGNE, (tag, attrs.get("class"), nom)
+            assert re.fullmatch(EN_LIGNE[nom], valeur), (tag, nom, valeur[:80])
+    assert sum("sf-" in (a.get("class") or "") for _, a in elements) > 500
+
+    css = html.split("<style>:root{")[1].split("</style>")[0]
+    racine, _, regles = css.partition("}")
+    assert all(nom.startswith("--") for nom, _ in declarations(racine))
+    assert ".sf-" not in regles
+    for selecteur, corps in re.findall(r"([^{}]+)\{([^{}]*)\}", regles):
+        selecteur = selecteur.strip()
+        if selecteur.startswith((".barre", ".notes", ".vide", "image-slot")):
+            continue
+        for nom, valeur in declarations(corps):
+            assert nom not in POLICE, (selecteur, nom, valeur)
+
+
+def test_html_mot_trop_long_et_duree():
+    """Un mot plus large que sa colonne réduit la taille du modèle juste assez (sans être coupé) ; le contenu du
+    modèle garde ses tailles. La durée d'un exercice se découpe sur toute espace, insécable comprise."""
+    import support_html as h
+
+    def rendu(intitule, slides):
+        formation = json.loads(EXEMPLE.read_text(encoding="utf-8"))["formation"]
+        s, rapport = support(formation={**formation, "intitule": intitule}, slides=slides)
+        assert rapport.ok, rapport.erreurs
+        return h.rendre_html(s)
+
+    etapes = [{"date": str(2000 + k), "texte": "Étape"} for k in range(5)] + [{"date": "Aujourd'hui", "texte": "Fin"}]
+    html = rendu("Stratégie de communication", [
+        {"type": "couverture"},
+        {"type": "frise", "titre": "Dates", "etapes": etapes},
+        {"type": "exercice-etapes", "titre": "Exercice", "duree": "40 minutes", "etapes": ["Un", "Deux"]},
+    ])
+    couverture = re.search(r'<h1 class="sf-3ff854" style="font-size:(\d+)px">', html)
+    assert couverture and 90 <= int(couverture.group(1)) < 104
+    date = re.search(r'<span class="sf-cbb07a" style="font-size:(\d+)px">Aujourd', html)
+    assert date and 40 <= int(date.group(1)) < 52
+    assert '<span class="sf-dce7d8">40</span><span class="sf-6f7ed2">minutes</span>' in html
+    # Titre court et dates courtes : tailles du modèle, aucun style en ligne.
+    html = rendu("Excel : les bases", [{"type": "couverture"}, {"type": "frise", "titre": "Dates", "etapes": etapes[:5]}])
+    assert '<h1 class="sf-3ff854">' in html and 'class="sf-2e8d89">2000<' in html
 
 
 def test_pptx_slides_notes_et_pied():
@@ -203,7 +321,7 @@ def test_sans_animations():
 
 
 def test_pptx_allege():
-    """Paquet allégé : une seule disposition, ni vignette ni propriétés, images transparentes en palette."""
+    """Paquet allégé : une seule disposition, ni vignette ni propriétés ; seul le logo passe en palette."""
     import zipfile
 
     from PIL import Image
@@ -218,9 +336,9 @@ def test_pptx_allege():
     assert not any(n.startswith(("docProps/", "ppt/printerSettings/")) for n in noms)
     maitre = z.read("ppt/slideMasters/slideMaster1.xml").decode("utf-8")
     assert maitre.count("<p:sldLayoutId ") == 1
-    for n in noms:
-        if n.startswith("ppt/media/") and n.endswith(".png"):
-            im = Image.open(io.BytesIO(z.read(n)))
-            if "transparency" in im.info or im.mode in ("RGBA", "LA"):
-                assert im.mode == "P", n
+    images = [Image.open(io.BytesIO(z.read(n))) for n in noms if n.startswith("ppt/media/") and n.endswith(".png")]
+    # Palette pour le logo et les icônes seulement : les stickers (carrés, 300 px et plus) gardent leurs
+    # couleurs vraies, au double de leur taille d'affichage.
+    stickers = [im for im in images if im.width >= 300 and abs(im.width - im.height) <= 4]
+    assert stickers and all(im.mode == "RGBA" for im in stickers)
     assert len(presentation(s).slides) == len(s["_slides"])

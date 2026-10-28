@@ -11,6 +11,7 @@ commun/charte/icones/
 # Recopiés de design-skazy par npm run synchroniser, à l'identique
 commun/charte/charte.json
 commun/charte/plan-formation.*
+commun/charte/support-formation.css
 commun/charte/origine.json
 commun/charte/alignement.json
 .claude/

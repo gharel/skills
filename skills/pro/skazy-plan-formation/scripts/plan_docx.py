@@ -26,7 +26,7 @@ HAUTEUR_LIGNE = 1.174  # hauteur de ligne naturelle de Raleway, rapportée à la
 PAGE_L, PAGE_H = 595.3, 841.9
 MARGE = 48.0  # marges gauche et droite (17 mm)
 UTILE = PAGE_L - 2 * MARGE
-DPI = 84  # résolution des fonds, du logo et du sticker : nets à l'écran, base64 du DOCX sous 30 000 caractères
+DPI = 90  # résolution des fonds : nets à l'écran, légers (logo et sticker : voir docx_google_docs.DPI_GRAPHIQUE)
 EMU = 12700  # EMU par point
 
 # Page 1
@@ -589,7 +589,7 @@ def rendre_docx(p: dict) -> bytes:
     # Allégé (gabarit python-docx, images) pour Google Docs et les connecteurs Drive : voir docx_google_docs.py.
     from docx_google_docs import preparer_docx
 
-    return preparer_docx(tampon.getvalue(), dpi=DPI)[0]  # logo et sticker à la résolution des fonds
+    return preparer_docx(tampon.getvalue(), dpi=DPI)[0]
 
 
 def mise_en_page(section, haut, bas, distance_pied) -> None:

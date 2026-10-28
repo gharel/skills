@@ -48,10 +48,10 @@ Exporte le .docx en PDF.
 
 ## Étape 1 : alléger le .docx
 
-Un connecteur Google Drive reçoit le fichier en base64 recopié dans l'appel. Il faut rester sous 22 Ko (30 000 caractères de base64) : un .docx de Word avec ses polices embarquées en fait 10 fois plus. Le plan de référence, page 2 complète, en fait 29 400.
+Le DOCX de `rendre_plan.py` privilégie la qualité : logo et sticker nets à l'impression, en couleurs vraies (65 Ko pour le plan de référence). Un connecteur Google Drive, lui, reçoit le fichier en base64 recopié dans l'appel et doit rester sous 22 Ko (30 000 caractères) : `--compact` y ramène le DOCX (29 900 caractères pour le plan de référence), au prix d'un logo et d'un sticker moins nets. Un .docx de Word avec ses polices embarquées en fait 10 fois plus.
 
 ```bash
-python scripts/docx_google_docs.py plan.docx --base64   # crée plan.google-docs.docx et son base64 (.b64.txt)
+python scripts/docx_google_docs.py plan.docx --compact --base64   # pour un connecteur : plan.google-docs.docx et son base64 (.b64.txt)
 ```
 
 Le script, que `rendre_plan.py` applique à chaque DOCX :
@@ -60,7 +60,7 @@ Le script, que `rendre_plan.py` applique à chaque DOCX :
 - retire les styles, numérotations, polices et thème que rien n'utilise, et les propriétés redondantes (`szCs`, `bCs`, `iCs`, police identique à celle par défaut) ;
 - convertit chaque interligne exact en interligne multiple équivalent ;
 - remplace la marge gauche des cellules par un retrait, aligne les marges haute et basse de chaque rangée, et ajoute un paragraphe minuscule avant un tableau en tête d'en-tête, de pied ou de document ;
-- réduit les images à leur taille d'affichage, à 110 dpi (84 dpi pour `rendre_plan.py`, 120 px au moins pour les images transparentes), avec des noms courts (`0.png`, `1.png`…). Une image transparente (logo, sticker) passe sur une palette faite de ses couleurs franches (5 au plus) et de 6 niveaux de transparence : la quantification de Pillow y perdait le vert du logo ou le blanc du sticker.
+- réduit les images à leur taille d'affichage : fonds à 110 dpi (90 pour `rendre_plan.py`), logo et sticker à 220 dpi, avec des noms courts (`0.png`, `1.png`…). Le logo passe sur la palette de ses couleurs franches, sans perte ; le sticker et les photos gardent leurs couleurs vraies (une palette crénelle le contour du sticker et réduit une photo à quelques aplats). Avec `--compact`, tout est à 80 dpi et en palette.
 
 Il affiche la taille obtenue et le plus long passage répété du base64. Rouvre toujours le fichier produit dans Word (commande de l'étape 0) : il doit s'ouvrir et faire le même nombre de pages.
 
@@ -84,7 +84,7 @@ Règles :
   Le script donne la position et le contenu de chaque écart. N'envoie que la recopie déclarée identique, telle quelle.
 
 - **Recopier dans un contexte neuf.** Après plusieurs versions du même fichier, confie la recopie et l'envoi à un sous-agent ou à une nouvelle conversation, qui n'a vu que la dernière.
-- **Rester sous 30 000 caractères environ.** Au-delà, l'appel au connecteur, qui recopie tout le base64 d'un bloc, dérive en cours de route même quand chaque tranche a été vérifiée, et un filtre peut l'interrompre (deux essais à 34 000 et 42 000 caractères). Le DOCX de `rendre_plan.py` reste en dessous (29 400 pour le plan de référence), mais ce n'est pas une garantie : le 28/10/2026, un filtre a encore coupé l'envoi de ces 29 400 caractères, pourtant vérifiés identiques. Ne relance pas un envoi coupé par un filtre : importe le DOCX à la main (ci-dessous), puis vérifie-le avec l'export PDF du connecteur, qui marche quelle que soit la taille.
+- **Rester sous 30 000 caractères environ.** Au-delà, l'appel au connecteur, qui recopie tout le base64 d'un bloc, dérive en cours de route même quand chaque tranche a été vérifiée, et un filtre peut l'interrompre (deux essais à 34 000 et 42 000 caractères). Passe le DOCX par `--compact`. Ce n'est pas une garantie : le 28/10/2026, un filtre a encore coupé l'envoi de 29 400 caractères, pourtant vérifiés identiques. Ne relance pas un envoi coupé par un filtre : importe le DOCX à la main (ci-dessous), puis vérifie-le avec l'export PDF du connecteur, qui marche quelle que soit la taille.
 - **Tester le connecteur à moindre coût.** Un .docx minimal de quelques centaines d'octets suffit : s'il se convertit, un refus sur le vrai fichier vient de la recopie.
 
 Puis importe :

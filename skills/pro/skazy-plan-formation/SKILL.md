@@ -3,7 +3,7 @@ name: skazy-plan-formation
 description: "Crée, restructure ou enrichit un plan de formation (fiche programme A4 d'une ou deux pages) aux couleurs de Skazy Formation, à partir d'un simple sujet, de notes ou d'un plan existant. Rédige l'intitulé, la description, 3 à 5 objectifs pédagogiques observables (taxonomie de Bloom), les prérequis, le public, la durée, le programme en parties et les modalités, puis produit un HTML imprimable en PDF et un DOCX pour Word ou Google Docs, fidèles au modèle « Plan de formation » du design system Skazy Formation. À utiliser dès que l'on demande un plan de formation, un programme ou une fiche de formation, un déroulé ou un syllabus, même sans citer Skazy."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.3.1'
+  version: '1.4.0'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills
@@ -70,7 +70,7 @@ Le rendu est donc identique quel que soit l'assistant utilisé.
    - Rappelle comment s'en servir :
      - le HTML s'imprime en PDF (bouton « Imprimer ou enregistrer en PDF ») ;
      - le DOCX s'ouvre dans Word ;
-     - le DOCX s'importe tel quel dans Google Docs, avec la même mise en page : Fichier > Ouvrir > Importer, ou un connecteur Google Drive qui crée le fichier avec conversion. Il est léger (25 Ko environ) pour passer par un connecteur. Si le connecteur demande le contenu en base64 :
+     - le DOCX s'importe tel quel dans Google Docs, avec la même mise en page : Fichier > Ouvrir > Importer, ou un connecteur Google Drive qui crée le fichier avec conversion. Ses images restent nettes (65 Ko environ). Pour un connecteur, qui doit rester sous 30 000 caractères de base64, `python scripts/docx_google_docs.py plan.docx --compact --base64` le ramène sous cette limite, logo et sticker un peu moins nets. Si le connecteur demande le contenu en base64 :
        - `python scripts/docx_google_docs.py plan-<intitulé>.docx --base64` l'écrit dans un `.b64.txt` ;
        - affiche-le juste avant de le recopier, écris d'abord ta recopie dans un fichier, et vérifie-la avec `python scripts/docx_google_docs.py --verifier-recopie <fichier>.b64.txt recopie.b64` ; n'envoie qu'une recopie identique ;
        - si la conversation contient déjà une version précédente du fichier, confie la recopie à un contexte neuf (sous-agent ou nouvelle conversation) : la recopie y revient sinon d'elle-même ;
@@ -111,4 +111,4 @@ Le rendu est donc identique quel que soit l'assistant utilisé.
 - `exemples/plan-exemple.json` : plan complet (Excel, les bases), modalités standard.
 - `exemples/plan-ia-reportings.json` : plan complet (L’IA pour vos reportings), page 2 adaptée au sujet.
 
-Version 1.3.1. Sources, mises à jour et autres skills : https://gharel.github.io/skills/
+Version 1.4.0. Sources, mises à jour et autres skills : https://gharel.github.io/skills/

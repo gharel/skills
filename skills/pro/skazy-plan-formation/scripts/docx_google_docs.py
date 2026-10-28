@@ -31,7 +31,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from charte import palette_transparente  # noqa: E402  (images transparentes : voir charte.py)
+from charte import est_graphique, palette_transparente  # noqa: E402  (images transparentes : voir charte.py)
 
 NS = {
     "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
@@ -41,7 +41,8 @@ NS = {
 }
 HAUTEUR_LIGNE = 1.174  # hauteur de ligne naturelle de Raleway, rapportée à la taille de police
 DPI = 110  # images : nettes à l'écran, un peu moins à l'impression
-LARGEUR_MINI_TRANSPARENTE = 120  # px : logo et sticker gardent du détail
+DPI_GRAPHIQUE = 220  # images transparentes (logo, sticker) : nettes à l'écran comme à l'impression
+DPI_COMPACT = 80  # --compact : tout le DOCX sous 30 000 caractères de base64, pour un connecteur Google Drive
 PARTIES = re.compile(r"word/(document|header\d+|footer\d+|footnotes|endnotes|comments)\.xml$")
 INUTILES = re.compile(
     r"^(word/fonts/.+|word/fontTable\.xml|word/stylesWithEffects\.xml|word/webSettings\.xml|docProps/(app|core|custom)\.xml|"
@@ -500,7 +501,10 @@ def largeurs_affichage(fichiers: dict) -> dict[str, float]:
     return largeurs
 
 
-def alleger_images(fichiers: dict, messages: list[str], dpi: float) -> None:
+def alleger_images(fichiers: dict, messages: list[str], dpi: float, compact: bool = False) -> None:
+    """Images à leur taille d'affichage : fonds à dpi, images transparentes (logo, sticker) à DPI_GRAPHIQUE.
+    Seuls logo et icônes passent sur une palette, sans perte ; sticker et photos restent en couleurs vraies.
+    En mode compact (connecteur Google Drive), tout est à DPI_COMPACT et en palette : plus léger, moins net."""
     from PIL import Image
 
     largeurs = largeurs_affichage(fichiers)
@@ -519,9 +523,7 @@ def alleger_images(fichiers: dict, messages: list[str], dpi: float) -> None:
         if transparente:
             im = im.convert("RGBA")
             transparente = im.getchannel("A").getextrema()[0] < 255
-        cible = max(24, round(largeurs[nom] * dpi))
-        if transparente:
-            cible = max(cible, LARGEUR_MINI_TRANSPARENTE)
+        cible = max(24, round(largeurs[nom] * (DPI_GRAPHIQUE if transparente and not compact else dpi)))
         cible += k % 8  # en-têtes d'images distincts : la recopie du base64 ne saute pas d'une image à l'autre
         if not transparente and im.mode != "RGB":
             im = im.convert("RGB")
@@ -538,8 +540,11 @@ def alleger_images(fichiers: dict, messages: list[str], dpi: float) -> None:
         if format_ == "JPEG":
             im.convert("RGB").save(tampon, "JPEG", quality=82, optimize=True)
         elif transparente:
-            p, table = palette_transparente(im)  # logo, sticker : 1,5 Ko au lieu de 5, sans perte visible
-            p.save(tampon, "PNG", optimize=True, transparency=table)
+            if compact or est_graphique(im):  # logo : couleurs franches et 16 niveaux de transparence
+                p, table = palette_transparente(im, *((6, 5) if compact else ()))
+                p.save(tampon, "PNG", optimize=True, transparency=table)
+            else:
+                im.save(tampon, "PNG", optimize=True)  # sticker : couleurs vraies, contour lisse
         elif im.convert("RGB").getcolors(4096) is not None:
             im.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(tampon, "PNG", optimize=True)
         else:
@@ -608,7 +613,7 @@ def comparer_recopie(original: str, recopie: str) -> list[tuple[int, str, str]]:
 # ---------------------------------------------------------------- traitement complet
 
 
-def preparer_docx(donnees: bytes, dpi: float = DPI, hauteur_ligne: float = HAUTEUR_LIGNE) -> tuple[bytes, list[str]]:
+def preparer_docx(donnees: bytes, dpi: float = DPI, hauteur_ligne: float = HAUTEUR_LIGNE, compact: bool = False) -> tuple[bytes, list[str]]:
     """DOCX allégé et sans interligne exact : (octets, liste de ce qui a été fait)."""
     source = zipfile.ZipFile(io.BytesIO(donnees))
     fichiers = {i.filename: source.read(i.filename) for i in source.infolist() if not i.filename.endswith("/")}
@@ -621,7 +626,7 @@ def preparer_docx(donnees: bytes, dpi: float = DPI, hauteur_ligne: float = HAUTE
     marges_en_retraits(fichiers, messages)
     marges_de_rangees(fichiers, messages)
     paragraphes_avant_tableaux(fichiers, messages)
-    alleger_images(fichiers, messages, dpi)
+    alleger_images(fichiers, messages, DPI_COMPACT if compact else dpi, compact)
     tampon = io.BytesIO()
     with zipfile.ZipFile(tampon, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as sortie:
         for nom in ["[Content_Types].xml"] + sorted(n for n in fichiers if n != "[Content_Types].xml"):
@@ -643,6 +648,8 @@ def main() -> None:
     parser.add_argument("--dpi", type=float, default=DPI, help="résolution des images à leur taille d'affichage (110 par défaut)")
     parser.add_argument("--hauteur-ligne", type=float, default=HAUTEUR_LIGNE,
                         help="hauteur de ligne naturelle de la police / taille (Raleway : 1,174)")
+    parser.add_argument("--compact", action="store_true",
+                        help="pour un connecteur Google Drive : images à 80 dpi, sous 30 000 caractères de base64 (logo et sticker moins nets)")
     parser.add_argument("--base64", action="store_true", help="écrit aussi le base64 en lignes de 12 000 caractères (.b64.txt)")
     parser.add_argument("--verifier-recopie", nargs=2, metavar=("ORIGINAL", "RECOPIE"),
                         help="compare le base64 (.b64.txt) à sa recopie avant de l'envoyer au connecteur")
@@ -658,7 +665,7 @@ def main() -> None:
         parser.error("indiquer le fichier .docx à préparer")
     source = Path(args.docx)
     sortie = Path(args.sortie) if args.sortie else source.with_name(source.stem + ".google-docs.docx")
-    resultat, messages = preparer_docx(source.read_bytes(), args.dpi, args.hauteur_ligne)
+    resultat, messages = preparer_docx(source.read_bytes(), args.dpi, args.hauteur_ligne, args.compact)
     sortie.write_bytes(resultat)
     for m in messages:
         print("- " + m)

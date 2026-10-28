@@ -89,9 +89,11 @@ def normaliser_plan(brut: dict) -> tuple[dict, ch.Rapport]:
     p["_coupure"] = couper_programme(p["programme"])
     p["_charge"] = estimer_charge(p)
     if p["_charge"] > 1.0:
+        gros = sorted(repartition_page1(p).items(), key=lambda kv: -kv[1])[:2]
         r.avertir(
-            "le contenu de la page 1 dépasse d'environ {:.0f} % la place disponible : la taille du programme "
-            "sera réduite, raccourcissez les points ou supprimez une partie.".format((p["_charge"] - 1) * 100)
+            "le contenu de la page 1 dépasse d'environ {:.0f} % la place disponible : la taille du programme sera "
+            "réduite. Ce qui prend le plus de place : {} ; raccourcissez-le d'abord.".format(
+                (p["_charge"] - 1) * 100, " et ".join("{} ({:.0f} px)".format(n, h) for n, h in gros))
         )
     return p, r
 
@@ -166,16 +168,22 @@ def couper_programme(programme: list[dict]) -> int:
     return meilleur
 
 
+def repartition_page1(p: dict) -> dict[str, float]:
+    """Hauteur estimée (px) de chaque champ de la page 1 qui peut la faire déborder."""
+    i = couper_programme(p["programme"])
+    lignes_infos = {"les prérequis": lignes(p["prerequis"], 30), "le public": lignes(p["public"], 26)}
+    plus_long = max(lignes_infos, key=lignes_infos.get)
+    return {
+        "la description": 21.7 * lignes(p["description"], 92),
+        "les objectifs": 52 + sum(23.3 * lignes(o, 96) for o in p["objectifs"]),
+        plus_long: 18.9 * max(lignes_infos[plus_long], 1),
+        "le programme": max(hauteur_parties(p["programme"][:i]), hauteur_parties(p["programme"][i:])),
+    }
+
+
 def estimer_charge(p: dict) -> float:
     """Rapport entre la hauteur estimée du contenu de la page 1 et la place disponible (1.0 = plein)."""
-    fixe = 150 + 40 + 84 + 58 + 78
-    fixe += 21.7 * lignes(p["description"], 92)
-    fixe += 52 + sum(23.3 * lignes(o, 96) for o in p["objectifs"])
-    infos = max(lignes(p["prerequis"], 30), lignes(p["public"], 26), 1)
-    fixe += 18.9 * infos
-    i = couper_programme(p["programme"])
-    programme = max(hauteur_parties(p["programme"][:i]), hauteur_parties(p["programme"][i:]))
-    return (fixe + programme) / 1123
+    return (150 + 40 + 84 + 58 + 78 + sum(repartition_page1(p).values())) / 1123
 
 
 # ---------------------------------------------------------------- HTML

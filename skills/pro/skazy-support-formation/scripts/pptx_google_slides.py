@@ -6,9 +6,9 @@ Usage :
 
 Un connecteur Google Drive reçoit le fichier en base64 recopié dans l'appel : au-delà de 30 000 caractères
 environ (22 Ko), la recopie dérive. Un PPTX vide de python-pptx en pèse déjà 27 Ko : 11 dispositions de
-diapositive, une vignette et un thème complet. Le script retire ce qui ne sert pas, ramène chaque image à sa
-taille d'affichage (1 px de la slide de 1 920 px = 6 350 EMU), passe les images transparentes (logo, stickers,
-icônes) sur la palette de leurs couleurs franches et recompresse le paquet. Il ne change rien à ce
+diapositive, une vignette et un thème complet. Le script retire ce qui ne sert pas, ramène chaque image au double
+de sa taille d'affichage au plus (1 px de la slide de 1 920 px = 6 350 EMU), passe logo et icônes sur
+la palette de leurs couleurs franches et recompresse le paquet. Photos et stickers gardent leur qualité. Il ne change rien à ce
 qu'affichent PowerPoint et Google Slides.
 
 rendre_support.py l'applique à chaque PPTX qu'il produit.
@@ -27,10 +27,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from charte import palette_transparente  # noqa: E402  (images transparentes : voir charte.py)
+from charte import est_graphique, palette_transparente  # noqa: E402  (images transparentes : voir charte.py)
 
 EMU_PAR_PX = 6350  # slide de 1 920 px = 12 192 000 EMU
-QUALITE_JPEG = 74
+QUALITE_JPEG = 85
+ECHELLE_MAXI = 2  # images gardées jusqu'au double de leur taille d'affichage (écrans haute densité)
 LARGEUR_MINI = 64  # px : une petite icône garde son dessin
 
 
@@ -106,6 +107,9 @@ def tailles_affichage(fichiers: dict) -> dict[str, tuple[float, float]]:
 
 
 def alleger_images(fichiers: dict, messages: list[str]) -> None:
+    """Images au double de leur taille d'affichage au plus (nettes sur un écran haute densité), sans perte
+    de qualité : photos et stickers restent en couleurs vraies (JPEG à 85 pour une photo retaillée), seuls logo
+    et icônes passent sur la palette de leurs couleurs franches, sans perte."""
     from PIL import Image
 
     tailles = tailles_affichage(fichiers)
@@ -122,29 +126,29 @@ def alleger_images(fichiers: dict, messages: list[str]) -> None:
         if format_ not in ("PNG", "JPEG"):
             continue
         largeur, hauteur = tailles[nom]
-        echelle = max(largeur / im.width, hauteur / im.height)
-        cible = (max(LARGEUR_MINI, round(im.width * echelle)), max(1, round(im.height * echelle)))
-        if cible[0] < im.width:
-            im = im.resize(cible, Image.LANCZOS)
+        echelle = ECHELLE_MAXI * max(largeur / im.width, hauteur / im.height)
+        retaillee = echelle < 1
+        if retaillee:
+            im = im.resize((max(LARGEUR_MINI, round(im.width * echelle)), max(1, round(im.height * echelle))), Image.LANCZOS)
         tampon = io.BytesIO()
         transparente = im.mode in ("RGBA", "LA", "PA") or (im.mode == "P" and "transparency" in im.info)
         if transparente:
             transparente = im.convert("RGBA").getchannel("A").getextrema()[0] < 255
         if format_ == "JPEG":
+            if not retaillee:
+                continue  # photo déjà à la bonne taille : jamais recompressée
             im.convert("RGB").save(tampon, "JPEG", quality=QUALITE_JPEG, optimize=True, progressive=True)
-        elif transparente:
-            p, table = palette_transparente(im)  # logo, sticker, icône : quelques couleurs franches lissées
+        elif transparente and est_graphique(im):
+            p, table = palette_transparente(im)  # logo, icône : sans perte
             p.save(tampon, "PNG", optimize=True, transparency=table)
-        elif im.convert("RGB").getcolors(4096) is not None:
-            im.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(tampon, "PNG", optimize=True)
         else:
-            im.convert("RGB").save(tampon, "PNG", optimize=True)
+            im.save(tampon, "PNG", optimize=True)  # sticker, photo composée (polaroïd, ombre) : couleurs vraies
         avant += len(fichiers[nom])
-        if len(tampon.getvalue()) < len(fichiers[nom]):
+        if retaillee or len(tampon.getvalue()) < len(fichiers[nom]):
             fichiers[nom] = tampon.getvalue()
         apres += len(fichiers[nom])
     if avant:
-        messages.append("images réduites à leur taille d'affichage : {} Ko → {} Ko".format(round(avant / 1024), round(apres / 1024)))
+        messages.append("images ramenées au double de leur taille d'affichage : {} Ko → {} Ko".format(round(avant / 1024), round(apres / 1024)))
 
 
 def preparer_pptx(donnees: bytes) -> tuple[bytes, list[str]]:

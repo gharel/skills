@@ -31,13 +31,34 @@
     {
       "type": "programme",
       "parties": [
-        { "titre": "Découvrir l'environnement Excel", "duree": "1 h 30" },
-        { "titre": "Saisir et organiser les données", "duree": "2 h" },
-        { "titre": "Calculer avec des formules", "duree": "3 h" },
-        { "titre": "Mettre en forme un tableau", "duree": "2 h" },
-        { "titre": "Aller plus loin avec la fonction SI", "duree": "2 h" },
-        { "titre": "Représenter les données", "duree": "2 h" },
-        { "titre": "Projet final", "duree": "1 h 30" }
+        {
+          "titre": "Découvrir l'environnement Excel",
+          "duree": "1 h 30"
+        },
+        {
+          "titre": "Saisir et organiser les données",
+          "duree": "2 h"
+        },
+        {
+          "titre": "Calculer avec des formules",
+          "duree": "3 h"
+        },
+        {
+          "titre": "Mettre en forme un tableau",
+          "duree": "2 h"
+        },
+        {
+          "titre": "Aller plus loin avec la fonction SI",
+          "duree": "2 h"
+        },
+        {
+          "titre": "Représenter les données",
+          "duree": "2 h"
+        },
+        {
+          "titre": "Projet final",
+          "duree": "1 h 30"
+        }
       ],
       "notes": "Programme sur deux jours : parties 1 à 3 le premier jour, 4 à 7 le second."
     },
@@ -61,8 +82,14 @@
           "label": "Cellule",
           "texte": "l'intersection d'une colonne et d'une ligne, par exemple B3"
         },
-        { "label": "Plage", "texte": "un ensemble de cellules, par exemple A1:C10" },
-        { "label": "Astuce", "texte": "double-cliquez sur l'onglet pour renommer une feuille" }
+        {
+          "label": "Plage",
+          "texte": "un ensemble de cellules, par exemple A1:C10"
+        },
+        {
+          "label": "Astuce",
+          "texte": "double-cliquez sur l'onglet pour renommer une feuille"
+        }
       ],
       "notes": "Faites la démonstration en direct : création d'un classeur, ajout et renommage de feuilles."
     },
@@ -70,9 +97,24 @@
       "type": "capture",
       "titre": "L'interface d'Excel",
       "reperes": [
-        { "titre": "Ruban", "texte": "Les commandes, rangées par onglets", "x": 50, "y": 8 },
-        { "titre": "Zone Nom", "texte": "L'adresse de la cellule active", "x": 8, "y": 22 },
-        { "titre": "Barre de formule", "texte": "Le contenu réel de la cellule", "x": 50, "y": 22 },
+        {
+          "titre": "Ruban",
+          "texte": "Les commandes, rangées par onglets",
+          "x": 50,
+          "y": 8
+        },
+        {
+          "titre": "Zone Nom",
+          "texte": "L'adresse de la cellule active",
+          "x": 8,
+          "y": 22
+        },
+        {
+          "titre": "Barre de formule",
+          "texte": "Le contenu réel de la cellule",
+          "x": 50,
+          "y": 22
+        },
         {
           "titre": "Onglets de feuilles",
           "texte": "Pour passer d'une feuille à l'autre",
@@ -86,12 +128,30 @@
       "type": "raccourcis",
       "remarque": "Sur Mac, Ctrl devient Cmd.",
       "raccourcis": [
-        { "touches": ["Ctrl", "C"], "action": "Copier" },
-        { "touches": ["Ctrl", "V"], "action": "Coller" },
-        { "touches": ["Ctrl", "Z"], "action": "Annuler" },
-        { "touches": ["Ctrl", "S"], "action": "Enregistrer" },
-        { "touches": ["Ctrl", "Flèche"], "action": "Aller au bout des données" },
-        { "touches": ["F2"], "action": "Modifier la cellule" }
+        {
+          "touches": ["Ctrl", "C"],
+          "action": "Copier"
+        },
+        {
+          "touches": ["Ctrl", "V"],
+          "action": "Coller"
+        },
+        {
+          "touches": ["Ctrl", "Z"],
+          "action": "Annuler"
+        },
+        {
+          "touches": ["Ctrl", "S"],
+          "action": "Enregistrer"
+        },
+        {
+          "touches": ["Ctrl", "Flèche"],
+          "action": "Aller au bout des données"
+        },
+        {
+          "touches": ["F2"],
+          "action": "Modifier la cellule"
+        }
       ],
       "notes": "Faites tester chaque raccourci : les participants les retiennent mieux en les pratiquant."
     },
@@ -128,16 +188,26 @@
         "Opérateurs et priorités de calcul",
         "Fonctions SOMME, MOYENNE, MIN, MAX",
         "Références relatives et absolues"
-      ]
+      ],
+      "notes": "Annoncez la partie : on passe de la saisie au calcul. Rappelez que toute formule commence par =. Durée prévue : 3 h, avec deux exercices."
     },
     {
       "type": "notion-cle",
       "titre": "Une formule",
       "definition": "Une formule commence toujours par **=** et calcule un résultat à partir de valeurs, de références ou de fonctions.",
       "termes": [
-        { "terme": "=A1+B1", "definition": "additionne deux cellules" },
-        { "terme": "SOMME()", "definition": "additionne une plage" },
-        { "terme": "$A$1", "definition": "référence absolue" }
+        {
+          "terme": "=A1+B1",
+          "definition": "additionne deux cellules"
+        },
+        {
+          "terme": "SOMME()",
+          "definition": "additionne une plage"
+        },
+        {
+          "terme": "$A$1",
+          "definition": "référence absolue"
+        }
       ],
       "notes": "Insistez sur le signe égal : c'est l'erreur la plus fréquente des débutants."
     },
@@ -146,9 +216,18 @@
       "titre": "La fonction SI",
       "intro": "SI teste une condition et renvoie une valeur différente selon le résultat.",
       "elements": [
-        { "code": "test", "texte": "la condition à vérifier, par exemple B2>=1000" },
-        { "code": "si_vrai", "texte": "la valeur renvoyée si la condition est remplie" },
-        { "code": "si_faux", "texte": "la valeur renvoyée sinon" }
+        {
+          "code": "test",
+          "texte": "la condition à vérifier, par exemple B2>=1000"
+        },
+        {
+          "code": "si_vrai",
+          "texte": "la valeur renvoyée si la condition est remplie"
+        },
+        {
+          "code": "si_faux",
+          "texte": "la valeur renvoyée sinon"
+        }
       ],
       "syntaxe": "SI(test;\n    si_vrai;\n    si_faux)",
       "exemple": "SI(B2>=1000;\"Objectif atteint\";\"À relancer\")",
@@ -159,11 +238,20 @@
       "type": "pas-a-pas",
       "titre": "Recopier une formule en 4 étapes",
       "etapes": [
-        { "texte": "Sélectionnez la cellule qui contient la formule" },
-        { "texte": "Placez le pointeur sur la **poignée de recopie**" },
-        { "texte": "Faites glisser jusqu'à la dernière ligne" },
-        { "texte": "Vérifiez les références dans la barre de formule" }
-      ]
+        {
+          "texte": "Sélectionnez la cellule qui contient la formule"
+        },
+        {
+          "texte": "Placez le pointeur sur la **poignée de recopie**"
+        },
+        {
+          "texte": "Faites glisser jusqu'à la dernière ligne"
+        },
+        {
+          "texte": "Vérifiez les références dans la barre de formule"
+        }
+      ],
+      "notes": "Faites la démonstration à l'écran, étape par étape, puis laissez chacun la refaire sur son poste. Montrez la poignée de recopie en zoomant."
     },
     {
       "type": "comparatif",
@@ -178,9 +266,13 @@
           "critere": "Usage",
           "valeurs": ["Calculs ligne par ligne", "Taux, constante, total général"]
         },
-        { "critere": "Raccourci", "valeurs": ["Par défaut", "Touche F4"] }
+        {
+          "critere": "Raccourci",
+          "valeurs": ["Par défaut", "Touche F4"]
+        }
       ],
-      "recommandation": "utilisez une référence absolue dès qu'une formule pointe vers une cellule unique, comme un taux de TVA."
+      "recommandation": "utilisez une référence absolue dès qu'une formule pointe vers une cellule unique, comme un taux de TVA.",
+      "notes": "Partez d'un exemple concret : un taux de TVA dans une cellule unique. Faites recopier une formule sans $ pour montrer l'erreur, puis corrigez avec F4."
     },
     {
       "type": "bon-a-savoir",
@@ -200,7 +292,8 @@
           "titre": "Une donnée par cellule",
           "texte": "Ne mélangez jamais nombre et unité : écrivez 1000 et non « 1000 F »."
         }
-      ]
+      ],
+      "notes": "Lisez les trois encadrés et demandez qui a déjà rencontré #DIV/0!. Insistez sur la règle « une donnée par cellule »."
     },
     {
       "type": "exercice-etapes",
@@ -208,12 +301,18 @@
       "contexte": "Vous préparez le budget mensuel de l'association à partir des dépenses de l'an dernier.",
       "duree": "30 minutes",
       "etapes": [
-        { "titre": "Préparer", "texte": "Ouvrez le fichier et repérez les dépenses par poste." },
+        {
+          "titre": "Préparer",
+          "texte": "Ouvrez le fichier et repérez les dépenses par poste."
+        },
         {
           "titre": "Réaliser",
           "texte": "Calculez les totaux et la moyenne mensuelle avec SOMME et MOYENNE."
         },
-        { "titre": "Vérifier", "texte": "Comparez votre total avec celui de la feuille Corrigé." }
+        {
+          "titre": "Vérifier",
+          "texte": "Comparez votre total avec celui de la feuille Corrigé."
+        }
       ],
       "fichier": "budget-association.xlsx",
       "modalite": "en binôme",
@@ -225,13 +324,15 @@
       "question": "Par quel caractère commence toujours une formule ?",
       "propositions": ["Le signe +", "Le signe =", "Le symbole $", "Une parenthèse"],
       "bonne": 1,
-      "explication": "Toute formule commence par =, sinon Excel la traite comme du texte."
+      "explication": "Toute formule commence par =, sinon Excel la traite comme du texte.",
+      "notes": "Laissez 20 secondes de réflexion, faites voter à main levée, puis passez à la réponse."
     },
     {
       "type": "quiz",
       "question": "Quelle touche transforme A1 en $A$1 ?",
       "propositions": ["F2", "F4", "F9", "Échap"],
-      "bonne": 1
+      "bonne": 1,
+      "notes": "Question de vérification sur les références absolues. Après la réponse, faites appuyer chacun sur F4 dans une formule."
     },
     {
       "type": "chapitre",
@@ -241,7 +342,8 @@
         "Choisir le bon graphique",
         "Personnaliser titres et couleurs",
         "Mise en page et impression"
-      ]
+      ],
+      "notes": "Annoncez la partie graphiques : choisir, créer et mettre en forme. Rappelez le lien avec le tableau de bord du projet final."
     },
     {
       "type": "chiffre-cle",
@@ -250,43 +352,90 @@
       "phrase": "des tableaux d'entreprise contiennent au moins une erreur",
       "explication": "Un graphique clair aide à repérer une valeur aberrante que l'on ne voit pas dans un tableau de chiffres.",
       "reperes": [
-        { "valeur": "x3", "texte": "plus de temps pour lire un tableau qu'un graphique" },
-        { "valeur": "5 s", "texte": "pour comprendre un bon graphique" }
+        {
+          "valeur": "x3",
+          "texte": "plus de temps pour lire un tableau qu'un graphique"
+        },
+        {
+          "valeur": "5 s",
+          "texte": "pour comprendre un bon graphique"
+        }
       ],
-      "source": "chiffres d'illustration, à remplacer par une source vérifiée"
+      "source": "chiffres d'illustration, à remplacer par une source vérifiée",
+      "notes": "Donnez le chiffre, laissez-le résonner, puis expliquez pourquoi un visuel bien choisi accélère la lecture. Citez la source."
     },
     {
       "type": "graphique",
       "titre": "Les ventes de la boutique",
       "barres": [
-        { "label": "Janv.", "valeur": 32 },
-        { "label": "Févr.", "valeur": 45 },
-        { "label": "Mars", "valeur": 41 },
-        { "label": "Avr.", "valeur": 58 },
-        { "label": "Mai", "valeur": 66 },
-        { "label": "Juin", "valeur": 84 }
+        {
+          "label": "Janv.",
+          "valeur": 32
+        },
+        {
+          "label": "Févr.",
+          "valeur": 45
+        },
+        {
+          "label": "Mars",
+          "valeur": 41
+        },
+        {
+          "label": "Avr.",
+          "valeur": 58
+        },
+        {
+          "label": "Mai",
+          "valeur": 66
+        },
+        {
+          "label": "Juin",
+          "valeur": 84
+        }
       ],
       "chiffre": "+27 %",
       "message": "Mettez en couleur la barre qui porte le message, laissez les autres en gris.",
-      "source": "données d'exercice"
+      "source": "données d'exercice",
+      "notes": "Lisez le graphique avec le groupe : quelle tendance, quelle barre mise en avant ? Faites formuler le message avant de l'afficher."
     },
     {
       "type": "frise",
       "titre": "Excel en quelques dates",
       "intro": "Situez l'outil dans le temps, en 4 à 6 étapes.",
       "etapes": [
-        { "date": "1985", "texte": "Première version, sur Macintosh" },
-        { "date": "1987", "texte": "Arrivée sous Windows" },
-        { "date": "2007", "texte": "Le ruban remplace les menus" },
-        { "date": "2019", "texte": "Tableaux dynamiques et nouvelles fonctions" },
-        { "date": "Aujourd'hui", "texte": "Copilot propose des formules" }
-      ]
+        {
+          "date": "1985",
+          "texte": "Première version, sur Macintosh"
+        },
+        {
+          "date": "1987",
+          "texte": "Arrivée sous Windows"
+        },
+        {
+          "date": "2007",
+          "texte": "Le ruban remplace les menus"
+        },
+        {
+          "date": "2019",
+          "texte": "Tableaux dynamiques et nouvelles fonctions"
+        },
+        {
+          "date": "Aujourd'hui",
+          "texte": "Copilot propose des formules"
+        }
+      ],
+      "notes": "Survolez les dates sans vous y attarder : le but est de situer Excel, pas d'en faire l'histoire."
     },
     {
       "type": "avant-apres",
       "titre": "Avant, après",
-      "avant": { "texte": "Un tableau brut, difficile à lire" },
-      "apres": { "texte": "Le même tableau mis en forme" }
+      "avant": {
+        "texte": "Un tableau brut, difficile à lire"
+      },
+      "apres": {
+        "texte": "Le même tableau mis en forme"
+      },
+      "notes": "Comparez les deux versions et demandez ce qui a changé : titre, couleurs, ordre des données. Faites lister les améliorations."
     },
     {
       "type": "texte",
@@ -297,17 +446,20 @@
         "**Montrer une évolution** : une courbe, avec le temps en abscisse.",
         "**Montrer une répartition** : un graphique en secteurs, avec cinq parts au plus.",
         "Dans le doute, préférez l'histogramme : c'est le plus facile à lire."
-      ]
+      ],
+      "notes": "Présentez les trois familles de graphiques avec un exemple chacune, puis demandez quel graphique conviendrait à leurs propres données."
     },
     {
       "type": "citation",
       "citation": "Un bon graphique vaut mieux qu'un long tableau.",
-      "auteur": "Proverbe de formateur"
+      "auteur": "Proverbe de formateur",
+      "notes": "Laissez la citation affichée quelques secondes, puis enchaînez sur l'exercice : c'est le fil rouge de la partie."
     },
     {
       "type": "image",
       "titre": "Votre tableau de bord est prêt",
-      "texte": "Prenez le temps de le présenter au groupe."
+      "texte": "Prenez le temps de le présenter au groupe.",
+      "notes": "Pause visuelle : montrez le résultat attendu du projet final pour motiver le groupe avant l'atelier."
     },
     {
       "type": "exercice",
@@ -321,7 +473,8 @@
       ],
       "duree": "1 h",
       "fichier": "projet-ventes.xlsx",
-      "livrable": "Un tableau de bord imprimable"
+      "livrable": "Un tableau de bord imprimable",
+      "notes": "Rappelez les consignes, distribuez le fichier et circulez entre les postes. Gardez 10 minutes pour la présentation des résultats."
     },
     {
       "type": "evaluation",
@@ -350,11 +503,21 @@
           "texte": "Excel intermédiaire : tableaux croisés et RECHERCHEX.",
           "lien": "https://formation.skazy.nc"
         }
-      ]
+      ],
+      "notes": "Montrez où retrouver les ressources après la formation et proposez d'en ouvrir une ensemble."
     },
-    { "type": "questions" },
-    { "type": "battle" },
-    { "type": "accompagnement-360" },
-    { "type": "autres-formations" }
+    {
+      "type": "questions"
+    },
+    {
+      "type": "battle",
+      "notes": "Constituez deux équipes, expliquez les règles et chronométrez la préparation. Arbitrez avec bienveillance et faites le point sur les notions mal comprises."
+    },
+    {
+      "type": "accompagnement-360"
+    },
+    {
+      "type": "autres-formations"
+    }
   ]
 }

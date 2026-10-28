@@ -139,8 +139,14 @@ def test_docx_options_de_la_page_2():
 def test_docx_pret_pour_google_docs():
     p, _ = plan_ia()
     donnees = r.rendre_docx(p)
-    # Un connecteur Google Drive ne recopie pas sans erreur plus de 30 000 caractères de base64.
-    assert len(base64.b64encode(donnees)) < 30_000
+    # Qualité d'abord : le sticker garde ses couleurs vraies, au double de sa taille d'affichage.
+    z0 = zipfile.ZipFile(io.BytesIO(donnees))
+    from PIL import Image
+
+    images = [Image.open(io.BytesIO(z0.read(n))) for n in z0.namelist() if n.startswith("word/media/")]
+    assert any(im.mode == "RGBA" and im.width >= 300 for im in images)  # sticker
+    # Mode compact, pour un connecteur Google Drive : moins de 30 000 caractères de base64.
+    assert len(base64.b64encode(g.preparer_docx(donnees, compact=True)[0])) < 30_000
     z = zipfile.ZipFile(io.BytesIO(donnees))
     noms = z.namelist()
     assert not any(n.startswith(("customXml/", "word/fonts/", "docProps/")) or "stylesWithEffects" in n or "thumbnail" in n for n in noms)
@@ -163,6 +169,17 @@ def test_docx_pret_pour_google_docs():
     parties = "".join(z.read(n).decode("utf-8") for n in noms if re.match(r"word/(document|header\d|footer\d)\.xml$", n))
     assert "<w:szCs" not in parties and 'w:ascii="Raleway"' not in parties
     assert 'w:ascii="Raleway ExtraBold"' in parties
+
+
+def test_seuls_logo_et_icones_passent_en_palette():
+    """La palette ne s'applique qu'aux images sans perte possible : jamais à un sticker ni à une photo."""
+    from PIL import Image
+
+    logo = Image.open(r.ch.chemin_logo("couleur")).convert("RGBA")
+    sticker = Image.open(io.BytesIO(r.ch.sticker_png("#A977DA", "sparkles", taille=300))).convert("RGBA")
+    photo = Image.effect_mandelbrot((300, 200), (-2, -1, 1, 1), 60).convert("RGBA")
+    assert r.ch.est_graphique(logo)
+    assert not r.ch.est_graphique(sticker) and not r.ch.est_graphique(photo)
 
 
 def test_palette_des_images_transparentes():

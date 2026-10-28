@@ -10,6 +10,7 @@ chaque bloc (carte, étape, ligne de tableau…) apparaît en fondu, titre et pi
 from __future__ import annotations
 
 import io
+import math
 import re
 import unicodedata
 from contextlib import contextmanager
@@ -121,7 +122,7 @@ def chasse(car: str, graisse=400, mono=False) -> float:
     table = CHASSES[min(CHASSES, key=lambda g: abs(g - graisse))]
     if car in table:
         return table[car]
-    if car == " ":
+    if car == "\u00a0":
         return table[" "]
     if car == " ":
         return 0.2
@@ -140,6 +141,14 @@ def caracteres(texte: str, graisse=400, majuscules=False) -> list[tuple[str, int
 def largeur(texte: str, taille: float, graisse=400, mono=False, espacement=0.0, majuscules=False) -> float:
     """Largeur d'un texte sur une ligne, en px (espacement des lettres compris)."""
     return sum(chasse(x, g, mono) + espacement for x, g in caracteres(texte, graisse, majuscules)) * taille
+
+
+def taille_ajustee(texte: str, largeur_dispo: float, taille: float, graisse=400, espacement=0.0) -> float:
+    """Taille du modèle, réduite juste assez pour que le mot le plus long tienne dans la largeur : un mot
+    n'est jamais coupé (« communicatio / n »). Le contenu d'exemple du modèle garde la taille du modèle."""
+    mots = [m for m in re.split(r"[ \n]+", ch.sans_gras(ch.typographie(texte or ""))) if m]
+    plus_long = max((largeur(m, taille, graisse, espacement=espacement) for m in mots), default=0)
+    return taille if plus_long <= largeur_dispo * 0.98 else math.floor(taille * largeur_dispo * 0.98 / plus_long)
 
 
 def lignes_coupees(texte: str, largeur_dispo: float, taille: float, graisse=400, mono=False, espacement=0.0,
@@ -779,9 +788,10 @@ def couverture(sl: Slide, s):
     logo_entete(sl)
     co = c["surCouleur"]
     # Bloc centré entre le logo (bas à 216) et le contact (haut à 898,8) : titre, 32, pastilles, 32, durée.
-    h_titre = hauteur(f["intitule"], 720, 104, 1.0, 700, espacement=-0.02)
+    t = taille_ajustee(f["intitule"], 720, 104, 700, -0.02)
+    h_titre = hauteur(f["intitule"], 720, t, 1.0, 700, espacement=-0.02)
     y = (216 + 898.8) / 2 - (h_titre + 32 + 60 + 32 + 42) / 2
-    sl.texte(1080, y, 720, h_titre + 8, equilibrer(f["intitule"], 720, 104, 700, -0.02), 104, co, graisse=700,
+    sl.texte(1080, y, 720, h_titre + 8, equilibrer(f["intitule"], 720, t, 700, -0.02), t, co, graisse=700,
              interligne=1.0, espacement=-0.02)
     y += h_titre + 32
     w, _ = sl.pastille(1080, y, f["categorie"], 24, "#FFFFFF", c["encre"], pad_x=30, pad_y=12, majuscules=False, graisse=700)
@@ -980,7 +990,8 @@ def frise(sl: Slide, s):
         yb = milieu - 18 - 32 - (52 + 10 + h_t) if k % 2 == 0 else milieu + 18 + 32
         with sl.bloc(*((axe,) if k == 0 else ())):
             sl.rond(x, milieu - 18, 36, c["couleur"] if derniere else "#FFFFFF", trait=c["couleur"], epaisseur=6)
-            sl.texte(x, yb, lc, 52, et.get("date"), 52, c["encre"] if derniere else C["texte"], graisse=800, interligne=1.0)
+            t = taille_ajustee(et.get("date"), lc, 52, 800)
+            sl.texte(x, yb + (52 - t), lc, 52, et.get("date"), t, c["encre"] if derniere else C["texte"], graisse=800, interligne=1.0)
             sl.texte(x, yb + 62, lc, h_t + 4, et.get("texte"), 28, C["texte3"], interligne=1.4, gras_coul=C["texte"])
 
 
@@ -1426,7 +1437,7 @@ def exercice_etapes(sl: Slide, s):
             ], 18)
     # Cercle de durée (240 px, trait de 10 à l'intérieur), puis infos : ils viennent après les étapes.
     duree = str(s.get("duree", "")).strip()
-    nombre, _, unite = duree.partition(" ")
+    nombre, _, unite = re.sub(r"[\s\u00a0\u202f]+", " ", duree).partition(" ")  # espace insécable comprise
     if not unite or " " in unite:  # « 20 minutes » : nombre et unité ; « 1 h 30 » : d'un bloc
         nombre, unite = duree, ""
     unite = unite or ("minutes" if nombre.isdigit() else "")

@@ -32,7 +32,11 @@ test.describe('Catalogue', () => {
     }
     const index = await (await request.get('skills.json')).json();
     expect(index.skills.map((s) => s.nom)).toEqual(SKILLS);
-    for (const fichier of ['installer.ps1', 'installer.sh', 'sources/index.json']) {
+    for (const fichier of [
+      'installer.ps1',
+      'installer.sh',
+      ...SKILLS.map((n) => `icones/${n}.svg`),
+    ]) {
       expect((await request.get(fichier)).ok(), fichier).toBe(true);
     }
   });
@@ -82,46 +86,6 @@ test.describe('Catalogue', () => {
       await page.goto('./');
       const deborde = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
       expect(deborde).toBe(false);
-    });
-  }
-});
-
-test.describe('Atelier', () => {
-  test('accessibilité (axe)', async ({ page }) => {
-    await page.goto('atelier/');
-    const resultat = await new AxeBuilder({ page }).analyze();
-    expect(resultat.violations.map((v) => v.id)).toEqual([]);
-  });
-
-  const CAS = [
-    ['quiz', ['.skazy-quiz.json', '.kahoot.xlsx', '.google-forms.gs', '.corrige.md']],
-    ['plan', ['.html', '.docx']],
-    ['support', ['.html', '.pptx']],
-    ['notation', ['.xlsx']],
-  ];
-  for (const [exemple, extensions] of CAS) {
-    test(`produit les fichiers de l’exemple « ${exemple} » dans le navigateur`, async ({
-      page,
-    }) => {
-      test.setTimeout(240_000);
-      await page.goto('atelier/');
-      await page.getByRole('button', { name: exemple, exact: true }).click();
-      await expect(page.locator('#formats')).toBeVisible();
-      await page.getByRole('button', { name: 'Produire les fichiers' }).click();
-      await expect(page.locator('#etat')).toHaveText('Fichiers prêts.', { timeout: 220_000 });
-      const noms = await page
-        .locator('#fichiers a[download]')
-        .evaluateAll((l) => l.map((a) => a.download));
-      for (const extension of extensions)
-        expect(
-          noms.some((n) => n.endsWith(extension)),
-          extension,
-        ).toBe(true);
-      if (exemple === 'quiz')
-        await expect(page.getByRole('link', { name: 'Ouvrir dans le Quiz' })).toHaveAttribute(
-          'href',
-          /gharel\.github\.io\/quiz\/#\/partage\?q=/,
-        );
     });
   }
 });

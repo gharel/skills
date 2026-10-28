@@ -1,4 +1,4 @@
-/* Mise en page du catalogue des skills et de l'atelier : bandeau commun des outils, héros sombre,
+/* Mise en page du catalogue des skills : bandeau commun des outils, héros sombre,
    cartes de skills, onglets d'installation, pied. Les couleurs viennent de charte.css. */
 
 *,
@@ -181,21 +181,6 @@ button {
 .bouton-icone:hover {
   background: var(--surface-2);
 }
-.bouton-texte {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--e-2);
-  height: 42px;
-  padding-inline: var(--e-4);
-  border-radius: var(--rayon-pilule);
-  color: var(--texte-fort);
-  font-weight: 600;
-  text-decoration: none;
-  transition: background var(--transition-rapide);
-}
-.bouton-texte:hover {
-  background: var(--surface-2);
-}
 
 /* ── Boutons (pilule, comme le design system) ──────────── */
 .bouton {
@@ -230,14 +215,6 @@ button {
 .bouton--secondaire:hover {
   border-color: var(--primaire);
   color: var(--primaire-texte);
-}
-.bouton--scene {
-  border-color: var(--scene-bord);
-  color: var(--scene-texte);
-  background: transparent;
-}
-.bouton--scene:hover {
-  border-color: var(--scene-accent);
 }
 
 /* ── Héros (scène sombre) ──────────────────────────────── */
@@ -664,14 +641,6 @@ button {
   .bandeau__pastille {
     width: 24px;
     height: 24px;
-  }
-  .bouton-texte span {
-    display: none;
-  }
-  .bouton-texte {
-    width: 42px;
-    padding: 0;
-    justify-content: center;
   }
   .heros__interieur {
     padding-block: var(--e-10);

@@ -3,7 +3,7 @@ name: notation-etudiants
 description: "Corrige et note les rendus d'étudiants (projets web sur GitHub avec un déploiement Render, Vercel ou autre) à partir d'un énoncé, des mails reçus et d'un barème : une note justifiée par critère, un onglet par étudiant dans Google Sheets ou dans un classeur .xlsx, et une estimation indicative de l'usage de l'IA (probabilité et part du travail). À utiliser quand l'utilisateur demande de corriger, noter ou évaluer un TP, un CC ou un projet rendu par mail avec des liens GitHub ou de déploiement, ou de remplir une grille de notation."
 license: Propriétaire.
 metadata:
-  version: '1.0.5'
+  version: '1.0.6'
   categorie: unc
   auteur: Guillaume Harel
   source: https://github.com/gharel/skills
@@ -110,7 +110,7 @@ Avant de noter, écris la règle de chaque ligne : ce qui vaut tous les points, 
     python scripts/rendre_notation.py notation.json --sortie <dossier>
     ```
 
-  - **sinon** : donne le JSON complet dans un bloc de code. Invite l'utilisateur à le coller dans l'atelier https://gharel.github.io/skills/atelier/, qui produit le classeur.
+  - **sinon** : donne le JSON complet dans un bloc de code, avec la commande ci-dessus. L'utilisateur la lance sur son poste, dans le dossier du skill.
 
 Le classeur contient :
 
@@ -145,7 +145,7 @@ Un compte rendu court, en français :
 - `references/usage-ia.md` : indices, fourchettes et règles de l'estimation de l'usage de l'IA.
 - `references/bareme.md` : règles de notation, grille type, projets libres.
 - `references/google-sheets.md` : remplissage direct du tableur Google Sheets de l'enseignant.
-- `references/format-notation.md` : format du JSON lu par le script et par l'atelier.
+- `references/format-notation.md` : format du JSON lu par le script.
 - `exemples/notation-exemple.json` : notation complète (CC de réducteur d'URL, quatre étudiants fictifs).
 
 Version 1.0.5. Sources et mises à jour : https://gharel.github.io/skills/

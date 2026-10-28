@@ -3,7 +3,7 @@ name: skazy-plan-formation
 description: "Crée, restructure ou enrichit un plan de formation (fiche programme A4 d'une ou deux pages) aux couleurs de Skazy Formation, à partir d'un simple sujet, de notes ou d'un plan existant. Rédige l'intitulé, la description, 3 à 5 objectifs pédagogiques observables (taxonomie de Bloom), les prérequis, le public, la durée, le programme en parties et les modalités, puis produit un HTML imprimable en PDF et un DOCX pour Word ou Google Docs, fidèles au modèle « Plan de formation » du design system Skazy Formation. À utiliser dès que l'on demande un plan de formation, un programme ou une fiche de formation, un déroulé ou un syllabus, même sans citer Skazy."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.4.0'
+  version: '1.4.1'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills
@@ -63,7 +63,7 @@ Le rendu est donc identique quel que soit l'assistant utilisé.
 
      Le script contrôle le contenu. Corrige chaque `ERREUR`. Lis chaque `ATTENTION`, surtout celle qui signale un débordement de la page 1 : raccourcis alors les points du programme. Les dépendances sont `python-docx` et `pillow`. Si elles manquent, le script affiche la commande `pip install` à lancer.
 
-   - **Sinon** : donne le JSON complet dans un bloc de code. Invite ensuite l'utilisateur à le coller dans l'atelier https://gharel.github.io/skills/atelier/, qui produit les mêmes fichiers HTML et DOCX dans le navigateur.
+   - **Sinon** : donne le JSON complet dans un bloc de code, avec la commande ci-dessus. L'utilisateur la lance sur son poste, dans le dossier du skill.
 6. **Livrer** :
    - Présente un résumé en quelques lignes : intitulé, catégorie, niveau, durée, nombre de parties.
    - Donne les fichiers produits, ou le JSON.

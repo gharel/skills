@@ -2,7 +2,7 @@
  * npm run construire : contrôle les skills puis construit le site dans _site/ :
  *   - index.html (catalogue généré), skills.json ;
  *   - telechargements/<skill>.zip (Claude.ai, ChatGPT) et <skill>.md (version un fichier) ;
- *   - sources/<skill>/ (fichiers bruts, lus par l'atelier) ;
+ *   - icones/<skill>.svg (sticker affiché par le catalogue) ;
  *   - .claude-plugin/marketplace.json à la racine du dépôt (plugins Claude Code).
  * Avec --verifier : contrôles seulement (spécification, versions, marketplace à jour), sans écrire.
  * Variable BASE : commit de comparaison pour les versions (par défaut HEAD).
@@ -30,14 +30,7 @@ const ICONES_PAGE = {
   moon: 'moon',
   github: 'github',
   download: 'download',
-  'wand-sparkles': 'wand-sparkles',
-  copy: 'copy',
   'file-text': 'file-text',
-  upload: 'upload',
-  'triangle-alert': 'triangle-alert',
-  'circle-check': 'circle-check',
-  link: 'link',
-  'external-link': 'external-link',
 };
 
 const echapper = (t) =>
@@ -124,6 +117,7 @@ await writeFile(cheminMarketplace, texteMarketplace);
 await rm(SITE, { recursive: true, force: true });
 await cp(join(RACINE, 'site'), SITE, { recursive: true });
 await mkdir(join(SITE, 'telechargements'), { recursive: true });
+await mkdir(join(SITE, 'icones'), { recursive: true });
 
 const aujourdhui = new Date().toISOString().slice(0, 10);
 const dateFr = (iso) =>
@@ -137,8 +131,8 @@ function instructionsCourtes(s) {
   return [
     `Tu es l'assistant « ${s.titre} » (skill ${s.nom}, version ${s.version}).`,
     `Suis à la lettre les consignes du fichier « ${s.nom}.md » joint : déroulé, règles et format de sortie.`,
-    'Si tu peux exécuter du Python, utilise les scripts du skill (dossier scripts/ du fichier .zip) pour produire les fichiers.',
-    `Sinon, rédige le JSON demandé et invite l'utilisateur à le coller dans l'atelier ${URL_SITE}atelier/ pour obtenir les fichiers.`,
+    'Produis les fichiers en exécutant les scripts Python du skill (dossier scripts/ du fichier .zip).',
+    'Sans exécution de code, donne le JSON complet dans un bloc de code et la commande du script qui le rend.',
     'Réponds en français, avec le vouvoiement.',
   ].join('\n');
 }
@@ -148,7 +142,7 @@ function versionUnFichier(s, annexes) {
     `# ${s.titre} (skill ${s.nom}, version ${s.version})`,
     '',
     `> Version en un seul fichier du skill \`${s.nom}\`, pour les assistants qui n'importent pas de dossier de skill (GPT personnalisés, Gems, projets, agents).`,
-    `> Les scripts de rendu ne sont pas inclus : sans exécution de code, collez le JSON produit dans l'atelier ${URL_SITE}atelier/.`,
+    `> Les scripts de rendu ne sont pas inclus : joignez aussi le contenu du .zip (scripts et charte) et activez l'exécution de code.`,
     `> Source et mises à jour : ${URL_SITE}`,
     '',
     s.corps.trim(),
@@ -176,7 +170,6 @@ function versionUnFichier(s, annexes) {
 }
 
 const resume = [];
-const index = {};
 for (const s of skills) {
   const date = git('log', '-1', '--format=%cs', '--', s.chemin) || aujourdhui;
   s.date = date;
@@ -195,12 +188,7 @@ for (const s of skills) {
     .sort())
     annexes.push([f, await readFile(join(s.dossier, f), 'utf8')]);
   await writeFile(join(SITE, 'telechargements', `${s.nom}.md`), versionUnFichier(s, annexes));
-  // Sources brutes pour l'atelier.
-  await cp(s.dossier, join(SITE, 'sources', s.nom), {
-    recursive: true,
-    filter: (f) => !f.includes('__pycache__'),
-  });
-  index[s.nom] = s.fichiers;
+  await cp(join(s.dossier, 'assets/icon.svg'), join(SITE, 'icones', `${s.nom}.svg`));
   resume.push({
     nom: s.nom,
     titre: s.titre,
@@ -214,7 +202,6 @@ for (const s of skills) {
     source: `${URL_DEPOT}/tree/main/${s.chemin}`,
   });
 }
-await writeFile(join(SITE, 'sources', 'index.json'), JSON.stringify(index, null, 2));
 await writeFile(
   join(SITE, 'skills.json'),
   JSON.stringify({ genere: aujourdhui, skills: resume }, null, 2),
@@ -224,7 +211,7 @@ await writeFile(
 function carte(s) {
   return `<article class="carte" id="skill-${s.nom}" data-skill="${s.nom}" data-version="${s.version}">
   <div class="carte__tete">
-    <img src="sources/${s.nom}/assets/icon.svg" alt="" width="52" height="52" />
+    <img src="icones/${s.nom}.svg" alt="" width="52" height="52" />
     <div><h4 class="carte__titre">${echapper(s.titre)}</h4><code class="carte__nom">${s.nom}</code></div>
   </div>
   <p class="carte__resume">${echapper(s.resume || s.description)}</p>
@@ -283,14 +270,6 @@ const page = (await readFile(join(SITE, 'index.html'), 'utf8'))
   .replace('<!-- @resume -->', echapper(chapo))
   .replace('<!-- @date -->', dateFr(aujourdhui));
 await writeFile(join(SITE, 'index.html'), page);
-
-// L'atelier reçoit le même sprite d'icônes.
-const cheminAtelier = join(SITE, 'atelier/index.html');
-if (existsSync(cheminAtelier))
-  await writeFile(
-    cheminAtelier,
-    (await readFile(cheminAtelier, 'utf8')).replace('<!-- @icones -->', sprite),
-  );
 
 const taille = (await readdir(join(SITE, 'telechargements'))).length;
 console.log(`Site construit dans _site/ : ${nombre} skill(s), ${taille} fichier(s) à télécharger.`);

@@ -4,9 +4,9 @@ Consignes pour les agents de code (Claude Code, Codex, Copilot, Cursor…) et po
 
 ## Le projet
 
-Ce dépôt réunit des **skills IA génériques** au format ouvert [Agent Skills](https://agentskills.io) : un dossier avec un `SKILL.md`, des références, des modèles et des scripts. Ils fonctionnent dans ChatGPT, Claude, Codex, Gemini CLI, Cursor, Copilot et dans les assistants sans exécution de code (grâce à l'atelier).
+Ce dépôt réunit des **skills IA génériques** au format ouvert [Agent Skills](https://agentskills.io) : un dossier avec un `SKILL.md`, des références, des modèles et des scripts. Ils fonctionnent dans ChatGPT, Claude, Codex, Gemini CLI, Cursor, Copilot et les autres assistants qui exécutent du Python.
 
-Le site https://gharel.github.io/skills/ présente le catalogue. On y trouve aussi les téléchargements, les instructions d'installation et l'**atelier**, qui exécute les scripts Python des skills dans le navigateur avec Pyodide.
+Le site https://gharel.github.io/skills/ présente le catalogue. On y trouve aussi les téléchargements et les instructions d'installation.
 
 Trois catégories, une par dossier :
 
@@ -30,9 +30,9 @@ Les trois skills Pro forment une chaîne. Chaque skill accepte le JSON produit p
 skills/<catégorie>/<nom>/        Un skill : SKILL.md, agents/openai.yaml, references/, scripts/, assets/, exemples/
 commun/charte/                   Copie de la charte de design-skazy (charte.json, plan-formation.css/.js, logos) + charte.py et icônes Lucide
 modele/                          Modèle à copier pour créer un skill
-site/                            Sources du site : index.html (gabarit), atelier/, assets/, installer.ps1, installer.sh
+site/                            Sources du site : index.html (gabarit), assets/, installer.ps1, installer.sh
 outils/                          Scripts Node : construire, synchroniser la charte, icônes, captures, serveur local
-tests/                           Vitest (outils), pytest (tests/py : rendus), Playwright (tests/e2e : site et atelier)
+tests/                           Vitest (outils), pytest (tests/py : rendus), Playwright (tests/e2e : site)
 .claude-plugin/marketplace.json  Généré par npm run construire : un plugin Claude Code par catégorie
 _site/                           Site construit (non versionné), publié par GitHub Actions
 ```
@@ -41,12 +41,12 @@ _site/                           Site construit (non versionné), publié par Gi
 
 | Commande               | Rôle                                                                                                                                                          |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run construire`   | Contrôle les skills et construit `_site/` (catalogue, zip, versions un fichier, sources de l'atelier). Régénère `.claude-plugin/marketplace.json`.            |
+| `npm run construire`   | Contrôle les skills et construit `_site/` (catalogue, zip, versions un fichier, stickers). Régénère `.claude-plugin/marketplace.json`.                        |
 | `npm run dev`          | Sert `_site/` sur http://localhost:4182 (après `construire`)                                                                                                  |
 | `npm run check`        | Prettier, ESLint, charte synchronisée, skills conformes, versions montées, marketplace à jour (**avant chaque commit**)                                       |
 | `npm test`             | Vitest : lecture et contrôle des skills                                                                                                                       |
 | `npm run test:py`      | pytest : rendus du plan, du support et du quiz (`pip install python-docx python-pptx openpyxl pillow pytest`)                                                 |
-| `npm run test:e2e`     | Playwright : catalogue, accessibilité, mobile, atelier de bout en bout (**avant chaque push**, après `construire`)                                            |
+| `npm run test:e2e`     | Playwright : catalogue, téléchargements, accessibilité, mobile (**avant chaque push**, après `construire`)                                                    |
 | `npm run synchroniser` | Recopie la charte de design-skazy dans `commun/charte`, puis `commun/charte` dans les skills qui la déclarent                                                 |
 | `npm run modeles`      | Compare au pixel les rendus HTML des skills plan et support à leurs modèles de design-skazy, puis verrouille leur empreinte (`commun/charte/alignement.json`) |
 | `npm run icones`       | Régénère les icônes Lucide de la charte en PNG et SVG (rare)                                                                                                  |
@@ -70,14 +70,14 @@ Contrôle visuel des rendus :
 4. **Rédiger pour tous les assistants** :
    - aucun nom d'outil propre à une IA (pas de « utilise l'outil X ») ;
    - toujours deux cas : « si tu peux exécuter du Python… sinon… » ;
-   - les fichiers s'obtiennent par un script, ou par un JSON collé dans l'atelier ;
+   - les fichiers s'obtiennent par un script ; sans exécution de code, l'assistant donne le JSON et la commande à lancer ;
    - SKILL.md fait moins de 500 lignes, le détail va dans `references/` ;
    - tout fichier cité dans SKILL.md doit exister (contrôlé).
 5. Si le skill produit des fichiers, l'IA écrit seulement un **JSON documenté** (`references/format-….md` et un exemple dans `exemples/`). Un script Python (`scripts/rendre_….py`) le contrôle et le rend. Le script :
-   - n'utilise que la bibliothèque standard, `python-docx`, `python-pptx`, `openpyxl` et `pillow`, disponibles dans les bacs à sable ChatGPT et Claude comme dans Pyodide ;
-   - expose des fonctions pures (`normaliser_…`, `rendre_…`) appelables depuis l'atelier ;
-   - ne doit pas dépendre du réseau : les images passent par `charte.telecharger`, qui sait lire un cache fourni par l'atelier.
-6. Ajouter les tests (`tests/py/test_<skill>.py`) et, si le skill a un rendu, son cas dans l'atelier : `site/assets/js/atelier.js` (types `TYPES` et `PYTHON`) et `tests/e2e/site.spec.js`.
+   - n'utilise que la bibliothèque standard, `python-docx`, `python-pptx`, `openpyxl` et `pillow`, disponibles dans les bacs à sable ChatGPT et Claude ;
+   - expose des fonctions pures (`normaliser_…`, `rendre_…`), que les tests appellent directement ;
+   - ne doit pas dépendre du réseau : les images passent par `charte.telecharger`, qui renvoie `None` sans accès réseau (le rendu laisse alors un emplacement vide).
+6. Ajouter les tests (`tests/py/test_<skill>.py`) et le nom du skill dans `SKILLS` de `tests/e2e/site.spec.js`.
 7. `npm run synchroniser`, `npm run construire`, `npm run check`, puis tous les tests.
 
 ## Charte Skazy Formation

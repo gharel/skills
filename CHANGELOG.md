@@ -4,6 +4,16 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-29
 
+### Dépôt : l'atelier est retiré
+
+- Le site n'a plus d'atelier, et Pyodide n'est plus chargé nulle part : les assistants exécutent eux-mêmes les scripts Python des skills. Le catalogue sert les stickers des skills dans `icones/` au lieu de recopier leurs sources.
+- Instructions courtes et version un fichier : l'assistant produit les fichiers avec les scripts du `.zip`. Sans exécution de code, il donne le JSON et la commande à lancer.
+
+### skazy-plan-formation 1.4.1, skazy-support-formation 1.3.1, skazy-quiz 1.0.6, notation-etudiants 1.0.6
+
+- Sans exécution de code, l'assistant donne le JSON et la commande de rendu, à lancer sur son poste, au lieu de renvoyer vers l'atelier. Le quiz peut toujours s'importer dans le Quiz.
+- `charte.telecharger` ne lit plus de cache d'images fourni par le navigateur (`IMAGES_LOCALES`) ; `support_pptx.urls_images` est retiré.
+
 ### skazy-support-formation 1.3.0
 
 - Le HTML n'emploie plus que la feuille de style que design-skazy exporte pour le modèle « Support de formation » (`support-formation.css`, une classe par style du modèle) : il ne recopie plus aucune valeur de design. Seules restent en ligne les valeurs qui dépendent du contenu (position d'un repère, hauteur d'une barre, nombre de colonnes, taille réduite d'un texte trop long). Rendu identique au pixel (435 textes du modèle comparés, captures avant et après).

@@ -39,5 +39,3 @@ Kahoot ! importe un quiz depuis une feuille de calcul `.xlsx` au gabarit officie
 ## Sans exécution de code
 
 Donne un tableau à coller à partir de la cellule B9 du modèle officiel, téléchargeable depuis la fenêtre d'import de Kahoot. Le tableau a 7 colonnes séparées par des tabulations, dans cet ordre : question, réponse 1, réponse 2, réponse 3, réponse 4, temps, bonnes réponses.
-
-Tu peux aussi renvoyer vers l'atelier https://gharel.github.io/skills/atelier/, qui produit le `.xlsx` à partir du JSON.

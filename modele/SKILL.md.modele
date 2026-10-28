@@ -19,7 +19,7 @@ Une phrase sur l'objectif : ce que l'utilisateur obtient et pourquoi c'est utile
 2. **Produire.** Les règles essentielles. Le détail va dans [references/regles.md](references/regles.md).
 3. **Livrer.**
    - **Si tu peux exécuter du Python** : la commande à lancer.
-   - **Sinon** : le format à donner dans la réponse (ou le JSON à coller dans l'atelier https://gharel.github.io/skills/atelier/).
+   - **Sinon** : le format à donner dans la réponse (ou le JSON, avec la commande à lancer sur le poste de l'utilisateur).
 
 ## Règles essentielles
 

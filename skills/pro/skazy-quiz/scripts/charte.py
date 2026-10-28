@@ -327,17 +327,9 @@ def couleurs_franches(im, part: float = 0.01, maxi: int = 8) -> list[tuple[int, 
 # ---------------------------------------------------------------- images distantes
 
 
-# Images déjà téléchargées par l'hôte (l'atelier dans le navigateur n'a pas d'accès réseau direct).
-IMAGES_LOCALES: dict[str, bytes] = {}
-
-
 def telecharger(url: str, delai: float = 10) -> bytes | None:
     """Télécharge une image ; None sans accès réseau (le rendu met alors un emplacement vide)."""
     if not url:
-        return None
-    if url in IMAGES_LOCALES:
-        return IMAGES_LOCALES[url]
-    if sys.platform == "emscripten":
         return None
     if url.startswith("data:"):
         try:

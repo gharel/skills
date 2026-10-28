@@ -635,24 +635,6 @@ def url_image(url: str) -> str:
     return re.sub(r"([?&])w=\d+", r"\1w=1600", url)
 
 
-def urls_images(s: dict) -> list[str]:
-    """Toutes les images distantes du support (préchargées par l'atelier dans le navigateur)."""
-    urls = [s["formation"]["_couverture"]]
-    for slide in s["_slides"]:
-        for cle in ("photo", "image", "qrCode"):
-            if isinstance(slide.get(cle), str):
-                urls.append(slide[cle])
-        for cle in ("avant", "apres"):
-            if isinstance(slide.get(cle), dict) and slide[cle].get("image"):
-                urls.append(slide[cle]["image"])
-        for etape in slide.get("etapes") or []:
-            if isinstance(etape, dict) and etape.get("image"):
-                urls.append(etape["image"])
-        if slide["type"] == "questions":
-            urls.append(ch.url_photo(slide.get("photo") or ch.CHARTE["photoQuestions"]))
-    return sorted({url_image(u) for u in urls if u and u.startswith("https://")})
-
-
 def recadrer(donnees: bytes, largeur_: float, hauteur_: float, position="center") -> Image.Image:
     """background-size: cover, centré verticalement ; `position` « right » ou « left » cale l'image sur ce bord."""
     image = Image.open(io.BytesIO(donnees)).convert("RGB")

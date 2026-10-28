@@ -1,6 +1,6 @@
 # Format du fichier notation.json (`notation-etudiants`, version 1)
 
-`scripts/rendre_notation.py` (ou l'atelier) lit ce JSON. Il produit un classeur `.xlsx` qui contient :
+`scripts/rendre_notation.py` lit ce JSON. Il produit un classeur `.xlsx` qui contient :
 
 - un onglet **Synthèse** ;
 - un onglet **Barème** ;

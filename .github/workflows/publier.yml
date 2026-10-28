@@ -1,5 +1,5 @@
 # À chaque push sur main : on vérifie les skills (format, charte, versions, rendus Python, site),
-# puis on construit le site (catalogue, téléchargements, atelier) et on le publie sur GitHub Pages.
+# puis on construit le site (catalogue, téléchargements) et on le publie sur GitHub Pages.
 # Le site n'est publié que si tout passe.
 name: Vérifier puis publier sur GitHub Pages
 
@@ -48,7 +48,7 @@ jobs:
         run: npm run test:py
       - name: Construire le site
         run: npm run construire
-      - name: Tests du site et de l'atelier (Playwright)
+      - name: Tests du site (Playwright)
         run: npm run test:e2e
       - name: Garder le rapport Playwright en cas d'échec
         if: failure()

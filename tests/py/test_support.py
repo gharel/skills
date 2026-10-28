@@ -29,7 +29,6 @@ def presentation(s):
 @pytest.fixture(scope="module")
 def anime():
     """Le support d'exemple rendu une seule fois : couples (slide du JSON, slide du PPTX)."""
-    ch.IMAGES_LOCALES.clear()
     s, _ = support()
     return list(zip(s["_slides"], presentation(s).slides))
 
@@ -223,7 +222,6 @@ def test_pptx_slides_notes_et_pied():
     from pptx import Presentation
     from support_pptx import rendre_pptx
 
-    ch.IMAGES_LOCALES.clear()
     s, _ = support()
     prs = Presentation(io.BytesIO(rendre_pptx(s)))
     assert len(prs.slides) == len(s["_slides"])
@@ -327,7 +325,6 @@ def test_pptx_allege():
     from PIL import Image
     from support_pptx import rendre_pptx
 
-    ch.IMAGES_LOCALES.clear()
     s, _ = support()
     donnees = rendre_pptx(s)
     z = zipfile.ZipFile(io.BytesIO(donnees))

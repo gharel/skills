@@ -54,5 +54,3 @@ Le fichier `.gs` est un simple texte : tu peux l'écrire toi-même en suivant le
    - `type` vaut `choix`, `cases` ou `texte` ;
    - `bonnes` contient les indices des bonnes réponses, à partir de 0 ;
    - une question de type `texte` prend un champ `acceptees` au lieu de `choix` et `bonnes`.
-
-Tu peux aussi renvoyer vers l'atelier https://gharel.github.io/skills/atelier/, qui produit le script à partir du JSON Skazy Quiz.

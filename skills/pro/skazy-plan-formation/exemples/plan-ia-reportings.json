@@ -1,0 +1,92 @@
+{
+  "format": "skazy-plan",
+  "version": 1,
+  "intitule": "L’IA pour vos reportings",
+  "categorie": "Intelligence Artificielle",
+  "niveau": "Intermédiaire",
+  "description": "Transformez vos données Excel en présentations et tableaux de bord actualisables. Un parcours pratique pour préparer, analyser et présenter vos indicateurs commerciaux avec l’aide de l’IA, puis automatiser leur mise à jour chaque mois.",
+  "objectifs": [
+    "Analyser et vérifier des indicateurs commerciaux avec l’aide de l’IA.",
+    "Créer des graphiques et une présentation à partir d’un modèle existant.",
+    "Construire un dashboard et reproduire son actualisation mensuelle."
+  ],
+  "prerequis": "Pratique d’Excel et PowerPoint ; premiers usages de l’IA.",
+  "public": "Responsables grands comptes et équipes commerciales.",
+  "duree": "4 × 3 h 30 (14 h)",
+  "programme": [
+    {
+      "titre": "Cadrer les usages et les données",
+      "duree": "30 min",
+      "points": [
+        "Identifier les besoins de la revue commerciale",
+        "Choisir un assistant IA autorisé par l’entreprise",
+        "Définir les règles de confidentialité"
+      ]
+    },
+    {
+      "titre": "Préparer le fichier Excel",
+      "duree": "1 h",
+      "points": [
+        "Structurer dates, unités et colonnes",
+        "Traiter les doublons et valeurs manquantes",
+        "Atelier : préparer le jeu de données"
+      ]
+    },
+    {
+      "titre": "Analyser et vérifier les résultats",
+      "duree": "2 h",
+      "points": [
+        "Calculer CA, volumes et écarts à l’objectif",
+        "Comparer les périodes et contrôler les totaux",
+        "Atelier : formuler trois constats sourcés"
+      ]
+    },
+    {
+      "titre": "Créer une présentation",
+      "duree": "3 h 30",
+      "points": [
+        "Repérer le masque et les mises en page",
+        "Générer graphiques et messages clés",
+        "Intégrer les contenus au modèle existant",
+        "Atelier : réaliser 6 à 8 diapositives"
+      ]
+    },
+    {
+      "titre": "Construire un dashboard",
+      "duree": "3 h 30",
+      "points": [
+        "Choisir 4 à 6 indicateurs commerciaux",
+        "Créer les calculs et visuels dans Excel",
+        "Ajouter des filtres : période, client, produit",
+        "Atelier : vérifier et interpréter le dashboard"
+      ]
+    },
+    {
+      "titre": "Automatiser l’actualisation",
+      "duree": "2 h 30",
+      "points": [
+        "Formaliser les étapes et les requêtes IA",
+        "Tester une actualisation assistée des supports",
+        "Contrôler le résultat sur une nouvelle période"
+      ]
+    },
+    {
+      "titre": "Réaliser le cas final",
+      "duree": "1 h",
+      "points": [
+        "Actualiser les supports en autonomie",
+        "Vérifier les chiffres et la cohérence visuelle",
+        "Finaliser la procédure et le plan d’action"
+      ]
+    }
+  ],
+  "modalites": {
+    "methodes": "Environ 70 % de pratique : démonstrations, ateliers guidés puis cas pratique sur une revue commerciale mensuelle, à partir d’un fichier Excel anonymisé et d’un modèle PowerPoint.",
+    "moyens": [
+      "Salle équipée d’un matériel de projection",
+      "Poste informatique individuel avec Excel, PowerPoint et un assistant IA",
+      "Remise des supports produits, des requêtes IA et de la procédure d’actualisation"
+    ],
+    "evaluation": "Positionnement initial et exercices à chaque étape. Cas final sur une nouvelle période : vérifier les chiffres, justifier les messages clés et reproduire l’actualisation. Un questionnaire de satisfaction clôt la formation."
+  }
+}

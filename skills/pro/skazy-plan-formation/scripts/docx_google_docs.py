@@ -3,6 +3,7 @@
 
 Usage :
     python scripts/docx_google_docs.py plan.docx [--sortie plan.google-docs.docx] [--dpi 110] [--base64]
+    python scripts/docx_google_docs.py --verifier-recopie plan.google-docs.docx.b64.txt recopie.b64
 
 Méthode validée sur des plans de formation (voir references/google-docs.md) :
 
@@ -36,7 +37,7 @@ NS = {
 }
 HAUTEUR_LIGNE = 1.174  # hauteur de ligne naturelle de Raleway, rapportée à la taille de police
 DPI = 110  # images : nettes à l'écran, un peu moins à l'impression
-LARGEUR_MINI_TRANSPARENTE = 200  # px : logo et sticker gardent du détail
+LARGEUR_MINI_TRANSPARENTE = 150  # px : logo et sticker gardent du détail
 PARTIES = re.compile(r"word/(document|header\d+|footer\d+|footnotes|endnotes|comments)\.xml$")
 INUTILES = re.compile(
     r"^(word/fonts/.+|word/stylesWithEffects\.xml|word/webSettings\.xml|docProps/(app|custom)\.xml|"
@@ -117,11 +118,59 @@ def retirer_inutiles(fichiers: dict, messages: list[str]) -> None:
         transformer(fichiers, "word/fontTable.xml", lambda s: re.sub(r"<w:embed(Regular|Bold|Italic|BoldItalic)\b[^>]*/>", "", s))
         messages.append("{} police(s) embarquée(s) retirée(s)".format(polices))
     transformer(fichiers, "word/settings.xml", lambda s: re.sub(r"<w:(embedTrueTypeFonts|embedSystemFonts|saveSubsetFonts)\b[^>]*/>", "", s))
+    # Identifiants de révision, réglages mathématiques et formes par défaut : inutiles à l'affichage.
+    transformer(fichiers, "word/settings.xml", lambda s: re.sub(
+        r"<w:rsids>.*?</w:rsids>|<m:mathPr>.*?</m:mathPr>|<w:shapeDefaults>.*?</w:shapeDefaults>|<w:(savePreviewPicture|attachedTemplate)\b[^>]*/>",
+        "", s, flags=re.S))
     if not any(n.endswith(".odttf") for n in fichiers):
         transformer(fichiers, "[Content_Types].xml", lambda s: re.sub(r'<Default Extension="odttf"[^>]*/>', "", s))
     autres = [n for n in inutiles if not n.startswith("word/fonts/")]
     if autres:
         messages.append("parties inutiles retirées : " + ", ".join(sorted(autres)))
+
+
+def alleger_proprietes(fichiers: dict, messages: list[str]) -> None:
+    """Retire les propriétés de passage redondantes : attributs des écritures complexes (szCs, bCs, iCs) et
+    police identique à la police par défaut, si aucun style n'en impose une autre."""
+    styles = fichiers.get("word/styles.xml", b"").decode("utf-8")
+    defaut = re.search(r"<w:rPrDefault>.*?</w:rPrDefault>", styles, re.S)
+    police = re.search(r'<w:rFonts\b[^>]*w:ascii="([^"]+)"', defaut.group(0)) if defaut else None
+    police = police.group(1) if police else None
+
+    def redondante(attributs: str) -> bool:
+        valeurs = dict(re.findall(r'w:(\w+)="([^"]*)"', attributs))
+        return {"ascii", "hAnsi"} <= set(valeurs) <= {"ascii", "hAnsi", "cs", "eastAsia"} and set(valeurs.values()) == {police}
+
+    hors_defaut = styles.replace(defaut.group(0), "") if defaut else styles
+    if police and not all(redondante(a) for a in re.findall(r"<w:rFonts\b([^>]*)/>", hors_defaut)):
+        police = None  # un style impose une autre police : chaque passage garde la sienne
+    # Couleur et taille identiques à celles du style Normal, si aucun autre style n'en impose.
+    normal = re.search(r'<w:style\b[^>]*w:styleId="Normal"[^>]*>.*?</w:style>', styles, re.S)
+    rpr_normal = re.search(r"<w:rPr>.*?</w:rPr>", normal.group(0), re.S) if normal else None
+    rpr_normal = rpr_normal.group(0) if rpr_normal else ""
+    valeurs = {balise: re.search(r'<w:{} w:val="([0-9A-Fa-f]+)"/>'.format(balise), rpr_normal) for balise in ("color", "sz")}
+    autres = [st for st in re.findall(r"<w:style\b[^>]*>.*?</w:style>", styles, re.S)
+              if 'w:styleId="Normal"' not in st and 'w:type="table"' not in st]
+    if any(re.search(r"<w:(color|sz)\b", st) for st in autres):
+        valeurs = {}
+    retirees = 0
+    for nom in [n for n in fichiers if PARTIES.match(n)]:
+        texte = fichiers[nom].decode("utf-8")
+        texte, n = re.subn(r"<w:(szCs|bCs|iCs)\b[^>]*/>", "", texte)
+        retirees += n
+        texte = re.sub(r'\sw:rsid\w*="[0-9A-Fa-f]+"', "", texte)
+        if police:
+            texte, n = re.subn(r"<w:rFonts\b([^>]*)/>", lambda m: "" if redondante(m.group(1)) else m.group(0), texte)
+            retirees += n
+        for balise, trouve in valeurs.items():
+            if trouve:
+                motif = r'(<w:rPr>(?:(?!</w:rPr>).)*?)<w:{} w:val="{}"/>'.format(balise, trouve.group(1))
+                texte, n = re.subn(motif, r"\1", texte, flags=re.S)
+                retirees += n
+        texte = re.sub(r"<w:rPr>\s*</w:rPr>|<w:rPr/>", "", texte)
+        fichiers[nom] = texte.encode("utf-8")
+    if retirees:
+        messages.append("{} propriété(s) de passage redondante(s) retirée(s)".format(retirees))
 
 
 def elaguer_styles(fichiers: dict, messages: list[str]) -> None:
@@ -132,7 +181,14 @@ def elaguer_styles(fichiers: dict, messages: list[str]) -> None:
     for latents in racine.findall(q("w:latentStyles")):
         racine.remove(latents)
     styles = {s.get(q("w:styleId")): s for s in racine.findall(q("w:style"))}
-    texte = b"".join(v for n, v in fichiers.items() if PARTIES.match(n) or n in ("word/numbering.xml", "word/settings.xml")).decode("utf-8", "replace")
+    texte = b"".join(v for n, v in fichiers.items() if PARTIES.match(n) or n == "word/settings.xml").decode("utf-8", "replace")
+    # Une numérotation ne garde ses styles (puces, listes) que si le texte s'en sert : sinon le gabarit
+    # python-docx garde six styles de liste et leurs numérotations, qui se retiennent mutuellement.
+    numerotation = fichiers.get("word/numbering.xml", b"").decode("utf-8", "replace")
+    utilises = set(re.findall(r'<w:numId w:val="(\d+)"', texte))
+    abstraits = {a for n, a in re.findall(r'<w:num w:numId="(\d+)"[^>]*>\s*<w:abstractNumId w:val="(\d+)"', numerotation) if n in utilises}
+    texte += "".join(m.group(0) for m in re.finditer(r'<w:abstractNum\b[^>]*w:abstractNumId="(\d+)".*?</w:abstractNum>', numerotation, re.S)
+                     if m.group(1) in abstraits)
     garder = set(re.findall(r'w:(?:pStyle|rStyle|tblStyle|numStyleLink|styleLink|clickAndTypeStyle|defaultTableStyle) w:val="([^"]+)"', texte))
     garder |= {i for i, s in styles.items() if s.get(q("w:default")) in ("1", "true", "on")}
     pile = list(garder)
@@ -149,6 +205,45 @@ def elaguer_styles(fichiers: dict, messages: list[str]) -> None:
     fichiers["word/styles.xml"] = ecrire_xml(racine)
     if retires:
         messages.append("{} styles inutilisés retirés".format(len(retires)))
+
+
+def elaguer_numerotation_polices_theme(fichiers: dict, messages: list[str]) -> None:
+    """Retire les numérotations et les polices que rien n'utilise, et le thème s'il ne sert pas.
+
+    Le gabarit python-docx en apporte une douzaine de chaque : autant de base64 en moins à recopier.
+    """
+    texte = lambda: b"".join(v for n, v in fichiers.items() if PARTIES.match(n) or n in ("word/styles.xml", "word/numbering.xml")).decode("utf-8", "replace")  # noqa: E731
+    retires = []
+    if "word/numbering.xml" in fichiers:
+        racine = lire_xml(fichiers["word/numbering.xml"])
+        utilises = set(re.findall(r'<w:numId w:val="(\d+)"', b"".join(v for n, v in fichiers.items() if PARTIES.match(n) or n == "word/styles.xml").decode("utf-8", "replace")))
+        abstraits = set()
+        for num in racine.findall(q("w:num")):
+            if num.get(q("w:numId")) in utilises:
+                abstraits.add(num.find(q("w:abstractNumId")).get(q("w:val")))
+            else:
+                racine.remove(num)
+                retires.append("num")
+        for a in racine.findall(q("w:abstractNum")):
+            if a.get(q("w:abstractNumId")) not in abstraits:
+                racine.remove(a)
+        fichiers["word/numbering.xml"] = ecrire_xml(racine)
+    if "word/fontTable.xml" in fichiers:
+        polices = set(re.findall(r'w:(?:ascii|hAnsi|cs|eastAsia)="([^"]+)"', texte()))
+        racine = lire_xml(fichiers["word/fontTable.xml"])
+        for f in racine.findall(q("w:font")):
+            if f.get(q("w:name")) not in polices:
+                racine.remove(f)
+                retires.append("police")
+        fichiers["word/fontTable.xml"] = ecrire_xml(racine)
+    themes = [n for n in fichiers if re.match(r"word/theme/theme\d+\.xml$", n)]
+    if themes and not re.search(r"Theme=|w:theme(Color|Fill|Shade|Tint)=", texte()):
+        for n in themes:
+            retirer(fichiers, n)
+        retires.append("thème")
+    if retires:
+        messages.append("{} numérotation(s) et {} police(s) inutilisée(s) retirée(s){}".format(
+            retires.count("num"), retires.count("police"), ", thème retiré" if "thème" in retires else ""))
 
 
 # ---------------------------------------------------------------- interligne
@@ -419,6 +514,7 @@ def alleger_images(fichiers: dict, messages: list[str], dpi: float) -> None:
     from PIL import Image
 
     largeurs = largeurs_affichage(fichiers)
+    largeurs_vues: set[int] = set()
     avant = apres = 0
     for k, nom in enumerate(sorted(n for n in fichiers if n.startswith("word/media/"))):
         try:
@@ -437,20 +533,29 @@ def alleger_images(fichiers: dict, messages: list[str], dpi: float) -> None:
         if transparente:
             cible = max(cible, LARGEUR_MINI_TRANSPARENTE)
         cible += k % 8  # en-têtes d'images distincts : la recopie du base64 ne saute pas d'une image à l'autre
+        if not transparente and im.mode != "RGB":
+            im = im.convert("RGB")
+        retaillee = False
         if im.width > cible:
             im = im.resize((cible, max(1, round(im.height * cible / im.width))), Image.LANCZOS)
+            retaillee = True
+        # Deux images de même largeur ont des en-têtes PNG jumeaux, même sans retaille : 1 px de moins.
+        while im.width in largeurs_vues and im.width > 24:
+            im = im.resize((im.width - 1, max(1, round(im.height * (im.width - 1) / im.width))), Image.LANCZOS)
+            retaillee = True
+        largeurs_vues.add(im.width)
         tampon = io.BytesIO()
         if format_ == "JPEG":
             im.convert("RGB").save(tampon, "JPEG", quality=82, optimize=True)
         elif transparente:
-            p, table = palette_transparente(im)
+            p, table = palette_transparente(im, 12, 6)  # logo, sticker : 3 Ko au lieu de 5, sans perte visible
             p.save(tampon, "PNG", optimize=True, transparency=table)
         elif im.convert("RGB").getcolors(4096) is not None:
             im.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(tampon, "PNG", optimize=True)
         else:
             im.convert("RGB").save(tampon, "PNG", optimize=True)
         avant += len(fichiers[nom])
-        if len(tampon.getvalue()) < len(fichiers[nom]):
+        if retaillee or len(tampon.getvalue()) < len(fichiers[nom]):
             fichiers[nom] = tampon.getvalue()
         apres += len(fichiers[nom])
     if avant:
@@ -496,6 +601,20 @@ def plus_long_repete(texte: str, k: int = 16) -> tuple[int, int, int]:
     return meilleur
 
 
+def comparer_recopie(original: str, recopie: str) -> list[tuple[int, str, str]]:
+    """Écarts entre le base64 et sa recopie : (position dans l'original, attendu, recopié).
+
+    C'est le diagnostic qui a trouvé les erreurs des imports refusés : une recopie de 30 000 caractères
+    qui saute d'un passage à son jumeau, ou qui reprend une version précédente du même fichier.
+    """
+    import difflib
+
+    original, recopie = re.sub(r"\s", "", original), re.sub(r"\s", "", recopie)
+    return [(i1, original[i1:i2][:60], recopie[j1:j2][:60])
+            for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, original, recopie, autojunk=False).get_opcodes()
+            if tag != "equal"]
+
+
 # ---------------------------------------------------------------- traitement complet
 
 
@@ -506,6 +625,8 @@ def preparer_docx(donnees: bytes, dpi: float = DPI, hauteur_ligne: float = HAUTE
     messages: list[str] = []
     retirer_inutiles(fichiers, messages)
     elaguer_styles(fichiers, messages)
+    elaguer_numerotation_polices_theme(fichiers, messages)
+    alleger_proprietes(fichiers, messages)
     convertir_interlignes(fichiers, messages, hauteur_ligne)
     marges_en_retraits(fichiers, messages)
     marges_de_rangees(fichiers, messages)
@@ -522,14 +643,29 @@ def preparer_docx(donnees: bytes, dpi: float = DPI, hauteur_ligne: float = HAUTE
 
 
 def main() -> None:
+    # Console Windows (cp1252) : un caractère non représentable s'affiche « ? » au lieu d'arrêter le script.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="replace")
+        sys.stderr.reconfigure(errors="replace")
     parser = argparse.ArgumentParser(description="DOCX prêt pour Google Docs : allégé, sans interligne exact.")
-    parser.add_argument("docx", help="fichier .docx à préparer")
+    parser.add_argument("docx", nargs="?", help="fichier .docx à préparer")
     parser.add_argument("--sortie", help="fichier produit (par défaut : <nom>.google-docs.docx)")
     parser.add_argument("--dpi", type=float, default=DPI, help="résolution des images à leur taille d'affichage (110 par défaut)")
     parser.add_argument("--hauteur-ligne", type=float, default=HAUTEUR_LIGNE,
                         help="hauteur de ligne naturelle de la police / taille (Raleway : 1,174)")
     parser.add_argument("--base64", action="store_true", help="écrit aussi le base64 en lignes de 12 000 caractères (.b64.txt)")
+    parser.add_argument("--verifier-recopie", nargs=2, metavar=("ORIGINAL", "RECOPIE"),
+                        help="compare le base64 (.b64.txt) à sa recopie avant de l'envoyer au connecteur")
     args = parser.parse_args()
+    if args.verifier_recopie:
+        original, recopie = (Path(f).read_text(encoding="ascii", errors="replace") for f in args.verifier_recopie)
+        ecarts = comparer_recopie(original, recopie)
+        for position, attendu, recopie in ecarts[:10]:
+            print("- position {} : attendu {!r}, recopié {!r}".format(position, attendu, recopie))
+        print("Recopie identique : elle peut partir." if not ecarts else "{} écart(s) : refaire la recopie.".format(len(ecarts)))
+        raise SystemExit(1 if ecarts else 0)
+    if not args.docx:
+        parser.error("indiquer le fichier .docx à préparer")
     source = Path(args.docx)
     sortie = Path(args.sortie) if args.sortie else source.with_name(source.stem + ".google-docs.docx")
     resultat, messages = preparer_docx(source.read_bytes(), args.dpi, args.hauteur_ligne)

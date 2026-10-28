@@ -9,7 +9,7 @@ Ces règles réunissent celles de l'ancien skill `plan-creator` et les consignes
 - Vouvoiement dans les textes destinés au public : description, modalités.
 - Les titres et les points du programme sont écrits avec une majuscule initiale seulement.
 - Pas d'emoji.
-- Pour mettre un mot en gras, entoure-le de `**…**`. Le gras sert surtout au verbe de chaque objectif.
+- Pour mettre un mot en gras, entoure-le de `**…**`. Le modèle en met peu : ni les objectifs ni les points du programme n'en ont.
 
 ## Intitulé
 
@@ -32,7 +32,7 @@ Texte de la première pastille. Par défaut, c'est le nom de la catégorie. On p
 ## Objectifs pédagogiques
 
 - Rédige 3 à 5 objectifs, un par ligne.
-- Commence chaque objectif par un verbe **observable et mesurable** en gras, choisi selon la taxonomie de Bloom :
+- Commence chaque objectif par un verbe **observable et mesurable**, sans gras, choisi selon la taxonomie de Bloom. Termine-le par un point :
 
   | Niveau de Bloom | Verbes conseillés                                     |
   | --------------- | ----------------------------------------------------- |
@@ -75,14 +75,15 @@ Profils ou postes concernés, en une ligne ou deux. Par exemple : « Assistants,
 
 ## Modalités (page 2)
 
-Les champs sont `methodes`, `evaluation`, `effectif`, `lieu` et `tarif`. Chaque champ absent reprend la valeur standard de Skazy Formation :
+La page 2 présente, dans l'ordre :
 
-- **Effectif** : 8 personnes max.
-- **Lieu** : Nouméa ou vos locaux.
-- **Tarif** : sur devis.
-- **Méthodes** et **évaluation** : textes du modèle.
+1. **Effectif**, **lieu** et **tarif**, en trois cartes : 8 personnes max., Nouméa ou vos locaux, sur devis.
+2. **Modalités et lieu de la formation** : trois cartes, en présentiel, en distanciel et hybride.
+3. **Accompagnement personnalisé** : la formation s'appuie sur les besoins métiers des participants.
+4. **Méthodes et moyens pédagogiques** : un paragraphe sur la pédagogie, puis la liste des moyens (salle, poste, supports).
+5. **Encadrement**, **évaluation des acquis** et **mode de validation**.
 
-Ne les remplace que si l'utilisateur donne d'autres informations. N'invente ni tarif, ni date, ni lieu.
+Chaque champ absent reprend la valeur standard de Skazy Formation (voir [format-plan.md](format-plan.md)). Adapte surtout `methodes`, `moyens` et `evaluation` au sujet : part de pratique, cas fil rouge, logiciels sur les postes, forme de l'évaluation finale. Ne remplace les autres que si l'utilisateur donne d'autres informations. N'invente ni tarif, ni date, ni lieu.
 
 ## Calibrage par niveau
 

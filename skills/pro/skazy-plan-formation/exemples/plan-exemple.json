@@ -6,10 +6,10 @@
   "niveau": "Initiation",
   "description": "Prenez en main Excel pour créer, mettre en forme et exploiter vos premiers tableaux de calcul. Vous apprenez à saisir des données, à écrire des formules simples et à présenter vos chiffres sous forme de graphiques clairs.",
   "objectifs": [
-    "**Créer** un classeur et organiser des données dans un tableau structuré",
-    "**Utiliser** les formules et fonctions de base (SOMME, MOYENNE, SI)",
-    "**Mettre en forme** un tableau et appliquer une mise en forme conditionnelle",
-    "**Produire** un graphique adapté aux données et l'imprimer proprement"
+    "Créer un classeur et organiser des données dans un tableau structuré.",
+    "Utiliser les formules et fonctions de base (SOMME, MOYENNE, SI).",
+    "Mettre en forme un tableau et appliquer une mise en forme conditionnelle.",
+    "Produire un graphique adapté aux données et l’imprimer proprement."
   ],
   "prerequis": "Savoir utiliser un ordinateur et Internet",
   "public": "Toute personne amenée à manipuler des tableaux de chiffres",

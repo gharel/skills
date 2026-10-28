@@ -1,118 +1,155 @@
 # Google Docs : importer le plan à l'identique
 
-Méthode validée le 28/10/2026 sur un plan de 2 pages A4 en Raleway, importé par un connecteur Google Drive. Chaque import s'est converti du premier coup. Le Google Docs obtenu fait 2 pages, avec le même contenu et la même mise en page, au millimètre près. Le contrôle a porté sur l'export PDF, comparé page à page avec le rendu Word.
+Méthode validée le 28/10/2026 sur des plans de 2 pages A4 en Raleway (design system Skazy).
+
+- **Modèle de référence** : le Google Docs « Plan de formation - L'IA pour vos reportings », importé d'un .docx à fonds ancrés. `scripts/plan_docx.py` en reprend la structure. Le DOCX qu'il produit, rendu par Word, est à 0,2 mm près de ce Google Docs pour toutes les lignes de texte et tous les fonds (`exemples/plan-ia-reportings.json`, comparé par `scripts/comparer_rendus.py`).
+- **Imports par un connecteur Google Drive** : tous les DOCX de 30 600 caractères de base64 au plus se sont convertis du premier coup. Le Google Docs obtenu était à 0,2 mm près du rendu de Word, sur l'export PDF comparé ligne à ligne.
+
+## Principe
+
+1. **Importer le .docx, ne pas reconstruire le document.** Seul l'import d'un .docx par Google Drive, avec conversion, conserve les fonds ancrés derrière le texte, les images et les pieds de page. L'API Google Docs ne crée pas d'images flottantes et ne lit pas un .docx. Un import HTML perd les fonds et les pieds de page. Une copie de fichier (`copy_file`, Google Drive pour ordinateur) reste un .docx, sans conversion.
+2. **Partir d'un DOCX compatible.** Celui de `scripts/rendre_plan.py` l'est déjà (règles ci-dessous). Un DOCX retouché dans Word ou venu d'ailleurs passe par `scripts/docx_google_docs.py` (étape 1).
+3. **Un Google Docs déjà importé avec un interligne exact** se corrige par l'API Google Docs (étape 3).
+4. **Vérifier** : export PDF, nombre de pages, comparaison ligne à ligne et image par image avec le rendu de Word (`scripts/comparer_rendus.py`).
 
 ## Ce qui rend un DOCX compatible
 
-Le DOCX produit par `scripts/rendre_plan.py` respecte déjà ces règles. Les quatre premières viennent d'écarts constatés à l'import, puis corrigés.
+`plan_docx.py` respecte ces règles. Chacune vient d'un écart mesuré à l'import, puis corrigé, ou du modèle de référence.
 
-- **Pas d'images flottantes.** Le bandeau, les encadrés et les cartes sont des tableaux avec un fond de cellule. Les seules images (sticker, logo) sont alignées sur le texte.
-- **Pas de marge gauche dans les cellules**, mais un retrait des paragraphes. Google Docs place le bord d'un tableau au retrait du tableau moins la marge gauche de sa première cellule. Le bandeau perdait ainsi 17 mm à gauche, et les cartes glissaient de 5 à 7 mm.
-- **Même marge haute et basse dans toutes les cellules d'une rangée.** Word applique à la rangée la plus grande des marges de ses cellules, alors que Google Docs applique celle de chaque cellule. Le titre du bandeau (11 mm) remontait de 4 mm à côté du sticker (15 mm).
-- **Un paragraphe minuscule avant un tableau placé en tête d'en-tête.** Sinon Google Docs ajoute un paragraphe vide de taille normale, et le bandeau descend de 5 mm.
-- **Jamais d'interligne « exact ».** Google Docs le convertit en pourcentage de la hauteur de ligne naturelle de la police : le texte s'étire, et le plan passe de 2 à 3 pages. L'interligne est toujours un multiple (1,2 ; 1,45…), que Word et Google Docs lisent de la même façon.
-- **Capitales écrites en toutes lettres** (« MODALITÉS ET INFOS PRATIQUES »), et non par l'attribut « majuscules » : Google Docs ne le connaît pas, et Word en français retire alors les accents.
-- **Police et langue par défaut** : Raleway et français. Le texte ajouté dans Google Docs garde donc la charte.
-- **Fichier léger**, 25 Ko environ :
-  - pas de police embarquée (Raleway existe dans Google Docs) ;
-  - pas de styles inutilisés ;
-  - images réduites à leur taille d'affichage.
+| Règle                                                                                                                                                                                                                                                                                                                                 | Écart sans elle                                                                                                                                                                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Aplats à coins arrondis (bandeau et ses pastilles, sticker, encadré, cartes, encart, boîte de contact) : images PNG ancrées derrière le texte, sans habillage. Bandeau et sticker sont ancrés à la page. Les autres fonds sont portés par un paragraphe vide de hauteur connue, juste avant leur tableau, et décalés de cette hauteur | un fond de cellule n'a pas de coins arrondis ; une image en ligne pousse le texte                                                                                                           |
+| Jamais d'interligne « exact », toujours un multiple (0,98 ; 1,2 ; 1,32…)                                                                                                                                                                                                                                                              | le texte s'étire, 3 pages au lieu de 2                                                                                                                                                      |
+| Aucune marge de cellule : retraits et espaces avant ou après de paragraphe à la place                                                                                                                                                                                                                                                 | Google place le bord d'un tableau au retrait moins la marge gauche de sa première cellule (17 mm perdus). Word compte la hauteur minimale d'une rangée hors marges, Google marges comprises |
+| Hauteur de rangée minimale, jamais exacte                                                                                                                                                                                                                                                                                             | Google Docs n'a pas de hauteur exacte                                                                                                                                                       |
+| Un paragraphe, même minuscule, avant tout tableau placé en tête de section, d'en-tête ou de pied                                                                                                                                                                                                                                      | Google ajoute un paragraphe vide de taille normale : 5 mm de décalage                                                                                                                       |
+| Image en ligne (logos) dans une rangée de hauteur minimale fixée, centrée verticalement                                                                                                                                                                                                                                               | Google ajoute environ 4 pt autour de l'image : la rangée grandit et le pied remonte de 1,3 mm                                                                                               |
+| Paragraphe vide : marque de paragraphe à taille fixée (10 pt, ou 1 pt) et interligne multiple calculé (hauteur ÷ 11,74 pt pour 10 pt)                                                                                                                                                                                                 | hauteur différente dans Word et dans Google Docs                                                                                                                                            |
+| Puces « • » en Arial, à la taille du texte                                                                                                                                                                                                                                                                                            | une puce Symbol, plus haute, étire chaque ligne de liste dans Word                                                                                                                          |
+| Capitales écrites en toutes lettres, sans interlettrage                                                                                                                                                                                                                                                                               | Google Docs n'a ni l'attribut « majuscules » (Word en français retire alors les accents) ni l'espacement des lettres                                                                        |
+| Raleway ExtraBold appelée par son nom de police (numéros des parties, intitulés des cartes)                                                                                                                                                                                                                                           | Google Docs la lit comme Raleway, graisse 800, la même que le modèle                                                                                                                        |
+| Police et langue par défaut : Raleway et français                                                                                                                                                                                                                                                                                     | le texte ajouté dans Google Docs sort de la charte                                                                                                                                          |
+| Un seul `w:tblBorders` et un seul `w:tblLayout` par tableau                                                                                                                                                                                                                                                                           | XML invalide, lu au hasard                                                                                                                                                                  |
 
-  Un connecteur Google Drive qui reçoit le fichier en base64 peut ainsi le transmettre.
+Les mesures de la mise en page (en points), les fonds dessinés et les interlignes sont dans `scripts/plan_docx.py`. Les espacements reprennent ceux du Google Docs de référence. Word lit les interlignes multiples comme Google Docs.
 
-Pour un DOCX retouché dans Word ou venu d'ailleurs, applique les mêmes règles avec le script :
+## Étape 0 : rendu de référence
+
+Exporte le .docx en PDF.
+
+- Avec Word sous Windows, sans ouvrir de fenêtre :
+
+  ```powershell
+  $w = New-Object -ComObject Word.Application; $w.Visible = $false; $w.DisplayAlerts = 0
+  try { $doc = $w.Documents.Open("$PWD\plan.docx", $false, $true); "pages : " + $doc.ComputeStatistics(2); $doc.ExportAsFixedFormat("$PWD\reference.pdf", 17); $doc.Close(0) } finally { $w.Quit() }
+  ```
+
+- Avec LibreOffice : `soffice --headless --convert-to pdf plan.docx`.
+
+## Étape 1 : alléger le .docx
+
+Un connecteur Google Drive reçoit le fichier en base64 recopié dans l'appel. Il faut viser 25 Ko environ (33 000 caractères de base64) : un .docx de Word avec ses polices embarquées en fait 10 fois plus.
 
 ```bash
-python scripts/docx_google_docs.py plan.docx            # crée plan.google-docs.docx
-python scripts/docx_google_docs.py plan.docx --base64   # écrit aussi le base64, en lignes de 12 000 caractères
+python scripts/docx_google_docs.py plan.docx --base64   # crée plan.google-docs.docx et son base64 (.b64.txt)
 ```
 
-Le script :
+Le script, que `rendre_plan.py` applique à chaque DOCX :
 
-- retire les polices embarquées, les parties inutiles (vignette, `stylesWithEffects`, commentaires et notes non appelés) et les styles non utilisés ;
+- retire les polices embarquées (Raleway existe dans Google Docs), la vignette, `stylesWithEffects`, `webSettings`, `docProps/app` et `custom`, les commentaires et notes non appelés, et nettoie `[Content_Types].xml` et les `.rels` ;
+- retire les styles, numérotations, polices et thème que rien n'utilise, et les propriétés redondantes (`szCs`, `bCs`, `iCs`, police identique à celle par défaut) ;
 - convertit chaque interligne exact en interligne multiple équivalent ;
-- remplace la marge gauche des cellules par un retrait des paragraphes ;
-- aligne les marges haute et basse des cellules sur la plus grande de leur rangée ;
-- ajoute un paragraphe minuscule avant un tableau placé en tête d'en-tête, de pied ou de document ;
-- réduit les images à leur taille d'affichage, à 110 dpi (200 px au moins pour les images transparentes), sur une palette réduite qui garde la transparence.
+- remplace la marge gauche des cellules par un retrait, aligne les marges haute et basse de chaque rangée, et ajoute un paragraphe minuscule avant un tableau en tête d'en-tête, de pied ou de document ;
+- réduit les images à leur taille d'affichage, à 110 dpi (200 px au moins pour les images transparentes), sur une palette qui garde la transparence, avec des noms courts (`0.png`, `1.png`…).
 
-À la fin, il affiche la taille obtenue et le plus long passage répété du base64.
+Il affiche la taille obtenue et le plus long passage répété du base64. Rouvre toujours le fichier produit dans Word (commande de l'étape 0) : il doit s'ouvrir et faire le même nombre de pages.
 
-Toujours rouvrir le fichier produit dans Word, ou dans LibreOffice : il doit s'ouvrir et faire le même nombre de pages.
+## Étape 2 : fiabiliser la recopie du base64
 
-## Fausses pistes
+C'est le point critique. Chaque refus du connecteur (« Invalid conversion requested ») venait d'une erreur de recopie, jamais du contenu. Elles ont toutes été trouvées en écrivant la recopie dans un fichier local, comparé ensuite à l'original :
 
-- **Reconstruire le document avec l'API Google Docs.** Elle ne sait pas créer d'images flottantes, et elle ne lit pas un .docx.
-- **Importer du HTML.** Les images flottantes et les pieds de page sont perdus.
-- **Copier un .docx dans Drive** (copie de fichier, Google Drive pour ordinateur). Il reste un .docx, sans conversion. Google Drive pour ordinateur peut en plus être connecté à un autre compte.
+- **saut vers un passage jumeau** : deux images de même taille et de même palette ont des en-têtes PNG identiques sur plus de 60 caractères ;
+- **retour à une version précédente** : quand une version antérieure du même fichier a déjà été recopiée dans la conversation, la recopie y revient d'elle-même, sur des milliers de caractères.
 
-Seul l'import d'un .docx par Google Drive, avec conversion, conserve tout.
+Règles :
 
-## Importer
+- **Réduire les passages répétés.** Le script donne à chaque image une largeur un peu différente (+0 à +7 px) et garde les images compressées dans le zip. Le plus long passage répété doit rester sous 40 caractères environ (ceux du répertoire central du zip sont sans danger).
+- **Afficher le base64 juste avant de le recopier**, en deux moitiés (`head -c 15300` puis `tail -c +15301` sur une seule ligne), ou ligne par ligne dans le `.b64.txt` (lignes de 12 000 caractères).
+- **Répéter avant d'envoyer.** Écris la recopie dans un fichier, puis :
 
-### À la main
+  ```bash
+  python scripts/docx_google_docs.py --verifier-recopie plan.google-docs.docx.b64.txt recopie.b64
+  ```
 
-Dans Google Docs, passe par Fichier > Ouvrir > Importer, puis choisis le .docx.
+  Le script donne la position et le contenu de chaque écart. N'envoie que la recopie déclarée identique, telle quelle.
 
-Autre voie : dans Google Drive, Nouveau > Importer un fichier, puis clic droit sur le fichier > Ouvrir avec > Google Docs.
+- **Recopier dans un contexte neuf.** Après plusieurs versions du même fichier, confie la recopie et l'envoi à un sous-agent ou à une nouvelle conversation, qui n'a vu que la dernière.
+- **Rester sous 30 000 caractères environ.** Au-delà, l'appel au connecteur, qui recopie tout le base64 d'un bloc, dérive en cours de route même quand chaque tranche a été vérifiée, et un filtre peut l'interrompre (deux essais à 34 000 et 42 000 caractères). Le DOCX du plan en fait 34 000 avec la page 2 complète : importe-le alors à la main (ci-dessous), puis vérifie-le avec l'export PDF du connecteur, qui marche quelle que soit la taille.
+- **Tester le connecteur à moindre coût.** Un .docx minimal de quelques centaines d'octets suffit : s'il se convertit, un refus sur le vrai fichier vient de la recopie.
 
-### Avec un connecteur Google Drive
+Puis importe :
 
-Crée le fichier avec :
+- **avec un connecteur Google Drive** : création de fichier avec le type MIME `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, le dossier cible et la conversion en Google Docs laissée active ;
+- **à la main** : dans Google Docs, Fichier > Ouvrir > Importer ; ou dans Google Drive, Nouveau > Importer un fichier, puis clic droit > Ouvrir avec > Google Docs.
 
-- le type MIME `application/vnd.openxmlformats-officedocument.wordprocessingml.document` ;
-- le dossier cible ;
-- la conversion en Google Docs laissée active (ne la désactive pas).
+## Étape 3 : corriger l'interligne d'un Google Docs déjà importé
 
-Drive convertit alors le fichier en Google Docs.
+Le plus simple est de réimporter le .docx passé par `docx_google_docs.py`. Sinon, pour un Google Docs importé d'un .docx en interligne exact, et peut-être retouché depuis :
 
-Quand le connecteur demande le contenu en base64 recopié dans l'appel, la recopie est le point critique. Les deux premiers échecs de la méthode (« Invalid conversion requested ») venaient d'erreurs de recopie, pas du contenu :
+Google convertit un interligne exact de L twips en L/240 × 100 %, puis applique ce pourcentage à la hauteur de ligne naturelle de la police (Raleway : 1,174 × la taille). Les grandes polices et les paragraphes d'espacement grossissent : 3 pages au lieu de 2. L'interligne juste est :
 
-- **Une recopie saute d'un passage à son jumeau** quand deux passages du base64 se ressemblent longuement. C'est le cas de deux images de même taille et de même palette : leurs en-têtes PNG sont identiques sur plus de 60 caractères. Le script donne donc à chaque image une largeur légèrement différente.
-- **Le plus long passage répété** doit rester sous 40 caractères environ. Ceux du répertoire central du zip sont inévitables et sans danger.
-- **Les images restent compressées** dans le zip (DEFLATE). Sans compression, les palettes produisent de longues séquences répétées.
-- **Recopie bout à bout** les lignes de 12 000 caractères du fichier `.b64.txt`, sans rien ajouter entre elles. Lis d'abord toutes les lignes, puis envoie-les en un seul appel. Avec un fichier de 25 Ko (33 000 caractères) et un plus long passage répété de 35 à 38 caractères, chaque import a réussi du premier coup.
-- **Pour tester le connecteur à moindre coût**, envoie d'abord un .docx minimal de quelques centaines d'octets. S'il se convertit, un refus sur le vrai fichier vient de la recopie.
+```
+interligne (%) = (L / 20) / (taille × 1,174) × 100
+```
 
-## Vérifier
+`taille` est la taille de police du paragraphe dans Google Docs, ou 10 pt (style « Texte normal ») quand elle n'est pas définie, comme pour les paragraphes vides d'espacement.
 
-1. **Rendu de référence.** Exporte le .docx en PDF.
-   - Avec Word sous Windows, sans ouvrir de fenêtre :
+1. Lis le Google Docs (`documents.get`, ou l'outil de lecture du connecteur) et enregistre le résultat dans `doc.json`.
+2. Calcule les requêtes :
 
-     ```powershell
-     $w = New-Object -ComObject Word.Application; $w.Visible = $false; $w.DisplayAlerts = 0
-     try { $doc = $w.Documents.Open("$PWD\plan.docx", $false, $true); "pages : " + $doc.ComputeStatistics(2); $doc.ExportAsFixedFormat("$PWD\reference.pdf", 17); $doc.Close(0) } finally { $w.Quit() }
-     ```
-
-   - Avec LibreOffice : `soffice --headless --convert-to pdf plan.docx`.
-2. **Export du Google Docs.** Exporte-le en PDF : Fichier > Télécharger > PDF, ou export PDF du connecteur Drive.
-3. **Comparaison.** Compare :
-   - le nombre de pages ;
-   - le rendu page à page, côte à côte ;
-   - le texte des deux PDF. Seules différences attendues : l'ordre d'extraction des pieds de page et le glyphe des puces.
-
-## Corriger un Google Docs déjà importé avec un interligne exact
-
-Le plus simple : réimporter le .docx passé par `docx_google_docs.py`. Sinon, corrige l'interligne avec l'API Google Docs.
-
-1. **Repère, dans le .docx, les paragraphes en interligne exact** : `w:spacing w:line="L" w:lineRule="exact"`, où L est en vingtièmes de point.
-2. **Calcule l'interligne de chaque paragraphe du Google Docs** :
-
-   ```
-   interligne (%) = (L / 20) / (taille × 1,174) × 100
+   ```bash
+   python scripts/interligne_google_docs.py plan.docx doc.json --sortie requetes.json
    ```
 
-   - `taille` est la taille de police du paragraphe dans Google Docs. Quand elle n'est pas définie, c'est 10 pt, celle du style « Texte normal » (cas des paragraphes vides d'espacement).
-   - 1,174 est la hauteur de ligne naturelle de Raleway rapportée à la taille de police.
+   Le script apparie les paragraphes des deux documents par leur texte, regroupe les plages consécutives de même valeur, et ramène à 1 pt et 100 % le paragraphe vide que Google ajoute au début d'une section, avant son tableau d'en-tête. Il signale les paragraphes qu'il n'a pas pu apparier.
 
-3. **Apparie les paragraphes** des deux documents par leur texte. Regroupe les plages consécutives de même valeur.
-4. **Envoie les requêtes en un seul lot** : `updateParagraphStyle`, `fields: lineSpacing`, avec l'identifiant de révision lu juste avant. L'API accepte les valeurs basses (6,4 %) comme les hautes (370 %).
-5. **Paragraphe vide ajouté.** Google ajoute un paragraphe vide au début d'une deuxième section, avant son tableau d'en-tête. Mets-le à 1 pt et à 100 %.
-6. **Réexporte en PDF**, compare, puis ajuste les derniers écarts mesurés, par exemple l'espace avant un titre.
+3. Envoie le lot (`documents.batchUpdate`, ou l'outil de mise à jour du connecteur) avec `writeControl.requiredRevisionId` égal au `revisionId` de la lecture. L'API accepte les valeurs basses (6,4 %) comme les hautes (370 %).
+4. Réexporte en PDF, compare (ci-dessous), puis ajuste les derniers écarts mesurés, par exemple l'espace avant un titre.
+
+## Vérification
+
+1. Exporte le Google Docs en PDF : Fichier > Télécharger > PDF, ou export PDF du connecteur (`exportMimeType: application/pdf`).
+2. Compare avec le rendu de référence :
+
+   ```bash
+   python scripts/comparer_rendus.py reference.pdf google-docs.pdf --sortie comparaison
+   ```
+
+   Le second fichier peut aussi être le JSON enregistré par l'export du connecteur. Le script demande PyMuPDF (`pip install pymupdf`), facultatif pour le reste du skill. Il :
+
+   - compare le nombre de pages ;
+   - apparie les lignes de texte et donne le décalage de chacune, en mm, et l'écart de taille de police ;
+   - signale les lignes présentes d'un seul côté (attendu : l'ordre d'extraction des pieds de page) ;
+   - écrit `cmp-N.png` (Word à gauche, Google Docs à droite) et `diff-N.png` (en rouge, ce qui diffère) ;
+   - sort en erreur au-delà de 0,5 mm (`--tolerance`), `--tout` affiche toutes les lignes.
+
+3. Regarde les images : les écarts de position des images, des fonds et des filets ne se lisent pas dans le texte.
 
 ## Limites connues
 
-- **Interlettrage.** Google Docs n'espace pas les lettres : les petits titres en capitales (« MODALITÉS ET INFOS PRATIQUES », « EFFECTIF ») perdent leur interlettrage.
+- **Interlettrage.** Google Docs n'espace pas les lettres : le modèle n'en met donc nulle part, pas même dans les petits titres en capitales.
+- **Images en ligne.** Google les décale d'environ 0,6 mm vers la droite : les puces carrées des intertitres de la page 2, et le texte qui les suit, sont 1,1 mm plus à droite que dans Word.
 - **Images allégées.** Elles sont nettes à l'écran, un peu moins à l'impression. Pour imprimer, préfère le HTML enregistré en PDF.
-- **Retours à la ligne.** Ils peuvent varier d'un mot (métriques de police).
-- **Hauteur exacte de rangée.** Google Docs n'a qu'une hauteur minimale : le bandeau de la page 1 grandit d'environ 1 mm pour loger le sticker, que Word rogne à 40 mm.
+- **Retours à la ligne.** Ils peuvent varier d'un mot : Word mesure Raleway un peu plus large que Google Docs. Sur le modèle de référence, deux paragraphes de la page 2 se coupent un mot plus tôt dans Word.
+- **Hauteur exacte de rangée.** Google Docs n'a qu'une hauteur minimale : une rangée trop pleine grandit au lieu d'être rognée.
+- **Transparence.** Une image aplatie sur fond blanc ne convient que si elle repose sur du blanc. Celles qui chevauchent un aplat de couleur, comme le sticker sur le bandeau, gardent leur transparence.
+
+## Scripts
+
+| Script                              | Rôle                                                                      | Correspond, dans la méthode d'origine, à |
+| ----------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------- |
+| `scripts/docx_google_docs.py`       | allège le .docx et le rend compatible ; `--base64` ; `--verifier-recopie` | `mini.py`, `rep.py`                      |
+| `scripts/interligne_google_docs.py` | requêtes de correction de l'interligne d'un Google Docs déjà importé      | `docx_pars.py`, `fix_ls.py`              |
+| `scripts/comparer_rendus.py`        | comparaison ligne à ligne et images côte à côte                           | `render.py`                              |
+
+Python 3 avec `python-docx` et `pillow`, plus PyMuPDF pour la comparaison. Place les fichiers à traiter (le .docx, les exports) dans un dossier de travail, hors du dossier du skill.

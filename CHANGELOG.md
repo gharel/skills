@@ -10,6 +10,39 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 - `scripts/indices_depot.py` relève dans les dépôts git les indices de livraison, de qualité, d'usage possible de l'IA et de copie, sous Windows comme sous Linux.
 - `scripts/rendre_notation.py` contrôle `notation.json` et produit un classeur `.xlsx` : synthèse, barème, un onglet par étudiant, bloc IA hors du total. Aussi disponible dans l'atelier.
 
+### skazy-plan-formation 1.2.0
+
+- **Nouvelle mise en page, identique dans Word et dans Google Docs**, sur le modèle du Google Docs « Plan de formation - L'IA pour vos reportings » :
+  - page 1 : pastilles arrondies à cheval sur le bandeau, sticker incliné, encadré arrondi, programme « 01 Titre · durée » ;
+  - page 2 : cartes effectif, lieu et tarif, puis « Modalités et lieu de la formation » (présentiel, distanciel, hybride), « Accompagnement personnalisé », « Méthodes et moyens pédagogiques », encadrement, évaluation des acquis, mode de validation, boîte de contact.
+- Le DOCX est réécrit (`scripts/plan_docx.py`). Les aplats arrondis sont des images ancrées derrière le texte, et le texte est en tableaux sans marge, à interlignes multiples. Rendu par Word, il est à 0,2 mm près du modèle pour toutes les lignes de texte et tous les fonds.
+- Le texte du badge « Modalités et infos pratiques » est centré dans le badge : il était 0,7 mm trop bas dans le modèle de référence. Les pastilles de la page 1 sont centrées elles aussi, à 0,1 mm près.
+- Dans Google Docs, l'en-tête de la page 2 ne descend plus sous son badge. Une image ancrée à la page y devient un caractère de la taille de son passage : ce passage fait désormais 1 pt.
+- Le HTML suit la même mise en page : titre foncé sur le bandeau, page 2 complète.
+- Nouveaux champs facultatifs de `modalites` : `formats`, `accompagnement`, `moyens`, `encadrement`, `validation`. Les valeurs standard sont dans la charte. `false` retire un bloc. Un avertissement signale une page 2 trop chargée.
+- Objectifs sans gras, comme dans le modèle. Nouvel exemple `exemples/plan-ia-reportings.json`.
+- Méthode « .docx vers Google Docs » reprise étape par étape dans `references/google-docs.md` : rendu de référence, allègement, recopie fiable du base64 (au-delà de 30 000 caractères, importer à la main), correction de l'interligne, vérification, limites.
+- Nouveaux scripts :
+  - `interligne_google_docs.py` : requêtes de correction de l'interligne d'un Google Docs déjà importé ;
+  - `comparer_rendus.py` : compare le PDF de Google Docs à celui de Word, ligne à ligne et image par image.
+- `docx_google_docs.py` allège davantage le DOCX :
+  - il retire les propriétés redondantes, les styles de liste, numérotations, polices et thème inutilisés, et les identifiants de révision ;
+  - il réduit les palettes des images ;
+  - il vérifie une recopie du base64 avant l'envoi (`--verifier-recopie`) ;
+  - il ne s'arrête plus sur une console Windows.
+
+### skazy-support-formation 1.1.1
+
+- Charte resynchronisée : icônes Lucide `users`, `video`, `blend` et `handshake`, valeurs standard des modalités du plan.
+
+### skazy-quiz 1.0.1
+
+- Charte resynchronisée (valeurs standard des modalités du plan), sans effet sur le quiz.
+
+### notation-etudiants 1.0.1
+
+- Charte resynchronisée (valeurs standard des modalités du plan), sans effet sur la notation.
+
 ### skazy-plan-formation 1.1.0
 
 - Le DOCX s'importe dans Google Docs à l'identique (2 pages, même mise en page) et pèse 25 Ko environ au lieu de 85 : sans gabarit python-docx superflu ni styles inutilisés, images réduites à leur taille d'affichage. Un connecteur Google Drive peut le transmettre en base64.

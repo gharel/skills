@@ -4,6 +4,29 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-28
 
+### skazy-plan-formation 1.2.1
+
+- HTML aligné au pixel sur le modèle `templates/plan-formation` du design system :
+  - titre centré dans le bandeau, ajusté en 42, 36 puis 26 px ;
+  - page 2 : badge, tuiles, cartes, encart et colonnes aux valeurs du modèle, liens du pied et du contact cliquables.
+- Titre des bandeaux à la couleur « sur couleur » de la catégorie (jeton `-on`) : anthracite pour Data, Gestion de projet, Graphisme & UX, IA, Marketing et NoCode, blanc pour Bureautique, Développement et Web. Le skill les écrivait toujours en anthracite.
+- DOCX :
+  - titre de la page 1 ajusté comme dans le modèle (31,5 pt sur une ligne, 27 pt sur deux, centré dans le bandeau) ;
+  - titre de la page 2 ajusté en 16,5, 15 puis 14,25 pt, le bandeau grandissant s'il passe sur deux lignes ;
+  - cartes des modalités avec liseré, barre de 5 px, rayon et icônes du modèle, icônes à la couleur d'encre.
+
+### skazy-support-formation 1.1.2
+
+- Charte resynchronisée sur les jetons du design system : encre de Gestion de projet, IA et NoCode, texte anthracite sur Graphisme & UX, IA, Marketing et NoCode (contraste AA).
+
+### skazy-quiz 1.0.2
+
+- Charte resynchronisée sur les jetons de couleur du design system.
+
+### notation-etudiants 1.0.2
+
+- Charte resynchronisée sur les jetons de couleur du design system.
+
 ### notation-etudiants 1.0.0
 
 - Premier skill UNC. Il reprend la procédure de correction des TP rendus par mail (GitHub et déploiement), réécrite pour tous les assistants : chaque étape propose une voie avec outils (messagerie, terminal, navigateur, Google Sheets) et une voie sans.

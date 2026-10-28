@@ -186,10 +186,11 @@ CSS_PLAN = """
 html,body{margin:0}
 body{background:#E9E9EC;font-family:Raleway,system-ui,sans-serif;color:#1F1F24;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .page{position:relative;width:794px;height:1123px;margin:32px auto;background:#fff;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.14)}
-.bandeau{position:relative;background:var(--c);color:#1F1F24;padding:46px 64px 0;height:150px;flex-shrink:0}
-.bandeau h1{margin:0;font-size:42px;font-weight:700;line-height:1.05;letter-spacing:-.01em;max-width:560px}
+.bandeau{position:relative;box-sizing:border-box;height:150px;flex-shrink:0;display:flex;align-items:center;padding:0 64px 8px;background:var(--c);color:var(--co)}
+.bandeau h1{margin:0;font-size:42px;font-weight:700;line-height:1.08;letter-spacing:-.01em;max-width:556px;text-wrap:balance;overflow-wrap:break-word}
+.bandeau.sans-sticker h1{max-width:666px}
 .pastilles{position:absolute;left:64px;bottom:-14px;display:flex;gap:8px}
-.pastilles span{background:#F1F1F3;color:#1F1F24;font-size:13px;font-weight:700;padding:6px 14px;border-radius:999px;box-shadow:0 0 0 3px #fff}
+.pastilles span{background:#F4F4F5;color:#1F1F24;font-size:13px;font-weight:700;padding:6px 14px;border-radius:999px;box-shadow:0 0 0 3px #fff}
 .sticker{position:absolute;top:68px;right:52px;width:100px;height:100px;transform:rotate(8deg);background:#fff;border-radius:28px;padding:7px;box-shadow:0 6px 14px rgba(0,0,0,.18)}
 .sticker div{width:100%;height:100%;background:var(--sk);border:3px solid #1F1F24;border-radius:22px;display:flex;align-items:center;justify-content:center}
 .sticker i{width:48px;height:48px;background:#1F1F24;-webkit-mask:var(--si) center/contain no-repeat;mask:var(--si) center/contain no-repeat}
@@ -208,36 +209,42 @@ strong{color:#1F1F24}
 .partie .titre{font-weight:700;font-style:italic;color:#1F1F24;margin-bottom:3px}
 .partie .num{color:var(--ci);font-style:normal;font-weight:800;margin-right:6px}
 .partie ul{margin:0;padding:0 0 0 18px}
-.pied{margin-top:auto;padding:18px 0 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid #EEEEF0;font-size:11px;color:#6E6E78}
-.pied img{height:15px;width:auto}
-.bandeau2{background:var(--c);height:74px;padding:0 64px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-shrink:0}
-.bandeau2 .i{font-size:22px;font-weight:700;color:#1F1F24}
-.bandeau2 .m{background:var(--ci);color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;padding:5px 40px;border-radius:999px;white-space:nowrap}
-.corps2{flex:1;display:flex;flex-direction:column;padding:34px 64px 0;min-height:0}
-.cartes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.cartes>div{background:#F4F4F5;border-radius:12px;padding:17px 18px 14px;min-height:64px}
-.cartes .t{font-size:11.3px;font-weight:800;text-transform:uppercase;color:var(--ci);margin-bottom:5px}
-.cartes .v{font-size:14.7px;font-weight:700}
-.p2 h2{margin:31px 0 10px;font-size:16px;display:flex;gap:9px;align-items:center}
-.p2 h2::before{content:"";width:10px;height:10px;border-radius:2.5px;background:var(--c);flex-shrink:0}
-.formats{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:14px}
-.formats>div{border:1px solid #E4E4E8;border-top:4px solid var(--c);border-radius:12px;padding:17px 17px 14px;min-height:220px}
-.formats .ic{display:flex;align-items:center;justify-content:center;width:33px;height:33px;border-radius:8px;background:var(--ct);margin-bottom:24px}
-.formats .ic i,.accomp i{display:block;width:17px;height:17px;background:var(--c);-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
-.formats .t{font-size:14px;font-weight:700;margin-bottom:5px}
-.formats .v{font-size:12.7px;line-height:1.5;color:#3B3B42}
-.accomp{margin-top:14px;background:var(--ct);border-radius:12px;min-height:46px;padding:12px 18px 12px 19px;display:flex;align-items:center;gap:15px;font-size:13.3px;line-height:1.5}
-.accomp i{flex-shrink:0}
-.deux{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;margin-top:6px}
-.deux h2{margin:22px 0 10px}
-.deux p{margin:0;font-size:13.3px;line-height:1.5;color:#3B3B42}
-.deux ul{margin:8px 0 0;padding:0 0 0 18px;font-size:13.3px;line-height:1.46;color:#3B3B42;display:flex;flex-direction:column;gap:2px}
-.contact{margin-top:auto;background:var(--ct);border-radius:16px;min-height:112px;padding:16px 28px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.pied{margin-top:auto;padding:18px 0 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid #EEEEF0;font-size:11px;color:#55555E}
+.pied a{color:inherit}
+.pied img{height:34px;width:auto}
+.bandeau2{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-shrink:0;background:var(--c);color:var(--co);padding:24px 64px}
+.bandeau2 .i{display:block;min-width:0;font-size:22px;font-weight:700;line-height:1.15;text-wrap:balance;overflow-wrap:break-word}
+.bandeau2 .m{flex-shrink:0;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;background:var(--ci);color:#fff;padding:6px 14px;border-radius:999px}
+.corps2{flex:1;min-height:0;display:flex;flex-direction:column;padding:34px 64px 0}
+.cartes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.cartes>div{background:#F4F4F5;border-radius:12px;padding:14px 18px}
+.cartes .t{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ci);margin-bottom:5px}
+.cartes .v{font-size:15px;font-weight:700}
+.p2 h2{margin:0 0 10px;font-size:16px;font-weight:700;display:flex;gap:10px;align-items:center}
+.p2 h2::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--c);flex-shrink:0}
+.sec{margin-top:28px}
+.formats{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:14px}
+.formats>div{position:relative;overflow:hidden;border:1px solid #DEE2E6;border-radius:14px;padding:19px 16px 16px}
+.formats>div::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--c)}
+.formats .ic{width:34px;height:34px;border-radius:10px;background:var(--ct);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.formats .ic i,.accomp i{display:block;flex-shrink:0;background:var(--ci);-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
+.formats .ic i{width:19px;height:19px}
+.formats .t{margin:0 0 5px;font-size:14px;font-weight:700}
+.formats .v{margin:0;font-size:12.5px;line-height:1.5;color:#3B3B42}
+.accomp{margin-top:14px;background:var(--ct);border-radius:12px;padding:13px 18px;display:flex;gap:12px;align-items:center;font-size:13px;line-height:1.5;color:#1F1F24}
+.accomp i{width:20px;height:20px}
+.deux{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}
+.pile{display:flex;flex-direction:column;gap:20px}
+.deux p{margin:0;font-size:13px;line-height:1.55;color:#3B3B42}
+.deux ul{margin:8px 0 0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.5;color:#3B3B42}
+.espace{height:28px;flex-shrink:0}
+.contact{margin:auto 0 26px;background:var(--ct);border-radius:16px;padding:22px 28px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
 .contact .q{font-size:18px;font-weight:700;display:block;margin-bottom:6px}
-.contact .c{font-size:13.3px;line-height:1.5;color:#3B3B42}
-.contact a{color:var(--ci);font-weight:700;text-decoration:none}
-.contact img{width:83px;height:auto}
-.p2 .pied{margin-top:26px}
+.contact .c{font-size:13px;line-height:1.55;color:#3B3B42}
+.contact .c a{color:inherit}
+.contact .c a.site{color:var(--ci);font-weight:700}
+.contact img{height:64px;width:auto}
+.p2 .pied{margin-top:0}
 .outils{position:fixed;top:16px;right:16px;z-index:10;display:flex;gap:8px}
 .outils button{font:700 14px Raleway,system-ui,sans-serif;border:0;border-radius:999px;padding:10px 18px;background:#1F1F24;color:#fff;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 .outils button:focus-visible{outline:3px solid var(--c);outline-offset:2px}
@@ -246,6 +253,25 @@ strong{color:#1F1F24}
 """
 
 JS_AJUSTER = """
+// Titres ajustés comme dans le modèle (data-fit) : couverture 42 px sur une ligne, 36 px au plus sur
+// deux lignes, 26 px au moins ; bandeau de la page 2 : 22, 20 puis 19 px.
+function ajuster(el, tailles, lignes) {
+  if (!el) return;
+  const [grande, deuxLignes, plancher] = tailles;
+  el.style.fontSize = grande + 'px';
+  const hauteur = (t) => t * parseFloat(getComputedStyle(el).lineHeight) / parseFloat(getComputedStyle(el).fontSize);
+  if (el.scrollHeight <= hauteur(grande) * 1.5) return;
+  let t = deuxLignes;
+  el.style.fontSize = t + 'px';
+  while (el.scrollHeight > hauteur(t) * (lignes + 0.5) && t > plancher) {
+    t -= 1;
+    el.style.fontSize = t + 'px';
+  }
+}
+addEventListener('load', () => {
+  ajuster(document.querySelector('.bandeau h1'), [42, 36, 26], 2);
+  ajuster(document.querySelector('.bandeau2 .i'), [22, 20, 19], 2);
+});
 // Si le contenu déborde de la page 1, on réduit la taille du programme (13 px → 10 px au plus).
 addEventListener('load', () => {
   const page = document.querySelector('.p1');
@@ -280,7 +306,7 @@ def rendre_html(p: dict) -> str:
     logo = ch.logo_svg_data_uri("couleur")
     page1 = """
 <section class="page p1" aria-label="Page 1, programme">
-<div class="bandeau"><h1>{intitule}</h1><div class="pastilles"><span>{etiquette}</span><span>{niveau}</span></div></div>
+<div class="bandeau{sans_sticker}"><h1>{intitule}</h1><div class="pastilles"><span>{etiquette}</span><span>{niveau}</span></div></div>
 {sticker}
 <div class="corps">
 <p class="description">{description}</p>
@@ -293,10 +319,12 @@ def rendre_html(p: dict) -> str:
 </div>
 <h2 class="h-prog">Programme</h2>
 <div class="programme">{programme}</div>
-<div class="pied"><span>{site} · {email}</span><img src="{logo}" alt="Skazy Formation"></div>
+<div class="pied"><span><a href="{url}">{site}</a> · <a href="mailto:{email}">{email}</a></span><img src="{logo}" alt="Skazy Formation"></div>
 </div>
 </section>""".format(
         intitule=esc(p["intitule"]),
+        sans_sticker="" if p["sticker"] else " sans-sticker",
+        url=ch.CONTACT["url"],
         etiquette=esc(p["etiquette"]),
         niveau=esc(p["niveau"]),
         sticker=sticker,
@@ -331,9 +359,10 @@ def rendre_html(p: dict) -> str:
             if m["accompagnement"]
             else ""
         )
+        section_modalites = '<div class="sec">{}{}</div>'.format(bloc_formats, accomp) if bloc_formats or accomp else ""
         moyens = "<ul>{}</ul>".format("".join("<li>{}</li>".format(html_gras(x)) for x in m["moyens"])) if m["moyens"] else ""
         droite = "".join(
-            "<h2>{}</h2><p>{}</p>".format(titre, html_gras(valeur))
+            "<div><h2>{}</h2><p>{}</p></div>".format(titre, html_gras(valeur))
             for titre, valeur in (("Encadrement", m["encadrement"]), ("Évaluation des acquis", m["evaluation"]), ("Mode de validation", m["validation"]))
             if valeur
         )
@@ -346,13 +375,13 @@ def rendre_html(p: dict) -> str:
 <div><div class="t">Lieu</div><div class="v">{lieu}</div></div>
 <div><div class="t">Tarif</div><div class="v">{tarif}</div></div>
 </div>
-{formats}
-{accomp}
-<div class="deux">
+{modalites}
+<div class="sec deux">
 <div><h2>Méthodes et moyens pédagogiques</h2><p>{methodes}</p>{moyens}</div>
-<div>{droite}</div>
+<div class="pile">{droite}</div>
 </div>
-<div class="contact"><div><span class="q">Une question sur cette formation&nbsp;?</span><span class="c">{email} · {tel}<br><a href="{url}">{site}</a></span></div><img src="{logo}" alt="Skazy Formation"></div>
+<div class="espace"></div>
+<div class="contact"><div><span class="q">Une question sur cette formation&nbsp;?</span><span class="c"><a href="mailto:{email}">{email}</a> · <a href="tel:{tel_lien}">{tel}</a><br><a class="site" href="{url}">{site}</a></span></div><img src="{logo}" alt="Skazy Formation"></div>
 <div class="pied"><span>RIDET {ridet} · N° DFPC {dfpc}</span></div>
 </div>
 </section>""".format(
@@ -360,13 +389,13 @@ def rendre_html(p: dict) -> str:
             effectif=esc(m["effectif"]),
             lieu=esc(m["lieu"]),
             tarif=esc(m["tarif"]),
-            formats=bloc_formats,
-            accomp=accomp,
+            modalites=section_modalites,
             methodes=html_gras(m["methodes"]),
             moyens=moyens,
             droite=droite,
             email=ch.CONTACT["email"],
             tel=esc(ch.CONTACT["telephone"]),
+            tel_lien=ch.CONTACT["telephone"].replace(" ", ""),
             url=ch.CONTACT["url"],
             site=ch.CONTACT["site"],
             ridet=esc(ch.CONTACT["ridet"]),

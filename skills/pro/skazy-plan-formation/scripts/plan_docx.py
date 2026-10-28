@@ -127,22 +127,21 @@ def fond_arrondi(largeur_pt, hauteur_pt, couleur, rayon_pt=9.0, bordure=None, ba
         ImageDraw.Draw(masque).rounded_rectangle(boite, rayon, fill=255)
         corps = Image.new("RGBA", im.size, (255, 255, 255, 0))
         dc = ImageDraw.Draw(corps)
-        dc.rectangle((0, round(3 * e), im.width, im.height), fill=ch.rgb(couleur) + (255,))
+        dc.rectangle((0, round(3.75 * e), im.width, im.height), fill=ch.rgb(couleur) + (255,))
         im.paste(corps, (0, 0), Image.composite(corps.getchannel("A"), Image.new("L", im.size, 0), masque))
         if bordure:
             d.rounded_rectangle(boite, rayon, outline=ch.rgb(bordure), width=max(1, round(0.75 * e)))
-            d.rounded_rectangle((0, 0, im.width - 1, round(3 * e)), rayon, fill=None)
     else:
         d.rounded_rectangle(boite, rayon, fill=ch.rgb(couleur), outline=ch.rgb(bordure) if bordure else None,
                             width=max(1, round(0.75 * e)) if bordure else 0)
-    if icone and teinte:  # case d'icône des cartes : 25 pt, à 13 pt du bord, sous la barre
-        x0, y0, cote = round(13 * e), round(14.5 * e), round(25 * e)
-        d.rounded_rectangle((x0, y0, x0 + cote, y0 + cote), round(6 * e), fill=ch.rgb(teinte))
-        ic = round(12.5 * e)
+    if icone and teinte:  # case d'icône des cartes : 34 px (25,5 pt) à 16 px du bord, icône de 19 px
+        x0, y0, cote = round(12.75 * e), round(14.25 * e), round(25.5 * e)
+        d.rounded_rectangle((x0, y0, x0 + cote, y0 + cote), round(7.5 * e), fill=ch.rgb(teinte))
+        ic = round(14.25 * e)
         im.alpha_composite(ch.icone_image(icone, encre, ic), (x0 + (cote - ic) // 2, y0 + (cote - ic) // 2))
-    elif icone:  # icône seule, centrée verticalement, à 14 pt du bord gauche
-        ic = round(13 * e)
-        im.alpha_composite(ch.icone_image(icone, encre, ic), (round(14 * e), (im.height - ic) // 2))
+    elif icone:  # icône seule (encart), centrée verticalement : 20 px à 18 px du bord gauche
+        ic = round(15 * e)
+        im.alpha_composite(ch.icone_image(icone, encre, ic), (round(13.5 * e), (im.height - ic) // 2))
     return _fin(im)
 
 
@@ -160,16 +159,16 @@ def bandeau_1(couleur, pastilles: list[float]) -> bytes:
         d.rounded_rectangle((round((x - cercle) * e), round((PASTILLES_Y - cercle) * e), round((x + largeur + cercle) * e),
                              round((PASTILLES_Y + PASTILLE_H + cercle) * e)), round((PASTILLE_H / 2 + cercle) * e), fill=(255, 255, 255))
         d.rounded_rectangle((round(x * e), round(PASTILLES_Y * e), round((x + largeur) * e), round((PASTILLES_Y + PASTILLE_H) * e)),
-                            round(PASTILLE_H / 2 * e), fill=ch.rgb(ch.COULEURS["pastille"]))
+                            round(PASTILLE_H / 2 * e), fill=ch.rgb(ch.COULEURS["fondGris"]))
         x += largeur + 6
     return _fin(im)
 
 
-def bandeau_2(couleur, encre, pastille_l: float, pastille_y: float, pastille_h: float) -> bytes:
+def bandeau_2(couleur, encre, pastille_l: float, pastille_y: float, pastille_h: float, hauteur: float = BANDEAU_2) -> bytes:
     """Bandeau de la page 2 et la pastille « Modalités et infos pratiques », alignée sur la marge droite."""
     from PIL import ImageDraw
 
-    im, e = _toile(PAGE_L, BANDEAU_2, couleur)
+    im, e = _toile(PAGE_L, hauteur, couleur)
     d = ImageDraw.Draw(im)
     x1 = PAGE_L - MARGE
     d.rounded_rectangle((round((x1 - pastille_l) * e), round(pastille_y * e), round(x1 * e), round((pastille_y + pastille_h) * e)),
@@ -182,7 +181,7 @@ def carre(couleur) -> bytes:
     from PIL import ImageDraw
 
     im, e = _toile(7.5, 7.5)
-    ImageDraw.Draw(im).rounded_rectangle((0, 0, im.width - 1, im.height - 1), round(2 * e), fill=ch.rgb(couleur))
+    ImageDraw.Draw(im).rounded_rectangle((0, 0, im.width - 1, im.height - 1), round(1.5 * e), fill=ch.rgb(couleur))
     return _fin(im)
 
 
@@ -382,16 +381,26 @@ def rendre_docx(p: dict) -> bytes:
     # ------------------------------------------------ page 1
     pastilles = [chasse_gras(typographie(t), 10) + 21 for t in (p["etiquette"], p["niveau"])]
 
-    titre = para(doc, apres=0, multiple=0.913, droite=82.5, premier=True)
+    # Titre centré dans le bandeau, comme dans le modèle (data-fit 42,36,26) : 31,5 pt sur une ligne,
+    # 27 pt au plus sur deux, 19,5 pt au moins ; la marge haute de la page place son centre.
+    intitule = typographie(p["intitule"])
+    largeur_titre = UTILE - (82.5 if p["sticker"] else 0)
+    taille_titre = 31.5
+    if nombre_de_lignes(intitule, taille_titre, largeur_titre) > 1:
+        taille_titre = 27.0
+        while nombre_de_lignes(intitule, taille_titre, largeur_titre) > 2 and taille_titre > 19.5:
+            taille_titre -= 0.75
+    hauteur_titre = ligne(taille_titre, 0.913) * nombre_de_lignes(intitule, taille_titre, largeur_titre)
+    haut_titre = HAUT_1 + ligne(31.5, 0.913) / 2 - hauteur_titre / 2
+    s1.top_margin = Pt(haut_titre)
+    titre = para(doc, apres=0, multiple=0.913, droite=82.5 if p["sticker"] else 0, premier=True)
     ancre(titre, bandeau_1(c["couleur"], pastilles), PAGE_L, PASTILLES_Y + PASTILLE_H + 3, 0, 0, page=True)
     if p["sticker"]:
         donnees = ch.sticker_png(c["sticker"], c["icone"], taille=300, rotation=8)
         cote = 26.5 * 72 / 25.4 / 0.652
         ancre(titre, donnees, cote, cote, 183.1 * 72 / 25.4 - cote / 2, 31.2 * 72 / 25.4 - cote / 2, page=True, devant=True)
-    taille_titre = 31.5 if len(p["intitule"]) <= 40 else 26
-    police(titre.add_run(typographie(p["intitule"])), taille_titre, gras=True, couleur=NOIR)
-    lignes_titre = nombre_de_lignes(typographie(p["intitule"]), taille_titre, UTILE - 82.5)
-    titre.paragraph_format.space_after = Pt(max(0, PASTILLES_Y - HAUT_1 - ligne(taille_titre, 0.913) * lignes_titre))
+    police(titre.add_run(intitule), taille_titre, gras=True, couleur=c["surCouleur"])
+    titre.paragraph_format.space_after = Pt(max(0, PASTILLES_Y - haut_titre - hauteur_titre))
 
     t = tableau(doc, [pastilles[0], 6, pastilles[1], UTILE - pastilles[0] - pastilles[1] - 6], hauteur=PASTILLE_H)
     for i, valeur in ((0, p["etiquette"]), (2, p["niveau"])):
@@ -462,11 +471,17 @@ def rendre_docx(p: dict) -> bytes:
         pastille_l = chasse_gras(libelle_pastille, 9) + 61
         pastille_h, pastille_y = 18.4, 6.5 * 72 / 25.4
 
+        # Titre du bandeau : 16,5 pt, puis 15 et 14,25 pt (data-fit 22,20,19) ; sur deux lignes, le
+        # bandeau grandit d'autant et la pastille reste au milieu de la rangée.
+        largeur_t = UTILE - pastille_l - 18
+        taille2 = next((t_ for t_ in (16.5, 15.0) if nombre_de_lignes(intitule, t_, largeur_t) == 1), 14.25)
+        surplus = max(0.0, ligne(taille2, 0.981) * nombre_de_lignes(intitule, taille2, largeur_t) - 19.5)
         tete = para(doc, multiple=1.0, taille=1)
-        ancre(tete, bandeau_2(c["couleur"], c["encre"], pastille_l, pastille_y, pastille_h), PAGE_L, BANDEAU_2, 0, 0, page=True)
-        t = tableau(doc, [UTILE - pastille_l - 18, 18, pastille_l], hauteur=19.5)
+        ancre(tete, bandeau_2(c["couleur"], c["encre"], pastille_l, pastille_y + surplus / 2, pastille_h, BANDEAU_2 + surplus),
+              PAGE_L, BANDEAU_2 + surplus, 0, 0, page=True)
+        t = tableau(doc, [largeur_t, 18, pastille_l], hauteur=19.5)
         pt_ = para(cellule(t, 0, centre=True), multiple=0.981, premier=True)
-        police(pt_.add_run(typographie(p["intitule"])), 16.5, gras=True, couleur=NOIR)
+        police(pt_.add_run(intitule), taille2, gras=True, couleur=c["surCouleur"])
         espace(cellule(t, 1), 1, premier=True)
         # Capitales sans jambage : centrée seule, la ligne place le texte 0,86 mm trop bas dans le badge.
         # 4,9 pt d'espace après le remontent de moitié, au centre optique du badge.
@@ -496,8 +511,8 @@ def rendre_docx(p: dict) -> bytes:
             porteur = espace(doc, 7.5)
             largeurs = []
             for k, f in enumerate(formats):
-                ancre(porteur, fond_arrondi(carte_l, 165, "#FFFFFF", bordure=g["bordure"], barre=c["couleur"], icone=f["icone"],
-                                            encre=c["couleur"], teinte=c["teinte"]), carte_l, 165, k * (carte_l + ecart), 7.5)
+                ancre(porteur, fond_arrondi(carte_l, 165, "#FFFFFF", rayon_pt=10.5, bordure="#DEE2E6", barre=c["couleur"], icone=f["icone"],
+                                            encre=c["encre"], teinte=c["teinte"]), carte_l, 165, k * (carte_l + ecart), 7.5)
                 largeurs += [carte_l, ecart]
             t = tableau(doc, largeurs[:-1], hauteur=165)
             for k, f in enumerate(formats):
@@ -510,7 +525,7 @@ def rendre_docx(p: dict) -> bytes:
 
         if m["accompagnement"]:
             porteur = espace(doc, 10.5)
-            ancre(porteur, fond_arrondi(UTILE, 34.5, c["teinte"], icone="handshake", encre=c["couleur"]), UTILE, 34.5, 0, 10.5)
+            ancre(porteur, fond_arrondi(UTILE, 34.5, c["teinte"], icone="handshake", encre=c["encre"]), UTILE, 34.5, 0, 10.5)
             t = tableau(doc, [UTILE], hauteur=34.5)
             pa = para(cellule(t, 0, centre=True), multiple=1.248, gauche=37.5, droite=13.5, premier=True)
             police(pa.add_run("Accompagnement personnalisé : "), 10, gras=True, couleur=NOIR)

@@ -13,6 +13,7 @@ import charte as ch
 from charte import esc
 from support_modele import touches
 
+C = ch.COULEURS
 H2 = "margin:0;font-size:72px;font-weight:600;line-height:1.05;letter-spacing:-.01em"
 SURTITRE = "font-size:24px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ci)"
 PASTILLE = "align-self:flex-start;background:var(--c);color:var(--co);font-size:24px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:10px 28px;border-radius:999px"
@@ -24,25 +25,29 @@ def g(texte, couleur="#1F1F24") -> str:
     return ch.html_gras(texte or "", "color:{}".format(couleur) if couleur else "")
 
 
-def puce(texte: str, taille=30, marge=15) -> str:
+def puce(texte: str, marge=15, ecart=20) -> str:
+    """Point de liste du modèle : carré de 12 px, décalé de `marge` px, à `ecart` px du texte."""
     return (
-        '<li style="display:flex;gap:20px"><span style="width:12px;height:12px;background:var(--c);border-radius:2px;'
-        'margin-top:{}px;flex-shrink:0"></span><span>{}</span></li>'.format(marge, texte)
+        '<li style="display:flex;gap:{}px"><span style="width:12px;height:12px;background:var(--c);border-radius:2px;'
+        'margin-top:{}px;flex-shrink:0"></span><span>{}</span></li>'.format(ecart, marge, texte)
     )
 
 
 def point(p) -> str:
-    """Point de liste : « texte » ou {label, texte} → <strong>label</strong> : texte."""
+    """Point de liste : « texte » ou {label, texte, lien} → <strong>label</strong> : texte (lien discret)."""
     if isinstance(p, dict):
-        label, texte = p.get("label", ""), p.get("texte", "")
-        return ('<strong style="color:#1F1F24">{}</strong>&nbsp;: {}'.format(esc(label), g(texte))) if label else g(texte)
+        label, texte = p.get("label", ""), g(p.get("texte", ""))
+        if p.get("lien"):
+            texte = '<a class="lk" href="{}">{}</a>'.format(_html.escape(p["lien"], quote=True), texte)
+        return ('<strong style="color:#1F1F24">{}</strong>&nbsp;: {}'.format(esc(label), texte)) if label else texte
     return g(p)
 
 
 def photo(url: str, style: str, position="center") -> str:
+    """Photo en « cover », sans filtre (seules la couverture et « Questions » sont saturées)."""
     if not url:
         return vide("Photo", style)
-    return '<div style="{};background:#DADADF url(&quot;{}&quot;) {}/cover no-repeat;filter:saturate(1.2) contrast(1.05)"></div>'.format(
+    return '<div style="{};background:#DADADF url(&quot;{}&quot;) {}/cover no-repeat"></div>'.format(
         style, _html.escape(url, quote=True), position
     )
 
@@ -64,26 +69,38 @@ def vide(libelle: str, style: str, rayon=16) -> str:
     )
 
 
+# Stickers du modèle : taille → (rayon, marge blanche, trait, rayon intérieur), en px.
+STICKERS = {140: (39, 10, 4, 31), 150: (42, 11, 5, 33), 160: (45, 11, 5, 35), 170: (48, 12, 5, 37)}
+
+
 def sticker(position: str, taille: int, rotation: int, icone: str | None) -> str:
     """Sticker du design system ; icone None = icône de la catégorie."""
-    rayon, marge, trait = round(taille * 0.28), round(taille * 0.073), 4 if taille < 150 else 5
+    rayon, marge, trait, interieur = STICKERS.get(taille) or (
+        round(taille * 0.28), round(taille * 0.07), 4 if taille < 150 else 5, round(taille * 0.28) - round(taille * 0.07) + 2
+    )
     image = "var(--si)" if icone is None else "url({})".format(ch.icone_data_uri(icone))
     return (
         '<div class="stk" aria-hidden="true" style="position:absolute;{pos};width:{t}px;height:{t}px;transform:rotate({r}deg);'
         'border-radius:{ra}px;padding:{m}px"><div style="border:{tr}px solid #1F1F24;border-radius:{ri}px">'
         '<i class="ic" style="--i:{im};width:48%;height:48%"></i></div></div>'
-    ).format(pos=position, t=taille, r=rotation, ra=rayon, m=marge, tr=trait, ri=rayon - marge, im=image)
+    ).format(pos=position, t=taille, r=rotation, ra=rayon, m=marge, tr=trait, ri=interieur, im=image)
 
 
 def pied(intitule: str, couleur=False) -> str:
+    """Pied du modèle : logo PNG du design system (marges transparentes comprises) haut de 64 px."""
     if couleur:
         return (
             '<div class="pied pied-c"><span>{}</span><img src="{}" alt="Skazy Formation" style="filter:var(--lf)">'
             '<span class="pn"></span></div>'
-        ).format(esc(intitule), ch.logo_svg_data_uri("blanc"))
+        ).format(esc(intitule), ch.logo_data_uri("blanc"))
     return '<div class="pied"><span>{}</span><img src="{}" alt="Skazy Formation"><span class="pn"></span></div>'.format(
-        esc(intitule), ch.logo_svg_data_uri("couleur")
+        esc(intitule), ch.logo_data_uri("couleur")
     )
+
+
+def mailto(email: str) -> str:
+    """Adresse e-mail en lien discret (couleur héritée), comme dans le modèle."""
+    return '<a class="lk" href="mailto:{}">{}</a>'.format(_html.escape(str(email).strip(), quote=True), esc(email))
 
 
 def colorer_code(code: str) -> str:
@@ -101,27 +118,26 @@ def couverture(s, f):
     return """<div style="position:absolute;left:0;top:0;bottom:0;width:960px;background:#DADADF url(&quot;{photo}&quot;) center/cover;filter:saturate(1.25) contrast(1.06)"></div>
 <div style="position:absolute;top:0;right:0;bottom:0;width:960px;background:var(--c)"></div>
 <div style="position:absolute;top:0;bottom:0;right:0;width:960px;padding:110px 120px 100px;display:flex;flex-direction:column;color:var(--co)">
-<div role="img" aria-label="Skazy Formation" style="width:322px;height:106px;flex-shrink:0;background:var(--logo) left center/contain no-repeat"></div>
+<div role="img" aria-label="Skazy Formation" style="width:322px;height:106px;flex-shrink:0;align-self:flex-start;background:var(--logo) left center/contain no-repeat;filter:var(--lf)"></div>
 <div style="margin:auto 0;display:flex;flex-direction:column;gap:32px">
-<h1 style="margin:0;font-size:{taille}px;font-weight:700;line-height:1;letter-spacing:-.02em;text-wrap:balance">{intitule}</h1>
+<h1 style="margin:0;font-size:104px;font-weight:700;line-height:1;letter-spacing:-.02em;text-wrap:balance">{intitule}</h1>
 <div style="display:flex;gap:14px;flex-wrap:wrap"><span class="pl">{cat}</span><span class="pl">{niveau}</span></div>
 <div style="font-size:28px;font-weight:500">{duree}</div>
 </div>
 <div style="font-size:28px;line-height:1.45"><div style="font-weight:700">{formateur}</div><div>{email}</div></div>
 </div>""".format(
         photo=_html.escape(s.get("photo") or f["_couverture"], quote=True),
-        taille=104 if len(f["intitule"]) <= 30 else 84,
         intitule=esc(f["intitule"]),
         cat=esc(f["categorie"]),
         niveau=esc(f["niveau"]),
         duree=esc(f["duree"]),
         formateur=esc(f["formateur"]),
-        email=esc(f["email"]),
+        email=mailto(f["email"]),
     )
 
 
 def faisons_connaissance(s, f):
-    infos = "".join(puce(point(x), 28, 14) for x in s.get("infos") or [])
+    infos = "".join(puce(point(x), 14, 18) for x in s.get("infos") or [])
     tour = "".join(
         '<div style="display:flex;align-items:center;gap:28px"><span class="rond" style="width:64px;height:64px;font-size:28px">{}</span>'
         '<span style="font-size:36px;font-weight:500">{}</span></div>'.format(k, g(t))
@@ -198,7 +214,7 @@ def chapitre(s, f):
     duree = '<span style="background:var(--ct);color:var(--ci);font-size:28px;font-weight:800;padding:12px 30px;border-radius:999px;white-space:nowrap">{}</span>'.format(esc(s["duree"])) if s.get("duree") else ""
     return """<div style="position:absolute;top:0;right:0;bottom:80px;width:760px">{photo}</div>
 <div style="position:absolute;top:0;left:0;bottom:80px;width:1160px;padding:88px 96px 88px 120px;display:flex;flex-direction:column">
-<div style="display:flex;justify-content:space-between;align-items:flex-start"><span style="font-size:200px;font-weight:800;line-height:.85;color:var(--c);letter-spacing:-.04em">{num:02d}</span>{duree}</div>
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><span style="font-size:200px;font-weight:800;line-height:.85;color:var(--ci);letter-spacing:-.04em">{num:02d}</span>{duree}</div>
 <h2 style="margin:40px 0 0;font-size:{taille}px;font-weight:600;line-height:1.02;letter-spacing:-.015em">{titre}</h2>
 <ul style="list-style:none;margin:auto 0 0;padding:0;display:flex;flex-direction:column;gap:18px;font-size:32px;color:#45454F">{points}</ul>
 </div>""".format(
@@ -232,7 +248,7 @@ def chiffre_cle(s, f):
     return """<div style="position:absolute;top:0;left:0;right:0;bottom:80px;padding:96px 120px 80px;display:grid;grid-template-columns:1fr 1fr;gap:120px;align-items:center">
 <div style="display:flex;flex-direction:column;gap:32px"><span style="font-size:{taille}px;font-weight:800;line-height:.85;letter-spacing:-.04em;color:var(--ci)">{chiffre}<span style="font-size:{tu}px">{unite}</span></span><span style="font-size:44px;font-weight:700;line-height:1.2;text-wrap:balance">{phrase}</span></div>
 <div style="display:flex;flex-direction:column;gap:40px"><p style="margin:0;font-size:34px;line-height:1.5;color:#45454F">{explication}</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">{reperes}</div>{source}</div>
-</div>""".format(taille=taille, chiffre=esc(chiffre), tu=round(taille * 0.54), unite=esc(s.get("unite", "")), phrase=g(s["phrase"]),
+</div>""".format(taille=taille, chiffre=esc(chiffre), tu=round(taille * 150 / 280), unite=esc(s.get("unite", "")), phrase=g(s["phrase"]),
                  explication=g(s.get("explication", "")), reperes=reperes, source=source)
 
 
@@ -336,7 +352,7 @@ def notion_cle(s, f):
 <p style="margin:0;font-size:44px;line-height:1.4;color:#3B3B42;max-width:1400px">{definition}</p>
 <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:16px">{termes}</div>
 </div>""".format(pastille=PASTILLE, surtitre=esc(s.get("surtitre") or "Notion clé"), taille=112 if len(s["titre"]) <= 26 else 84,
-                 titre=esc(s["titre"]), definition=g(s["definition"]), termes=termes)
+                 titre=esc(s["titre"]), definition=g(s["definition"], ""), termes=termes)
 
 
 def code(s, f):
@@ -346,7 +362,7 @@ def code(s, f):
     )
     exemple = ""
     if s.get("exemple"):
-        exemple = '<div style="height:2px;background:rgba(255,255,255,.12);margin:12px 0"></div><span style="font-size:24px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#A8A8B3">Exemple</span><pre style="margin:0;{mono};font-size:34px;line-height:1.5;white-space:pre-wrap">{}</pre>'.format(colorer_code(s["exemple"]), mono=MONO)
+        exemple = '<div style="height:2px;background:rgba(255,255,255,.12);margin:12px 0"></div><span style="font-size:24px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#A8A8B3">Exemple</span><pre style="margin:0;{mono};font-size:34px;line-height:1.5;white-space:pre">{}</pre>'.format(colorer_code(s["exemple"]), mono=MONO)
     resultat = '<span style="font-size:28px;color:#D4D4DA">{}</span>'.format(g(s["resultat"], "#fff")) if s.get("resultat") else ""
     return """<div style="position:absolute;top:0;left:0;right:0;bottom:80px;padding:96px 120px 80px;display:grid;grid-template-columns:1fr 860px;gap:96px;align-items:center">
 <div style="display:flex;flex-direction:column;gap:36px">
@@ -356,7 +372,7 @@ def code(s, f):
 </div>
 <div style="background:#1E1E24;border-radius:28px;padding:52px 56px;display:flex;flex-direction:column;gap:22px;color:#fff">
 <span style="font-size:24px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#A8A8B3">{libelle}</span>
-<pre style="margin:0;{mono};font-size:34px;line-height:1.5;white-space:pre-wrap">{syntaxe}</pre>
+<pre style="margin:0;{mono};font-size:34px;line-height:1.5;white-space:pre">{syntaxe}</pre>
 {exemple}
 {resultat}
 </div>
@@ -418,7 +434,7 @@ def comparatif(s, f):
 def raccourcis(s, f):
     kbd = 'font:700 26px Raleway,sans-serif;color:#1F1F24;background:#fff;border:2px solid #D9D9DE;border-bottom-width:5px;border-radius:12px;padding:6px 18px'
     items = "".join(
-        '<div style="display:grid;grid-template-columns:320px 1fr;align-items:center;gap:24px;background:#F6F6F7;border-radius:20px;padding:20px 32px"><span style="display:flex;gap:10px;align-items:center;font-size:24px;color:#9A9AA6">{}</span><span style="font-size:30px">{}</span></div>'.format(
+        '<div style="display:grid;grid-template-columns:320px 1fr;align-items:center;gap:24px;background:#F6F6F7;border-radius:20px;padding:20px 32px"><span style="display:flex;gap:10px;align-items:center;font-size:24px;color:#6E6E78">{}</span><span style="font-size:30px">{}</span></div>'.format(
             "+".join('<kbd style="{}">{}</kbd>'.format(kbd, esc(t)) for t in touches(r)), esc(r.get("action")))
         for r in s["raccourcis"]
     )
@@ -524,15 +540,15 @@ def quiz(s, f):
 
 def a_retenir(s, f):
     messages = "".join(
-        '<div style="display:flex;gap:40px;align-items:baseline"><span style="font-size:72px;font-weight:800;color:var(--c);line-height:1;min-width:80px">{}</span><p style="margin:0;font-size:38px;line-height:1.4;color:#3B3B42">{}</p></div>'.format(k, g(m))
+        '<div style="display:flex;gap:40px;align-items:baseline"><span style="font-size:72px;font-weight:800;color:var(--ci);line-height:1;min-width:80px">{}</span><p style="margin:0;font-size:38px;line-height:1.4;color:#3B3B42">{}</p></div>'.format(k, g(m))
         for k, m in enumerate(s["messages"], 1)
     )
     return """<div style="position:absolute;top:0;left:0;bottom:80px;width:720px;background:var(--c);color:var(--co);padding:96px 80px 96px 120px;display:flex;flex-direction:column;justify-content:space-between">
 <h2 style="margin:0;font-size:96px;font-weight:700;line-height:1;letter-spacing:-.02em">{titre}</h2>
-<span style="font-size:28px;font-weight:600">{sous_titre}</span>
+<span style="font-size:30px;font-weight:600;line-height:1.4">{sous_titre}</span>
 </div>
 <div style="position:absolute;top:0;left:720px;right:0;bottom:80px;padding:96px 120px;display:flex;flex-direction:column;justify-content:center;gap:56px">{messages}</div>""".format(
-        titre=esc(s.get("titre") or "À retenir"), sous_titre=esc(s.get("sousTitre", "")), messages=messages)
+        titre=esc(s.get("titre") or "À retenir"), sous_titre="<br>".join(esc(x) for x in str(s.get("sousTitre") or "").split("\n")), messages=messages)
 
 
 def ressources(s, f):
@@ -568,11 +584,11 @@ def questions(s, f):
     return """<div style="position:absolute;left:0;top:0;bottom:0;width:960px;background:#DADADF url(&quot;{photo}&quot;) right center/cover;filter:saturate(1.2) contrast(1.05)"></div>
 <div style="position:absolute;top:0;right:0;bottom:0;width:960px;background:var(--c)"></div>
 <div style="position:absolute;top:0;bottom:0;right:0;width:960px;padding:110px 120px 100px;display:flex;flex-direction:column;color:var(--co)">
-<div role="img" aria-label="Skazy Formation" style="width:322px;height:106px;flex-shrink:0;background:var(--logo) left center/contain no-repeat"></div>
+<div role="img" aria-label="Skazy Formation" style="width:322px;height:106px;flex-shrink:0;align-self:flex-start;background:var(--logo) left center/contain no-repeat;filter:var(--lf)"></div>
 <h2 style="margin:auto 0;font-size:88px;font-weight:700;line-height:1.05;letter-spacing:-.02em;text-wrap:balance">{titre}</h2>
 <div style="font-size:28px;line-height:1.45"><div style="font-weight:700">{formateur}</div><div>{email}</div></div>
 </div>""".format(photo=_html.escape(ch.url_photo(s.get("photo") or ch.CHARTE["photoQuestions"]), quote=True),
-                 titre=esc(s.get("titre") or "Avez-vous des questions ?"), formateur=esc(f["formateur"]), email=esc(f["email"]))
+                 titre=esc(s.get("titre") or "Avez-vous des questions ?"), formateur=esc(f["formateur"]), email=mailto(f["email"]))
 
 
 def battle(s, f):
@@ -592,15 +608,16 @@ def battle(s, f):
 </div>""".format(zap=ch.icone_data_uri("zap"), h2=H2, titre=esc(s.get("titre") or "Battle de questions"),
                  accroche=esc(s.get("accroche") or "Deux équipes, un objectif : piéger l'autre."),
                  a=equipe("Équipe A", "var(--c)", "var(--co)", "", ch.melange(c["surCouleur"], c["couleur"], 0.4)),
-                 b=equipe("Équipe B", "#F6F6F7", "#1F1F24", "border:3px solid #E4E4E8;", "#A5A5A7"),
+                 b=equipe("Équipe B", "#F6F6F7", "#1F1F24", "border:3px solid #E4E4E8;", ch.melange(C["texte"], C["fondCarte"], 0.4)),
                  n=len(s["regles"]), regles=regles)
 
 
+# Pôles du groupe : couleur = encre (-ink) du jeton de la catégorie correspondante, vert foncé pour la formation.
 POLES = [
-    ("com", "#FF6E3D", "Social media, publicité digitale, webmarketing, SEO, SEA, identité visuelle, print et édition"),
-    ("numérique", "#009BCA", "Développement de logiciels, web et mobile, UX/UI design, hébergement"),
-    ("data", "#B8901A", "Informatique décisionnelle, business intelligence, AMOA, modélisation, intégration et restitution de données"),
-    ("formation", "#3D7A62", "Webmarketing, développement, data, web, gestion de projet, design, bureautique, NoCode et Intelligence Artificielle"),
+    ("com", ch.CHARTE["jetons"]["cat-ia-ink"], "Social media, publicité digitale, webmarketing, SEO, SEA, identité visuelle, print et édition"),
+    ("numérique", ch.CHARTE["jetons"]["cat-dev-ink"], "Développement de logiciels, web et mobile, UX/UI design, hébergement"),
+    ("data", ch.CHARTE["jetons"]["cat-data-ink"], "Informatique décisionnelle, business intelligence, AMOA, modélisation, intégration et restitution de données"),
+    ("formation", C["primaireFonce"], "Webmarketing, développement, data, web, gestion de projet, design, bureautique, NoCode et Intelligence Artificielle"),
 ]
 
 
@@ -649,7 +666,7 @@ CSS = """
 html,body{margin:0;height:100%;background:#111;font-family:Raleway,system-ui,sans-serif;color:#1F1F24;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .scene{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .deck{position:relative;width:1920px;height:1080px;flex-shrink:0;transform-origin:center center;counter-reset:sf}
-.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;background:#fff;counter-increment:sf;visibility:hidden}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;background:#fff;counter-increment:sf;visibility:hidden;line-height:1.5;text-wrap:pretty}
 .slide.active{visibility:visible}
 .pn::after{content:counter(sf,decimal-leading-zero)}
 .pied{position:absolute;left:0;right:0;bottom:0;height:80px;background:#F4F4F5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 64px;font-size:24px;font-weight:600;color:#55555E}
@@ -666,7 +683,9 @@ html,body{margin:0;height:100%;background:#111;font-family:Raleway,system-ui,san
 .vide{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#F6F6F7;border:3px dashed #D9D9DE;color:#9A9AA6;font-size:24px;font-weight:600;text-align:center;padding:16px}
 .vide .ic{width:56px;height:56px;background:#B5B5BD}
 strong{font-weight:700}
-a{color:var(--ci)}
+a{color:var(--ci);text-decoration:underline;text-underline-offset:2px}
+.lk,.lk:visited{color:inherit;text-decoration:none}
+.lk:hover{text-decoration:underline}
 .barre{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:6px;background:rgba(24,24,28,.88);color:#fff;border-radius:999px;padding:6px;font:600 14px Raleway,system-ui,sans-serif;opacity:.15;transition:opacity .2s}
 .barre:hover,.barre:focus-within{opacity:1}
 .barre button{font:inherit;color:#fff;background:transparent;border:0;border-radius:999px;padding:8px 14px;cursor:pointer}
@@ -737,7 +756,7 @@ def rendre_html(s: dict) -> str:
     c = f["_cat"]
     variables = "--c:{c};--ci:{i};--ct:{t};--co:{o};--sk:{sk};--si:url({si});--logo:url({logo});--lf:{lf}".format(
         c=c["couleur"], i=c["encre"], t=c["teinte"], o=c["surCouleur"], sk=c["sticker"], si=ch.icone_data_uri(c["icone"]),
-        logo=ch.logo_svg_data_uri(ch.variante_logo(c)), lf="none" if c["surCouleur"].upper() == "#FFFFFF" else "brightness(0)",
+        logo=ch.logo_data_uri(ch.variante_logo(c), rogne=True), lf="none" if c["surCouleur"].upper() == "#FFFFFF" else "brightness(0)",
     )
     sections = []
     for slide in s["_slides"]:

@@ -28,7 +28,7 @@ Les trois skills Pro forment une chaîne. Chaque skill accepte le JSON produit p
 
 ```
 skills/<catégorie>/<nom>/        Un skill : SKILL.md, agents/openai.yaml, references/, scripts/, assets/, exemples/
-commun/charte/                   SOURCE UNIQUE de la charte Skazy Formation : charte.json, charte.py, logos, icônes Lucide
+commun/charte/                   Copie de la charte de design-skazy (charte.json, plan-formation.css/.js, logos) + charte.py et icônes Lucide
 modele/                          Modèle à copier pour créer un skill
 site/                            Sources du site : index.html (gabarit), atelier/, assets/, installer.ps1, installer.sh
 outils/                          Scripts Node : construire, synchroniser la charte, icônes, captures, serveur local
@@ -47,8 +47,8 @@ _site/                           Site construit (non versionné), publié par Gi
 | `npm test`             | Vitest : lecture et contrôle des skills                                                                                                            |
 | `npm run test:py`      | pytest : rendus du plan, du support et du quiz (`pip install python-docx python-pptx openpyxl pillow pytest`)                                      |
 | `npm run test:e2e`     | Playwright : catalogue, accessibilité, mobile, atelier de bout en bout (**avant chaque push**, après `construire`)                                 |
-| `npm run synchroniser` | Recopie `commun/charte` dans les skills qui la déclarent                                                                                           |
-| `npm run icones`       | Régénère les PNG des icônes et des logos de la charte (rare)                                                                                       |
+| `npm run synchroniser` | Recopie la charte de design-skazy dans `commun/charte`, puis `commun/charte` dans les skills qui la déclarent                                      |
+| `npm run icones`       | Régénère les icônes Lucide de la charte en PNG et SVG (rare)                                                                                       |
 
 Contrôle visuel des rendus :
 
@@ -81,10 +81,15 @@ Contrôle visuel des rendus :
 
 ## Charte Skazy Formation
 
-- La source est le **Skazy Formation Design System** de Claude Design (projet `f89db454-87c5-41c4-bebe-3efb5e50fc4f`), en particulier les modèles `templates/plan-formation` et `templates/support-formation`. Les rendus HTML en reprennent les mesures en pixels. Les rendus DOCX et PPTX les transposent : 1 px = 0,5 pt sur une slide de 1 920 px, et le A4 correspond à 794 × 1 123 px.
-- Couleurs, catégories (9, dans l'ordre alphabétique), photos Unsplash validées et coordonnées : seulement dans `commun/charte/charte.json`.
-- Utilitaires Python (stickers, typographie, gras `**…**`, images) : seulement dans `commun/charte/charte.py`.
-- Ne jamais modifier une copie dans un skill : modifier `commun/charte`, puis `npm run synchroniser`. `npm run check` refuse une copie désynchronisée.
+- **La charte qui fait foi est celle du design system [design-skazy](https://github.com/gharel/design-skazy)** (Claude Design, projet `f89db454-87c5-41c4-bebe-3efb5e50fc4f`). Les skills n'ont pas de charte à eux. Les modèles `templates/plan-formation` et `templates/support-formation` sont la seule source de vérité de leur design : un écart entre un rendu et le modèle se corrige dans le skill. Si le modèle doit changer, on le modifie dans design-skazy, sans changer son design.
+- design-skazy exporte la charte dans son dossier `charte/` (`npm run charte` dans design-skazy) :
+  - `charte.json` : couleurs (jetons), catégories, photos, contact, logos et textes standard de la page 2 du plan ;
+  - `plan-formation.css` et `plan-formation.js` : feuille de style et ajustements du modèle de plan, que le HTML du plan reprend tels quels.
+- `npm run synchroniser` recopie cet export et les logos dans `commun/charte` (dépôt cherché dans `$DESIGN_SKAZY`, sinon `../design-skazy`), note le commit dans `commun/charte/origine.json`, puis recopie `commun/charte` dans les skills. Une couleur, une catégorie, une photo ou un texte standard manquant s'ajoute dans design-skazy, jamais ici.
+- Les rendus HTML reprennent les mesures en pixels des modèles. Les rendus DOCX et PPTX les transposent : 1 px = 0,5 pt sur une slide de 1 920 px, et le A4 correspond à 794 × 1 123 px.
+- Les scripts lisent les couleurs dans `charte.json` (`couleurs`, `categories`, `jetons`), jamais en dur.
+- Utilitaires Python (stickers, typographie, gras `**…**`, images, logos) : seulement dans `commun/charte/charte.py`.
+- Ne jamais modifier une copie, ni dans `commun/charte` ni dans un skill : modifier design-skazy (ou `charte.py`), puis `npm run synchroniser`. `npm run check` refuse une copie désynchronisée et, si design-skazy est présent, une charte en retard sur lui.
 - Raleway pour les documents et les slides, Georama pour le site. Icônes : **Lucide** 0.460.0 uniquement. Pas d'emoji.
 - Le site reprend le bandeau commun et le thème partagé des outils Skazy Formation : clé `skazy-outils:theme`, `site/assets/js/theme.js` et `site/assets/css/charte.css` copiés depuis `www/home`.
 

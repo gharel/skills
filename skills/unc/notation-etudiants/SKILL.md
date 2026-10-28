@@ -3,7 +3,7 @@ name: notation-etudiants
 description: "Corrige et note les rendus d'étudiants (projets web sur GitHub avec un déploiement Render, Vercel ou autre) à partir d'un énoncé, des mails reçus et d'un barème : une note justifiée par critère, un onglet par étudiant dans Google Sheets ou dans un classeur .xlsx, et une estimation indicative de l'usage de l'IA (probabilité et part du travail). À utiliser quand l'utilisateur demande de corriger, noter ou évaluer un TP, un CC ou un projet rendu par mail avec des liens GitHub ou de déploiement, ou de remplir une grille de notation."
 license: Propriétaire.
 metadata:
-  version: '1.0.2'
+  version: '1.0.3'
   categorie: unc
   auteur: Guillaume Harel
   source: https://github.com/gharel/skills
@@ -148,4 +148,4 @@ Un compte rendu court, en français :
 - `references/format-notation.md` : format du JSON lu par le script et par l'atelier.
 - `exemples/notation-exemple.json` : notation complète (CC de réducteur d'URL, quatre étudiants fictifs).
 
-Version 1.0.2. Sources et mises à jour : https://gharel.github.io/skills/
+Version 1.0.3. Sources et mises à jour : https://gharel.github.io/skills/

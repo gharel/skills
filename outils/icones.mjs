@@ -1,8 +1,7 @@
 /**
- * npm run icones : prépare les images de la charte utilisées par les rendus DOCX et PPTX.
- * - icônes Lucide (version figée du design system) en PNG noir, 256 px, fond transparent, et en SVG ;
- * - logos Skazy Formation (couleur et blanc) en PNG haute définition.
- * À relancer seulement si la liste des icônes ou les logos changent, puis npm run synchroniser.
+ * npm run icones : icônes Lucide (version figée du design system) en PNG noir, 256 px, fond transparent,
+ * et en SVG, pour les rendus HTML, DOCX et PPTX. Les logos viennent de design-skazy (npm run synchroniser).
+ * À relancer seulement si la liste des icônes change, puis npm run synchroniser.
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -28,10 +27,8 @@ const ICONES = [
     'circle-check',
     'clock',
     'link',
-    // Page 2 du plan de formation : modalités et accompagnement.
-    'users',
-    'video',
-    'blend',
+    // Page 2 du plan de formation : formats (modèle plan-formation) et accompagnement.
+    ...charte.modalitesParDefaut.formats.map((f) => f.icone),
     'handshake',
   ]),
 ];
@@ -46,10 +43,4 @@ for (const nom of ICONES) {
   await writeFile(`${CHARTE}icones/${nom}.svg`, await readFile(`${LUCIDE}${nom}.svg`, 'utf8'));
 }
 
-for (const variante of ['couleur', 'blanc']) {
-  const svg = await readFile(`${CHARTE}logo-${variante}.svg`, 'utf8');
-  const png = new Resvg(svg, { fitTo: { mode: 'width', value: 480 } }).render().asPng();
-  await writeFile(`${CHARTE}logo-${variante}.png`, png);
-}
-
-console.log(`${ICONES.length} icônes et 2 logos écrits dans commun/charte/.`);
+console.log(`${ICONES.length} icônes écrites dans commun/charte/icones/.`);

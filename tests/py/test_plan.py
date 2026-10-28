@@ -53,14 +53,28 @@ def test_html_reprend_le_modele():
     html = r.rendre_html(p)
     assert "--c:#A977DA" in html
     assert "Excel : les bases" in html.replace(" ", " ")
-    assert 'class="page p2"' in html
+    assert 'data-screen-label="Page Informations"' in html
     assert "RIDET" in html
     assert "Créer un classeur" in html and "Prenez en main Excel" in html
 
 
+def test_html_reprend_la_feuille_de_style_du_design_system():
+    """Feuille de style et ajustements du modèle plan-formation de design-skazy, recopiés tels quels ;
+    le balisage n'emploie que ses classes (plus celles de la barre d'outils et de la page à l'écran)."""
+    p, _ = plan()
+    html = r.rendre_html(p)
+    css = (r.ch.DOSSIER_CHARTE / "plan-formation.css").read_text(encoding="utf-8")
+    assert css in html and (r.ch.DOSSIER_CHARTE / "plan-formation.js").read_text(encoding="utf-8") in html
+    corps = html.split("<main>")[1].split("</main>")[0]
+    classes = {c for attr in re.findall(r'class="([^"]+)"', corps) for c in attr.split()}
+    for c in classes - {"page", "lk"}:
+        assert "." + c in css, c
+    assert "style=" not in corps.replace('style="--ic:url(', "")
+
+
 def test_html_une_seule_page_sans_modalites():
     p, _ = plan(modalites=False)
-    assert 'class="page p2"' not in r.rendre_html(p)
+    assert 'data-screen-label="Page Informations"' not in r.rendre_html(p)
 
 
 def plan_ia(**modifs):
@@ -117,7 +131,7 @@ def test_docx_options_de_la_page_2():
     assert "En présentiel" not in document and "Accompagnement" not in document and "Mode de validation" not in document
     assert len(re.findall(r"<wp:anchor\b", document)) == 2 + 1 + 1 + 3
     html = r.rendre_html(p)
-    assert "Modalités et lieu" not in html and "accomp" not in html.split("<main>")[1]
+    assert "Modalités et lieu" not in html and "pf-note" not in html.split("<main>")[1]
     p, _ = plan_ia(modalites=False)
     assert zipfile.ZipFile(io.BytesIO(r.rendre_docx(p))).read("word/document.xml").decode("utf-8").count("<w:sectPr") == 1
 
@@ -125,10 +139,12 @@ def test_docx_options_de_la_page_2():
 def test_docx_pret_pour_google_docs():
     p, _ = plan_ia()
     donnees = r.rendre_docx(p)
-    assert len(donnees) < 40_000
+    # Un connecteur Google Drive ne recopie pas sans erreur plus de 30 000 caractères de base64.
+    assert len(base64.b64encode(donnees)) < 30_000
     z = zipfile.ZipFile(io.BytesIO(donnees))
     noms = z.namelist()
-    assert not any(n.startswith(("customXml/", "word/fonts/")) or "stylesWithEffects" in n or "thumbnail" in n for n in noms)
+    assert not any(n.startswith(("customXml/", "word/fonts/", "docProps/")) or "stylesWithEffects" in n or "thumbnail" in n for n in noms)
+    assert "word/fontTable.xml" not in noms
     xml = "".join(z.read(n).decode("utf-8") for n in noms if n.endswith(".xml"))
     assert 'w:lineRule="exact"' not in xml and "<w:caps" not in xml and "latentStyles" not in xml
     defauts = re.search(r"<w:docDefaults>.*?</w:docDefaults>", z.read("word/styles.xml").decode("utf-8"), re.S).group(0)
@@ -147,6 +163,22 @@ def test_docx_pret_pour_google_docs():
     parties = "".join(z.read(n).decode("utf-8") for n in noms if re.match(r"word/(document|header\d|footer\d)\.xml$", n))
     assert "<w:szCs" not in parties and 'w:ascii="Raleway"' not in parties
     assert 'w:ascii="Raleway ExtraBold"' in parties
+
+
+def test_palette_des_images_transparentes():
+    """Logo et sticker gardent leurs couleurs franches (vert du logo, blanc du sticker) sur une palette réduite."""
+    from PIL import Image
+
+    logo = Image.open(r.ch.chemin_logo("couleur")).convert("RGBA")
+    logo = logo.crop(logo.getchannel("A").getbbox()).resize((126, 41), Image.LANCZOS)
+    sticker = Image.open(io.BytesIO(r.ch.sticker_png("#A977DA", "sparkles", taille=300))).convert("RGBA")
+    for image, attendues in ((logo, ["#4A4A49", "#1C9A7A"]), (sticker, ["#A977DA", "#FFFFFF", "#1F1F24"])):
+        p, table = g.palette_transparente(image)
+        palette = p.getpalette()[: 3 * len(table)]
+        couleurs = {tuple(palette[i:i + 3]) for i in range(0, len(palette), 3)}
+        for hexa in attendues:
+            cible = r.ch.rgb(hexa)
+            assert min(sum(abs(a - b) for a, b in zip(c, cible)) for c in couleurs) <= 24, hexa
 
 
 def test_largeur_des_pastilles():
@@ -259,7 +291,8 @@ def test_preparer_un_docx_venu_de_word():
     resultat, messages = g.preparer_docx(avec_police.getvalue())
     z = zipfile.ZipFile(io.BytesIO(resultat))
     assert not any(n.startswith("word/fonts/") for n in z.namelist())
-    assert b"odttf" not in z.read("[Content_Types].xml") and b"odttf" not in z.read("word/_rels/fontTable.xml.rels")
+    assert b"odttf" not in z.read("[Content_Types].xml")
+    assert "word/fontTable.xml" not in z.namelist() and "word/_rels/fontTable.xml.rels" not in z.namelist()
     document = z.read("word/document.xml").decode("utf-8")
     attendu = round(240 * 30 / (20 * g.HAUTEUR_LIGNE))
     assert 'w:line="{}" w:lineRule="auto"'.format(attendu) in document or 'w:lineRule="auto" w:line="{}"'.format(attendu) in document

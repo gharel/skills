@@ -186,6 +186,7 @@ def normaliser_support(brut: dict) -> tuple[dict, ch.Rapport]:
 
     slides = []
     num_chapitre = num_exercice = num_photo = 0
+    chapitre_courant = None
     for i, slide in enumerate(s["slides"], 1):
         if isinstance(slide, str):
             slide = {"type": slide}
@@ -208,9 +209,13 @@ def normaliser_support(brut: dict) -> tuple[dict, ch.Rapport]:
         if t == "chapitre":
             num_chapitre += 1
             slide.setdefault("numero", num_chapitre)
+            chapitre_courant = slide
             if not slide.get("photo"):
                 num_photo += 1
                 slide["photo"] = cat["photos"][num_photo % 3]
+        if t == "a-retenir" and "sousTitre" not in slide and chapitre_courant:
+            # Comme le modèle : « Chapitre 1 », puis le titre du chapitre, sur deux lignes.
+            slide["sousTitre"] = "Chapitre {}\n{}".format(chapitre_courant["numero"], chapitre_courant.get("titre", ""))
         if t in ("exercice", "exercice-etapes"):
             num_exercice += 1
             slide.setdefault("numero", num_exercice)
@@ -223,6 +228,11 @@ def normaliser_support(brut: dict) -> tuple[dict, ch.Rapport]:
         if t == "faisons-connaissance":
             slide.setdefault("tourDeTable", TOUR_DE_TABLE)
             slide.setdefault("photo", f.get("photoFormateur", ""))
+            # Lignes du modèle : téléphone et e-mail, en liens discrets.
+            slide.setdefault("infos", [
+                {"label": "Téléphone", "texte": ch.CONTACT["telephone"], "lien": "tel:" + "".join(x for x in ch.CONTACT["telephone"] if x.isdigit() or x == "+")},
+                {"label": "E-mail", "texte": f["email"], "lien": "mailto:" + f["email"].strip()},
+            ])
         if t == "battle":
             slide.setdefault("regles", REGLES_BATTLE)
         if t == "quiz":

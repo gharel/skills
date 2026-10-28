@@ -1,10 +1,13 @@
 """Charte Skazy Formation partagée par les scripts des skills Pro.
 
-Source unique : commun/charte/charte.py du dépôt gharel/skills. Chaque skill Pro en garde une
-copie identique dans scripts/charte.py (npm run synchroniser) pour rester autonome une fois installé.
+La charte (couleurs, catégories, photos, contact, logos, textes standard du plan) vient du design system
+design-skazy (github.com/gharel/design-skazy), seule source de vérité : assets/charte/charte.json et les
+logos en sont des copies (npm run synchroniser), jamais modifiées à la main.
 
-Contenu : catégories et couleurs, niveaux, logos, icônes Lucide, stickers (Pillow),
-typographie française (espaces insécables), gras en ligne (**texte**) et petits utilitaires.
+Ce module est le code commun : commun/charte/charte.py du dépôt gharel/skills, recopié à l'identique dans
+scripts/charte.py de chaque skill pour qu'il reste autonome une fois installé. Il lit la charte et fournit
+icônes Lucide, logos, stickers (Pillow), typographie française (espaces insécables), gras en ligne
+(**texte**) et petits utilitaires.
 """
 
 from __future__ import annotations
@@ -167,13 +170,24 @@ def melange(couleur: str, fond: str, part: float) -> str:
 
 
 def chemin_logo(variante: str = "couleur") -> Path:
-    return DOSSIER_CHARTE / "logo-{}.png".format(variante)
+    """Logo du design system, tel que ses modèles l'utilisent (marges transparentes comprises)."""
+    return DOSSIER_CHARTE / CHARTE["logos"][variante]
 
 
 @lru_cache(maxsize=None)
-def logo_svg_data_uri(variante: str = "couleur") -> str:
-    svg = (DOSSIER_CHARTE / "logo-{}.svg".format(variante)).read_bytes()
-    return "data:image/svg+xml;base64," + base64.b64encode(svg).decode()
+def logo_rogne(variante: str = "couleur") -> bytes:
+    """Logo sans ses marges transparentes (PNG), pour le placer au millimètre dans un DOCX ou un PPTX."""
+    from PIL import Image
+
+    image = Image.open(chemin_logo(variante)).convert("RGBA")
+    return png(image.crop(image.getchannel("A").getbbox()))
+
+
+@lru_cache(maxsize=None)
+def logo_data_uri(variante: str = "couleur", rogne: bool = False) -> str:
+    """Logo en data URI pour les rendus HTML (sans réseau)."""
+    donnees = logo_rogne(variante) if rogne else chemin_logo(variante).read_bytes()
+    return "data:image/png;base64," + base64.b64encode(donnees).decode()
 
 
 @lru_cache(maxsize=None)
@@ -245,6 +259,49 @@ def sticker_image(fond: str, icone: str, taille: int = 300, rotation: float = 8,
 
 def sticker_png(fond: str, icone: str, taille: int = 300, rotation: float = 8) -> bytes:
     return png(sticker_image(fond, icone, taille, rotation))
+
+
+# ---------------------------------------------------------------- images légères (DOCX, PPTX)
+
+
+def palette_transparente(im, niveaux: int = 6, maxi: int = 5):
+    """Image RGBA → palette (couleurs franches × niveaux de transparence) et sa table de transparence.
+
+    Un logo ou un sticker est fait de quelques aplats lissés sur fond transparent : ses couleurs franches
+    suffisent, les bords et l'ombre douce passent par la transparence. La quantification de Pillow, elle,
+    perd une couleur rare (le vert du logo) au profit des pixels transparents ou de l'ombre.
+    """
+    from PIL import Image
+
+    im = im.convert("RGBA")
+    pal = couleurs_franches(im, maxi=maxi)
+    couleurs = len(pal)
+    reference = Image.new("P", (1, 1))
+    reference.putpalette([v for c in pal for v in c] + [0] * 3 * (256 - couleurs))
+    rgb = im.convert("RGB").quantize(palette=reference, dither=Image.Dither.NONE)
+    pas = 255 / (niveaux - 1)
+    indices = bytes(min(c, couleurs - 1) * niveaux + round(a / pas) for c, a in zip(rgb.tobytes(), im.getchannel("A").tobytes()))
+    p = Image.frombytes("P", im.size, indices)
+    p.putpalette([v for c in pal for _ in range(niveaux) for v in c])
+    return p, bytes(round(n * pas) for _ in range(couleurs) for n in range(niveaux))
+
+
+def couleurs_franches(im, part: float = 0.01, maxi: int = 8) -> list[tuple[int, int, int]]:
+    """Couleurs des pixels opaques couvrant chacune au moins 1 % de ceux-ci (moyenne de chaque case de 5 bits
+    par canal), des plus fréquentes aux plus rares, maxi au plus."""
+    cases: dict[tuple, list[int]] = {}
+    opaques = 0
+    octets = im.convert("RGBA").tobytes()
+    for r, v, b, a in zip(octets[0::4], octets[1::4], octets[2::4], octets[3::4]):
+        if a > 200:
+            opaques += 1
+            c = cases.setdefault((r >> 3, v >> 3, b >> 3), [0, 0, 0, 0])
+            c[0] += 1
+            c[1] += r
+            c[2] += v
+            c[3] += b
+    retenues = sorted((c for c in cases.values() if c[0] >= part * max(1, opaques)), reverse=True)[:maxi]
+    return [(round(r / n), round(v / n), round(b / n)) for n, r, v, b in retenues] or [(255, 255, 255)]
 
 
 # ---------------------------------------------------------------- images distantes

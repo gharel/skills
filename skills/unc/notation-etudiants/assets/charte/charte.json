@@ -1,6 +1,6 @@
 {
-  "source": "Skazy Formation Design System (Claude Design, projet f89db454-87c5-41c4-bebe-3efb5e50fc4f)",
-  "version": "1.0.0",
+  "$comment": "Généré par design-skazy (npm run charte) : ne pas modifier, modifier les jetons, les modèles ou charte/donnees.json.",
+  "source": "Skazy Formation Design System (github.com/gharel/design-skazy, Claude Design f89db454-87c5-41c4-bebe-3efb5e50fc4f)",
   "police": "Raleway",
   "lucide": "0.460.0",
   "couleurs": {
@@ -12,22 +12,18 @@
     "texte3": "#45454F",
     "texte4": "#55555E",
     "gris": "#6E6E78",
-    "grisClair": "#9A9AA6",
     "fondGris": "#F4F4F5",
     "fondCarte": "#F6F6F7",
-    "pastille": "#F1F1F3",
     "filet": "#EEEEF0",
     "bordure": "#E4E4E8",
+    "bordureCarte": "#DEE2E6",
     "barreGrise": "#D9D9DE",
     "photoVide": "#DADADF",
     "codeFond": "#1E1E24",
     "codeLibelle": "#A8A8B3",
+    "codeCommentaire": "#8A8A96",
     "codeTexte": "#D4D4DA",
-    "codeChaine": "#FFD58A",
-    "attentionFond": "#FFF4DE",
-    "attentionTexte": "#8A5A00",
-    "pratiqueFond": "#E8F5F0",
-    "pratiqueTexte": "#3D7A62"
+    "codeChaine": "#FFD58A"
   },
   "categories": [
     {
@@ -45,7 +41,11 @@
         "photo-1522202176988-66273c2fd55f",
         "photo-1573164713714-d95e436ab8d6"
       ],
-      "alias": ["office", "microsoft 365", "google workspace"]
+      "alias": [
+        "office",
+        "microsoft 365",
+        "google workspace"
+      ]
     },
     {
       "nom": "Data",
@@ -62,7 +62,11 @@
         "photo-1551288049-bebda4e38f71",
         "photo-1460925895917-afdab827c52f"
       ],
-      "alias": ["donnees", "excel avance", "power bi"]
+      "alias": [
+        "donnees",
+        "excel avance",
+        "power bi"
+      ]
     },
     {
       "nom": "Développement",
@@ -79,7 +83,11 @@
         "photo-1517694712202-14dd9538aa97",
         "photo-1498050108023-c5249f4df085"
       ],
-      "alias": ["developpement", "developpement web", "programmation"]
+      "alias": [
+        "developpement",
+        "developpement web",
+        "programmation"
+      ]
     },
     {
       "nom": "Gestion de projet",
@@ -96,7 +104,11 @@
         "photo-1531403009284-440f080d1e12",
         "photo-1542744173-8e7e53415bb0"
       ],
-      "alias": ["gestion", "agile", "scrum"]
+      "alias": [
+        "gestion",
+        "agile",
+        "scrum"
+      ]
     },
     {
       "nom": "Graphisme & UX",
@@ -113,7 +125,13 @@
         "photo-1561070791-2526d30994b5",
         "photo-1558655146-9f40138edfeb"
       ],
-      "alias": ["graphisme", "ux", "design", "audiovisuel", "graphisme et ux"]
+      "alias": [
+        "graphisme",
+        "ux",
+        "design",
+        "audiovisuel",
+        "graphisme et ux"
+      ]
     },
     {
       "nom": "Intelligence Artificielle",
@@ -126,11 +144,15 @@
       "sticker": "#A977DA",
       "icone": "sparkles",
       "photos": [
-        "photo-1485827404703-89b55fcc595e",
-        "photo-1677442136019-21780ecad995",
-        "photo-1620712943543-bcc4688e7485"
+        "photo-1742459785723-667110cf8326",
+        "photo-1581090121489-ff9b54bbee43",
+        "photo-1682159672286-40790338349b"
       ],
-      "alias": ["ia", "ai", "intelligence artificielle"]
+      "alias": [
+        "ia",
+        "ai",
+        "intelligence artificielle"
+      ]
     },
     {
       "nom": "Marketing",
@@ -144,10 +166,14 @@
       "icone": "megaphone",
       "photos": [
         "photo-1600880292203-757bb62b4baf",
-        "photo-1611162617474-5b21e879e113",
+        "photo-1563986768494-4dee2763ff3f",
         "photo-1557804506-669a67965ba0"
       ],
-      "alias": ["webmarketing", "reseaux sociaux", "communication"]
+      "alias": [
+        "webmarketing",
+        "reseaux sociaux",
+        "communication"
+      ]
     },
     {
       "nom": "NoCode",
@@ -162,9 +188,13 @@
       "photos": [
         "photo-1531545514256-b1400bc00f31",
         "photo-1586953208448-b95a79798f07",
-        "photo-1633356122544-f134324a6cee"
+        "photo-1758691736872-61a1f75fe2d5"
       ],
-      "alias": ["no code", "no-code", "automatisation"]
+      "alias": [
+        "no code",
+        "no-code",
+        "automatisation"
+      ]
     },
     {
       "nom": "Web",
@@ -181,10 +211,18 @@
         "photo-1547658719-da2b51169166",
         "photo-1555066931-4365d14bab8c"
       ],
-      "alias": ["wordpress", "cybersecurite", "e-commerce"]
+      "alias": [
+        "wordpress",
+        "cybersecurite",
+        "e-commerce"
+      ]
     }
   ],
-  "niveaux": ["Initiation", "Intermédiaire", "Avancé"],
+  "niveaux": [
+    "Initiation",
+    "Intermédiaire",
+    "Avancé"
+  ],
   "contact": {
     "site": "formation.skazy.nc",
     "url": "https://formation.skazy.nc",
@@ -196,6 +234,10 @@
     "role": "Formateur et consultant"
   },
   "photoQuestions": "photo-1758270704286-83476deb3bd1",
+  "logos": {
+    "couleur": "logo-color.png",
+    "blanc": "logo-white.png"
+  },
   "modalitesParDefaut": {
     "effectif": "8 personnes max.",
     "lieu": "Nouméa ou vos locaux",
@@ -213,19 +255,133 @@
       },
       {
         "titre": "Hybride",
-        "texte": "Activités et théorie transmises en amont pour aborder les premières notions, puis revues en présentiel : plus de temps pour les exercices et une meilleure assimilation.",
+        "texte": "Activités et théorie transmises en amont pour aborder les premières notions, puis revues en présentiel : plus de temps pour les exercices et une meilleure assimilation.",
         "icone": "blend"
       }
     ],
-    "accompagnement": "la formation s’appuie sur vos besoins métiers.",
-    "methodes": "Alternance d'apports théoriques et d'ateliers pratiques. Mises en situation en sous-groupes sur un cas réel apporté par les participants.",
+    "accompagnement": "la formation s'appuie sur vos besoins métiers.",
+    "methodes": "Alternance d'apports théoriques et d'ateliers pratiques : présentation théorique, étude de cas en groupe, puis cas pratique sur une situation réelle apportée par les participants.",
     "moyens": [
-      "Salle équipée d’un matériel de projection",
-      "Poste informatique individuel avec les logiciels de la formation",
-      "Support de formation remis à chaque participant"
+      "Salle équipée d'un matériel de projection",
+      "Support de présentation numérique remis à chaque participant",
+      "Poste informatique individuel"
     ],
     "encadrement": "Formateur qualifié. Ses références professionnelles et pédagogiques sont en annexe ou sur demande.",
-    "evaluation": "Quiz de positionnement en début et en fin de formation pour mesurer la progression. Évaluation des acquis par la mise en pratique. Questionnaire de satisfaction en fin de formation.",
+    "evaluation": "Quiz en fin de formation pour valider les acquis, complété par la mise en pratique en atelier. Un questionnaire de satisfaction clôt la formation.",
     "validation": "Attestation de formation délivrée aux participants ayant validé les acquis."
+  },
+  "jetons": {
+    "primary": "#50967C",
+    "primary-dark": "#3D7A62",
+    "primary-darker": "#2F6250",
+    "primary-light": "#6DB898",
+    "primary-subtle": "#E8F5F0",
+    "dark": "#4A4A4A",
+    "dark-2": "#2E2E2E",
+    "dark-3": "#1A1A1A",
+    "white": "#FFFFFF",
+    "gray-50": "#F8F9FA",
+    "gray-100": "#F1F3F5",
+    "gray-200": "#E9ECEF",
+    "gray-300": "#DEE2E6",
+    "gray-400": "#CED4DA",
+    "gray-500": "#ADB5BD",
+    "gray-600": "#676F77",
+    "gray-700": "#495057",
+    "gray-800": "#343A40",
+    "gray-900": "#212529",
+    "cat-bureautique": "#A977DA",
+    "cat-bureautique-ink": "#7B4BB3",
+    "cat-bureautique-tint": "#F3ECFB",
+    "cat-bureautique-on": "#FFFFFF",
+    "cat-bureautique-light": "#F3ECFB",
+    "cat-data": "#F7CA45",
+    "cat-data-ink": "#8A6A00",
+    "cat-data-tint": "#FEF6DA",
+    "cat-data-on": "#1F1F24",
+    "cat-data-light": "#FEF6DA",
+    "cat-dev": "#009BCA",
+    "cat-dev-ink": "#00739A",
+    "cat-dev-tint": "#E1F3FA",
+    "cat-dev-on": "#FFFFFF",
+    "cat-dev-light": "#E1F3FA",
+    "cat-gestion": "#FF86A5",
+    "cat-gestion-ink": "#BE3E64",
+    "cat-gestion-tint": "#FFEEF3",
+    "cat-gestion-on": "#1F1F24",
+    "cat-gestion-light": "#FFEEF3",
+    "cat-graphisme": "#00AEA0",
+    "cat-graphisme-ink": "#00796F",
+    "cat-graphisme-tint": "#DFF5F2",
+    "cat-graphisme-on": "#1F1F24",
+    "cat-graphisme-light": "#DFF5F2",
+    "cat-ia": "#FF6E3D",
+    "cat-ia-ink": "#BA471D",
+    "cat-ia-tint": "#FFEDE5",
+    "cat-ia-on": "#1F1F24",
+    "cat-ia-light": "#FFEDE5",
+    "cat-marketing": "#00AEA0",
+    "cat-marketing-ink": "#00796F",
+    "cat-marketing-tint": "#DFF5F2",
+    "cat-marketing-on": "#1F1F24",
+    "cat-marketing-light": "#DFF5F2",
+    "cat-nocode": "#FF6E3D",
+    "cat-nocode-ink": "#BA471D",
+    "cat-nocode-tint": "#FFEDE5",
+    "cat-nocode-on": "#1F1F24",
+    "cat-nocode-light": "#FFEDE5",
+    "cat-web": "#009BCA",
+    "cat-web-ink": "#00739A",
+    "cat-web-tint": "#E1F3FA",
+    "cat-web-on": "#FFFFFF",
+    "cat-web-light": "#E1F3FA",
+    "cat-ux": "#00AEA0",
+    "cat-ux-ink": "#00796F",
+    "cat-ux-tint": "#DFF5F2",
+    "cat-ux-on": "#1F1F24",
+    "cat-ux-light": "#DFF5F2",
+    "cat-audiovisuel": "#00AEA0",
+    "cat-audiovisuel-ink": "#00796F",
+    "cat-audiovisuel-tint": "#DFF5F2",
+    "cat-audiovisuel-on": "#1F1F24",
+    "cat-audiovisuel-light": "#DFF5F2",
+    "cat-webmarketing": "#00AEA0",
+    "cat-webmarketing-ink": "#00796F",
+    "cat-webmarketing-tint": "#DFF5F2",
+    "cat-webmarketing-on": "#1F1F24",
+    "cat-webmarketing-light": "#DFF5F2",
+    "doc-text": "#1F1F24",
+    "doc-text-soft": "#45454F",
+    "doc-text-info": "#3B3B42",
+    "doc-text-muted": "#55555E",
+    "doc-bg": "#F4F4F5",
+    "doc-bg-soft": "#F6F6F7",
+    "doc-border": "#EEEEF0",
+    "doc-caption": "#6E6E78",
+    "doc-tag-bg": "#E4E4E8",
+    "doc-bar": "#D9D9DE",
+    "doc-photo": "#DADADF",
+    "code-bg": "#1E1E24",
+    "code-label": "#A8A8B3",
+    "code-comment": "#8A8A96",
+    "code-caption": "#D4D4DA",
+    "code-string": "#FFD58A",
+    "text-primary": "#4A4A4A",
+    "text-secondary": "#676F77",
+    "text-muted": "#676F77",
+    "text-inverse": "#FFFFFF",
+    "text-brand": "#3D7A62",
+    "bg-page": "#FFFFFF",
+    "bg-subtle": "#F8F9FA",
+    "bg-muted": "#F1F3F5",
+    "bg-brand": "#50967C",
+    "bg-dark": "#1A1A1A",
+    "border": "#E9ECEF",
+    "border-focus": "#3D7A62",
+    "border-input": "#8494A4",
+    "success": "#3A9E68",
+    "warning": "#E6A817",
+    "error": "#D02D2D",
+    "info": "#009BCA"
   }
 }

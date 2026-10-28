@@ -29,6 +29,10 @@ import sys
 import zipfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from charte import palette_transparente  # noqa: E402  (images transparentes : voir charte.py)
+
 NS = {
     "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
     "wp": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing",
@@ -37,10 +41,10 @@ NS = {
 }
 HAUTEUR_LIGNE = 1.174  # hauteur de ligne naturelle de Raleway, rapportée à la taille de police
 DPI = 110  # images : nettes à l'écran, un peu moins à l'impression
-LARGEUR_MINI_TRANSPARENTE = 150  # px : logo et sticker gardent du détail
+LARGEUR_MINI_TRANSPARENTE = 120  # px : logo et sticker gardent du détail
 PARTIES = re.compile(r"word/(document|header\d+|footer\d+|footnotes|endnotes|comments)\.xml$")
 INUTILES = re.compile(
-    r"^(word/fonts/.+|word/stylesWithEffects\.xml|word/webSettings\.xml|docProps/(app|custom)\.xml|"
+    r"^(word/fonts/.+|word/fontTable\.xml|word/stylesWithEffects\.xml|word/webSettings\.xml|docProps/(app|core|custom)\.xml|"
     r"docProps/thumbnail\.\w+|customXml/.+)$"
 )
 
@@ -118,6 +122,10 @@ def retirer_inutiles(fichiers: dict, messages: list[str]) -> None:
         transformer(fichiers, "word/fontTable.xml", lambda s: re.sub(r"<w:embed(Regular|Bold|Italic|BoldItalic)\b[^>]*/>", "", s))
         messages.append("{} police(s) embarquée(s) retirée(s)".format(polices))
     transformer(fichiers, "word/settings.xml", lambda s: re.sub(r"<w:(embedTrueTypeFonts|embedSystemFonts|saveSubsetFonts)\b[^>]*/>", "", s))
+    # Réglages d'affichage et d'édition sans effet sur la mise en page (zoom, langue du thème, séparateurs…).
+    transformer(fichiers, "word/settings.xml", lambda s: re.sub(
+        r"<w:(zoom|proofState|characterSpacingControl|themeFontLang|clrSchemeMapping|doNotAutoCompressPictures|decimalSymbol|listSeparator)\b[^>]*/>"
+        r"|<w14:(docId|defaultImageDpi)\b[^>]*/>", "", s))
     # Identifiants de révision, réglages mathématiques et formes par défaut : inutiles à l'affichage.
     transformer(fichiers, "word/settings.xml", lambda s: re.sub(
         r"<w:rsids>.*?</w:rsids>|<m:mathPr>.*?</m:mathPr>|<w:shapeDefaults>.*?</w:shapeDefaults>|<w:(savePreviewPicture|attachedTemplate)\b[^>]*/>",
@@ -492,24 +500,6 @@ def largeurs_affichage(fichiers: dict) -> dict[str, float]:
     return largeurs
 
 
-def palette_transparente(im, couleurs: int = 16, niveaux: int = 16):
-    """Image RGBA → palette de couleurs × niveaux de transparence, et sa table de transparence.
-
-    Les bords lissés et les ombres douces (sticker) survivent, alors que la quantification RGBA de
-    Pillow les écrase.
-    """
-    from PIL import Image
-
-    rgb = im.convert("RGB").quantize(couleurs, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
-    pal = (rgb.getpalette() or [])[: 3 * couleurs]
-    pal += [0] * (3 * couleurs - len(pal))
-    pas = 255 / (niveaux - 1)
-    indices = bytes(c * niveaux + round(a / pas) for c, a in zip(rgb.tobytes(), im.getchannel("A").tobytes()))
-    p = Image.frombytes("P", im.size, indices)
-    p.putpalette([v for c in range(couleurs) for _ in range(niveaux) for v in pal[3 * c:3 * c + 3]])
-    return p, bytes(round(n * pas) for _ in range(couleurs) for n in range(niveaux))
-
-
 def alleger_images(fichiers: dict, messages: list[str], dpi: float) -> None:
     from PIL import Image
 
@@ -548,7 +538,7 @@ def alleger_images(fichiers: dict, messages: list[str], dpi: float) -> None:
         if format_ == "JPEG":
             im.convert("RGB").save(tampon, "JPEG", quality=82, optimize=True)
         elif transparente:
-            p, table = palette_transparente(im, 12, 6)  # logo, sticker : 3 Ko au lieu de 5, sans perte visible
+            p, table = palette_transparente(im)  # logo, sticker : 1,5 Ko au lieu de 5, sans perte visible
             p.save(tampon, "PNG", optimize=True, transparency=table)
         elif im.convert("RGB").getcolors(4096) is not None:
             im.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(tampon, "PNG", optimize=True)

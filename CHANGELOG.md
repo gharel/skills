@@ -4,6 +4,42 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-28
 
+### Dépôt : la charte vient de design-skazy
+
+- Les skills n'ont plus de charte à eux. La charte qui fait foi est celle du design system [design-skazy](https://github.com/gharel/design-skazy) : son export `charte/` (couleurs des jetons, catégories, photos, contact, logos, textes standard du plan, feuille de style et ajustements du modèle « Plan de formation ») est recopié par `npm run synchroniser`, qui note le commit d'origine dans `commun/charte/origine.json`.
+- Logos : ceux des modèles du design system (PNG avec marges), à la place des SVG redessinés.
+
+### skazy-plan-formation 1.3.0
+
+- Le HTML reprend tel quel le modèle `plan-formation` de design-skazy : sa feuille de style, son balisage (classes `pf-*`) et ses ajustements (taille des titres, densité du programme, pages de suite si le programme déborde, page 2 resserrée). Le pied de page porte le logo du modèle, à sa taille.
+- Valeurs standard de la page 2 : celles du modèle (méthodes, moyens, évaluation).
+- DOCX sous 30 000 caractères de base64 (29 400 pour le plan de référence, page 2 complète, au lieu de 34 600), pour l'import par un connecteur Google Drive :
+  - fonds, logo et sticker à 84 dpi ;
+  - images transparentes sur la palette de leurs couleurs franches ;
+  - sans table des polices, sans propriétés du document ni réglages d'affichage.
+- Rendu Word inchangé, au dixième de millimètre près.
+
+### skazy-support-formation 1.2.0
+
+- Le HTML et le PPTX reproduisent le modèle « Support de formation » de design-skazy, mesuré slide par slide (écarts de 1 px au plus en HTML) :
+  - interligne 1,5 du design system, logo du pied 2,4 fois plus petit (celui du modèle, à sa taille), logo de couverture noir ou blanc selon la catégorie ;
+  - photos sans filtre, sauf la couverture et « Questions » ;
+  - numéros de chapitre et chiffres « À retenir » à la couleur d'encre, couleurs des pôles de l'accompagnement 360° prises dans les jetons ;
+  - « Faisons connaissance » affiche par défaut le téléphone et l'e-mail ; « À retenir » rappelle le chapitre en cours.
+- PPTX :
+  - graisses 500, 600 et 800 (Raleway Medium, SemiBold, ExtraBold), espacement des lettres des titres, contours à l'intérieur des formes comme en CSS ;
+  - positions et tailles corrigées sur une vingtaine de mises en page (code, exercice, exercice en étapes, battle, comparatif, frise, quiz…) ;
+  - le comparatif garde son cadre quand il est animé.
+- PPTX allégé (`scripts/pptx_google_slides.py`, appliqué à chaque rendu) : dispositions inutilisées, vignette et propriétés retirées, images à leur taille d'affichage, logo et stickers sur la palette de leurs couleurs franches. L'exemple passe de 2,1 à 1,2 Mo.
+
+### skazy-quiz 1.0.3
+
+- Charte recopiée de design-skazy, sans effet sur le quiz.
+
+### notation-etudiants 1.0.3
+
+- Charte recopiée de design-skazy, sans effet sur la notation.
+
 ### skazy-plan-formation 1.2.1
 
 - HTML aligné au pixel sur le modèle `templates/plan-formation` du design system :

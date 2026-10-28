@@ -190,10 +190,37 @@ def test_sans_animations():
     def cadres(animations):
         s, _ = m.normaliser_support(dict(donnees, formation=dict(donnees["formation"], animations=animations), slides=[comparatif]))
         slide = presentation(s).slides[0]
-        return slide, [sh for sh in slide.shapes if sh.width == 1680 * PX and sh.height > 100 * PX]
+        # Cadre de 1 680 px, trait de 2 px posé à l'intérieur (forme rentrée d'un demi-trait de chaque côté).
+        return slide, [sh for sh in slide.shapes if abs(sh.width - 1680 * PX) <= 2 * PX and sh.height > 100 * PX]
 
     slide, cadre = cadres(False)
     assert slide._element.find(P + "timing") is None
     assert len(cadre) == 1
+    # Animé, le tableau garde son cadre (comme le modèle), fixe : seules les lignes apparaissent au clic.
     slide, cadre = cadres(True)
-    assert clics(slide) and not cadre
+    animes = {i for clic in clics(slide) for i in clic}
+    assert clics(slide) and len(cadre) == 1 and cadre[0].shape_id not in animes
+
+
+def test_pptx_allege():
+    """Paquet allégé : une seule disposition, ni vignette ni propriétés, images transparentes en palette."""
+    import zipfile
+
+    from PIL import Image
+    from support_pptx import rendre_pptx
+
+    ch.IMAGES_LOCALES.clear()
+    s, _ = support()
+    donnees = rendre_pptx(s)
+    z = zipfile.ZipFile(io.BytesIO(donnees))
+    noms = z.namelist()
+    assert [n for n in noms if n.startswith("ppt/slideLayouts/slideLayout")] == ["ppt/slideLayouts/slideLayout7.xml"]
+    assert not any(n.startswith(("docProps/", "ppt/printerSettings/")) for n in noms)
+    maitre = z.read("ppt/slideMasters/slideMaster1.xml").decode("utf-8")
+    assert maitre.count("<p:sldLayoutId ") == 1
+    for n in noms:
+        if n.startswith("ppt/media/") and n.endswith(".png"):
+            im = Image.open(io.BytesIO(z.read(n)))
+            if "transparency" in im.info or im.mode in ("RGBA", "LA"):
+                assert im.mode == "P", n
+    assert len(presentation(s).slides) == len(s["_slides"])

@@ -44,12 +44,12 @@ Les champs marqués `*` sont obligatoires. Les nombres entre crochets donnent la
 
 ### Ouverture
 
-| Type                   | Rôle                                                   | Champs                                                                                                                                   |
-| ---------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `couverture`           | Titre, catégorie, niveau, durée, formateur, photo      | `photo`                                                                                                                                  |
-| `faisons-connaissance` | Présentation du formateur et tour de table             | `titre`, `infos` [0-3] : `{label, texte}`, `tourDeTable` [4] : textes (par défaut : prénom et poste, usage, attentes, une info), `photo` |
-| `objectifs`            | Objectifs pédagogiques numérotés, photo à droite       | `objectifs*` [3-5] : verbe en gras, `intro`, `photo`                                                                                     |
-| `programme`            | Parties du programme et leurs durées, sur fond couleur | `parties*` [2-8] : `{titre, duree}`, `duree`, `photo`                                                                                    |
+| Type                   | Rôle                                                   | Champs                                                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `couverture`           | Titre, catégorie, niveau, durée, formateur, photo      | `photo`                                                                                                                                                                           |
+| `faisons-connaissance` | Présentation du formateur et tour de table             | `titre`, `infos` [0-3] : `{label, texte, lien}` (par défaut : téléphone et e-mail), `tourDeTable` [4] : textes (par défaut : prénom et poste, usage, attentes, une info), `photo` |
+| `objectifs`            | Objectifs pédagogiques numérotés, photo à droite       | `objectifs*` [3-5] : verbe en gras, `intro`, `photo`                                                                                                                              |
+| `programme`            | Parties du programme et leurs durées, sur fond couleur | `parties*` [2-8] : `{titre, duree}`, `duree`, `photo`                                                                                                                             |
 
 ### Chapitres et contenus
 
@@ -79,7 +79,7 @@ Les champs marqués `*` sont obligatoires. Les nombres entre crochets donnent la
 | `exercice`        | Consigne d'atelier, avec un panneau durée, fichier, livrable et bonus                                        | `titre*`, `contexte`, `consignes*` [2-5], `duree`, `fichier`, `livrable`, `bonus`, `numero` (automatique)                                   |
 | `exercice-etapes` | Atelier en 3 temps : préparer, réaliser, vérifier                                                            | `titre*`, `contexte`, `duree` (« 20 minutes »), `etapes*` [3] : `{titre, texte}`, `fichier`, `modalite`, `livrable`                         |
 | `quiz`            | Question à 2 à 4 propositions. Le rendu produit **deux slides** : la question, puis la réponse mise en avant | `question*`, `propositions*` [2-4], `bonne*` (indice 0 à 3, ou lettre « A » à « D »), `explication` (va dans les notes de la slide réponse) |
-| `a-retenir`       | Les messages clés d'un chapitre                                                                              | `messages*` [1-3], `titre`, `sousTitre`                                                                                                     |
+| `a-retenir`       | Les messages clés d'un chapitre                                                                              | `messages*` [1-3], `titre`, `sousTitre` (`\n` pour deux lignes ; par défaut « Chapitre N » puis le titre du chapitre en cours)              |
 
 ### Clôture
 

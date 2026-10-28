@@ -181,109 +181,30 @@ def estimer_charge(p: dict) -> float:
 # ---------------------------------------------------------------- HTML
 
 
-CSS_PLAN = """
-*{box-sizing:border-box}
+# Le design des pages est celui du modèle « plan-formation » de design-skazy : sa feuille de style et ses
+# ajustements (titres, densité du programme, pages de suite) sont recopiés tels quels dans assets/charte/
+# (npm run synchroniser). Ce module n'ajoute que la présentation à l'écran et l'impression.
+CSS_ECRAN = """
 html,body{margin:0}
-body{background:#E9E9EC;font-family:Raleway,system-ui,sans-serif;color:#1F1F24;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page{position:relative;width:794px;height:1123px;margin:32px auto;background:#fff;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.14)}
-.bandeau{position:relative;box-sizing:border-box;height:150px;flex-shrink:0;display:flex;align-items:center;padding:0 64px 8px;background:var(--c);color:var(--co)}
-.bandeau h1{margin:0;font-size:42px;font-weight:700;line-height:1.08;letter-spacing:-.01em;max-width:556px;text-wrap:balance;overflow-wrap:break-word}
-.bandeau.sans-sticker h1{max-width:666px}
-.pastilles{position:absolute;left:64px;bottom:-14px;display:flex;gap:8px}
-.pastilles span{background:#F4F4F5;color:#1F1F24;font-size:13px;font-weight:700;padding:6px 14px;border-radius:999px;box-shadow:0 0 0 3px #fff}
-.sticker{position:absolute;top:68px;right:52px;width:100px;height:100px;transform:rotate(8deg);background:#fff;border-radius:28px;padding:7px;box-shadow:0 6px 14px rgba(0,0,0,.18)}
-.sticker div{width:100%;height:100%;background:var(--sk);border:3px solid #1F1F24;border-radius:22px;display:flex;align-items:center;justify-content:center}
-.sticker i{width:48px;height:48px;background:#1F1F24;-webkit-mask:var(--si) center/contain no-repeat;mask:var(--si) center/contain no-repeat}
-.corps{flex:1;display:flex;flex-direction:column;padding:40px 64px 0;min-height:0}
-.description{margin:0;font-size:14px;line-height:1.55;color:#3B3B42;max-width:600px}
-h2{margin:24px 0 8px;font-size:17px;font-weight:700}
-.objectifs{margin:0;padding:0 0 0 20px;display:flex;flex-direction:column;gap:3px;font-size:14px;line-height:1.45;color:#3B3B42}
-strong{color:#1F1F24}
-.infos{margin-top:22px;background:#F4F4F5;border-radius:12px;padding:18px 22px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.3fr) minmax(108px,max-content);gap:18px}
-.infos .t{font-size:15px;font-weight:700;margin-bottom:6px}
-.infos .v{font-size:13px;line-height:1.45;color:#3B3B42}
-.infos .duree .v{white-space:nowrap}
-.h-prog{margin:26px 0 12px}
-.programme{column-count:2;column-gap:40px;font-size:13px;line-height:1.42;color:#3B3B42}
-.partie{break-inside:avoid;margin-bottom:12px}
-.partie .titre{font-weight:700;font-style:italic;color:#1F1F24;margin-bottom:3px}
-.partie .num{color:var(--ci);font-style:normal;font-weight:800;margin-right:6px}
-.partie ul{margin:0;padding:0 0 0 18px}
-.pied{margin-top:auto;padding:18px 0 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid #EEEEF0;font-size:11px;color:#55555E}
-.pied a{color:inherit}
-.pied img{height:34px;width:auto}
-.bandeau2{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-shrink:0;background:var(--c);color:var(--co);padding:24px 64px}
-.bandeau2 .i{display:block;min-width:0;font-size:22px;font-weight:700;line-height:1.15;text-wrap:balance;overflow-wrap:break-word}
-.bandeau2 .m{flex-shrink:0;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;background:var(--ci);color:#fff;padding:6px 14px;border-radius:999px}
-.corps2{flex:1;min-height:0;display:flex;flex-direction:column;padding:34px 64px 0}
-.cartes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.cartes>div{background:#F4F4F5;border-radius:12px;padding:14px 18px}
-.cartes .t{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ci);margin-bottom:5px}
-.cartes .v{font-size:15px;font-weight:700}
-.p2 h2{margin:0 0 10px;font-size:16px;font-weight:700;display:flex;gap:10px;align-items:center}
-.p2 h2::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--c);flex-shrink:0}
-.sec{margin-top:28px}
-.formats{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:14px}
-.formats>div{position:relative;overflow:hidden;border:1px solid #DEE2E6;border-radius:14px;padding:19px 16px 16px}
-.formats>div::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--c)}
-.formats .ic{width:34px;height:34px;border-radius:10px;background:var(--ct);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-.formats .ic i,.accomp i{display:block;flex-shrink:0;background:var(--ci);-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
-.formats .ic i{width:19px;height:19px}
-.formats .t{margin:0 0 5px;font-size:14px;font-weight:700}
-.formats .v{margin:0;font-size:12.5px;line-height:1.5;color:#3B3B42}
-.accomp{margin-top:14px;background:var(--ct);border-radius:12px;padding:13px 18px;display:flex;gap:12px;align-items:center;font-size:13px;line-height:1.5;color:#1F1F24}
-.accomp i{width:20px;height:20px}
-.deux{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}
-.pile{display:flex;flex-direction:column;gap:20px}
-.deux p{margin:0;font-size:13px;line-height:1.55;color:#3B3B42}
-.deux ul{margin:8px 0 0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.5;color:#3B3B42}
-.espace{height:28px;flex-shrink:0}
-.contact{margin:auto 0 26px;background:var(--ct);border-radius:16px;padding:22px 28px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
-.contact .q{font-size:18px;font-weight:700;display:block;margin-bottom:6px}
-.contact .c{font-size:13px;line-height:1.55;color:#3B3B42}
-.contact .c a{color:inherit}
-.contact .c a.site{color:var(--ci);font-weight:700}
-.contact img{height:64px;width:auto}
-.p2 .pied{margin-top:0}
+body{background:var(--color-gray-200);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:794px;height:1123px;margin:32px auto;box-shadow:var(--shadow-lg)}
 .outils{position:fixed;top:16px;right:16px;z-index:10;display:flex;gap:8px}
-.outils button{font:700 14px Raleway,system-ui,sans-serif;border:0;border-radius:999px;padding:10px 18px;background:#1F1F24;color:#fff;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+.outils button{font:700 14px Raleway,sans-serif;border:0;border-radius:var(--radius-full);padding:10px 18px;background:var(--color-doc-text);color:#fff;cursor:pointer;box-shadow:var(--shadow-md)}
 .outils button:focus-visible{outline:3px solid var(--c);outline-offset:2px}
 @page{size:A4;margin:0}
 @media print{body{background:none}.page{margin:0;box-shadow:none;break-after:page;width:210mm;height:297mm}.outils{display:none}}
 """
 
 JS_AJUSTER = """
-// Titres ajustés comme dans le modèle (data-fit) : couverture 42 px sur une ligne, 36 px au plus sur
-// deux lignes, 26 px au moins ; bandeau de la page 2 : 22, 20 puis 19 px.
-function ajuster(el, tailles, lignes) {
-  if (!el) return;
-  const [grande, deuxLignes, plancher] = tailles;
-  el.style.fontSize = grande + 'px';
-  const hauteur = (t) => t * parseFloat(getComputedStyle(el).lineHeight) / parseFloat(getComputedStyle(el).fontSize);
-  if (el.scrollHeight <= hauteur(grande) * 1.5) return;
-  let t = deuxLignes;
-  el.style.fontSize = t + 'px';
-  while (el.scrollHeight > hauteur(t) * (lignes + 0.5) && t > plancher) {
-    t -= 1;
-    el.style.fontSize = t + 'px';
-  }
-}
-addEventListener('load', () => {
-  ajuster(document.querySelector('.bandeau h1'), [42, 36, 26], 2);
-  ajuster(document.querySelector('.bandeau2 .i'), [22, 20, 19], 2);
-});
-// Si le contenu déborde de la page 1, on réduit la taille du programme (13 px → 10 px au plus).
-addEventListener('load', () => {
-  const page = document.querySelector('.p1');
-  const prog = page && page.querySelector('.programme');
-  if (!prog) return;
-  let taille = 13;
-  while (page.scrollHeight > page.clientHeight + 1 && taille > 10) {
-    taille -= 0.25;
-    prog.style.fontSize = taille + 'px';
-  }
-});
+const ajuster = () => window.SkazyPlanFormation.ajuster(document.querySelector('main'));
+addEventListener('load', ajuster);
+if (document.fonts) document.fonts.ready.then(ajuster);
+addEventListener('beforeprint', ajuster);
 """
+
+
+def fichier_charte(nom: str) -> str:
+    return (ch.DOSSIER_CHARTE / nom).read_text(encoding="utf-8")
 
 
 def rendre_html(p: dict) -> str:
@@ -291,40 +212,48 @@ def rendre_html(p: dict) -> str:
     variables = "--c:{};--ci:{};--ct:{};--co:{};--sk:{};--si:url({})".format(
         c["couleur"], c["encre"], c["teinte"], c["surCouleur"], c["sticker"], ch.icone_data_uri(c["icone"])
     )
-    i = couper_programme(p["programme"])
     parties = []
     for n, partie in enumerate(p["programme"], 1):
         duree = " · " + esc(partie["duree"]) if partie.get("duree") else ""
         points = "".join("<li>{}</li>".format(html_gras(pt)) for pt in partie["points"])
-        coupure = ' style="break-before:column"' if n == i + 1 and i not in (0, len(p["programme"])) else ""
-        parties.append(
-            '<div class="partie"{}><div class="titre"><span class="num">{:02d}</span>{}{}</div><ul>{}</ul></div>'.format(
-                coupure, n, esc(partie["titre"]), duree, points
-            )
-        )
-    sticker = '<div class="sticker" aria-hidden="true"><div><i></i></div></div>' if p["sticker"] else ""
-    logo = ch.logo_svg_data_uri("couleur")
+        parties.append('<div class="pf-part"><div class="pf-pt"><b>{:02d}</b>{}{}</div><ul>{}</ul></div>'.format(n, esc(partie["titre"]), duree, points))
+    sticker = (
+        '<div class="pf-stk" aria-hidden="true"><div class="pf-stk-c"><div class="pf-stk-i"></div></div></div>' if p["sticker"] else ""
+    )
+    logo = ch.logo_data_uri("couleur")
+    k = ch.CONTACT
     page1 = """
-<section class="page p1" aria-label="Page 1, programme">
-<div class="bandeau{sans_sticker}"><h1>{intitule}</h1><div class="pastilles"><span>{etiquette}</span><span>{niveau}</span></div></div>
-{sticker}
-<div class="corps">
-<p class="description">{description}</p>
-<h2>Objectifs</h2>
-<ul class="objectifs">{objectifs}</ul>
-<div class="infos">
-<div><div class="t">Prérequis</div><div class="v">{prerequis}</div></div>
-<div><div class="t">Public visé</div><div class="v">{public}</div></div>
-<div class="duree"><div class="t">Durée</div><div class="v">{duree}</div></div>
+<section class="page pf-page" data-screen-label="Page 1 Programme">
+<div class="pf-band" data-stk="{stk}">
+<h1 class="pf-h1" data-fit="42,36,26">{intitule}</h1>
+<div class="pf-chips"><span class="pf-chip">{etiquette}</span><span class="pf-chip">{niveau}</span></div>
 </div>
-<h2 class="h-prog">Programme</h2>
-<div class="programme">{programme}</div>
-<div class="pied"><span><a href="{url}">{site}</a> · <a href="mailto:{email}">{email}</a></span><img src="{logo}" alt="Skazy Formation"></div>
+{sticker}
+<div class="pf-body pf-body--cover">
+<p class="pf-desc">{description}</p>
+<h2 class="pf-sh">Objectifs</h2>
+<ul class="pf-obj">{objectifs}</ul>
+<div class="pf-facts">
+<div><div class="pf-fk">Prérequis</div><div class="pf-fv">{prerequis}</div></div>
+<div><div class="pf-fk">Public visé</div><div class="pf-fv">{public}</div></div>
+<div><div class="pf-fk">Durée</div><div class="pf-fv pf-fv--nw">{duree}</div></div>
+</div>
+<h2 class="pf-sh" data-prog-h="">Programme</h2>
+<div class="pf-prog" data-prog="">
+<section class="pf-day">
+<div class="pf-parts">
+{programme}
+</div>
+</section>
+</div>
+<div class="pf-foot" data-pfoot="">
+<span><a class="lk" href="{url}" target="_blank" rel="noopener">{site}</a> · <a class="lk" href="mailto:{email}">{email}</a></span>
+<img class="pf-logo" src="{logo}" alt="Skazy Formation">
+</div>
 </div>
 </section>""".format(
+        stk="on" if p["sticker"] else "off",
         intitule=esc(p["intitule"]),
-        sans_sticker="" if p["sticker"] else " sans-sticker",
-        url=ch.CONTACT["url"],
         etiquette=esc(p["etiquette"]),
         niveau=esc(p["niveau"]),
         sticker=sticker,
@@ -334,55 +263,62 @@ def rendre_html(p: dict) -> str:
         public=html_gras(p["public"]),
         duree=esc(p["duree"]),
         programme="\n".join(parties),
-        site=ch.CONTACT["site"],
-        email=ch.CONTACT["email"],
+        url=k["url"],
+        site=k["site"],
+        email=k["email"],
         logo=logo,
     )
     page2 = ""
     m = p["_modalites"]
     if m:
-        formats = "".join(
-            '<div><span class="ic"><i style="--i:url({})"></i></span><div class="t">{}</div><div class="v">{}</div></div>'.format(
-                ch.icone_data_uri(f["icone"]), esc(f["titre"]), html_gras(f["texte"])
-            )
+        h2 = '<h2 class="pf-h2"><span class="pf-sq"></span>{}</h2>'
+        modes = "".join(
+            '<div class="pf-mode"><div class="pf-ico"><i aria-hidden="true" style="--ic:url({})"></i></div>'
+            '<h3 class="pf-mt">{}</h3><p class="pf-mp">{}</p></div>'.format(ch.icone_data_uri(f["icone"]), esc(f["titre"]), html_gras(f["texte"]))
             for f in m["formats"]
         )
-        bloc_formats = (
-            '<h2>Modalités et lieu de la formation</h2><div class="formats" style="--n:{}">{}</div>'.format(len(m["formats"]), formats)
-            if m["formats"]
-            else ""
-        )
-        accomp = (
-            '<div class="accomp"><i style="--i:url({})"></i><span><strong>Accompagnement personnalisé&nbsp;:</strong> {}</span></div>'.format(
+        bloc_modes = h2.format("Modalités et lieu de la formation") + '<div class="pf-modes">{}</div>'.format(modes) if m["formats"] else ""
+        note = (
+            '<div class="pf-note"><i aria-hidden="true" style="--ic:url({})"></i><span><b>Accompagnement personnalisé&nbsp;:</b> {}</span></div>'.format(
                 ch.icone_data_uri("handshake"), html_gras(m["accompagnement"])
             )
             if m["accompagnement"]
             else ""
         )
-        section_modalites = '<div class="sec">{}{}</div>'.format(bloc_formats, accomp) if bloc_formats or accomp else ""
-        moyens = "<ul>{}</ul>".format("".join("<li>{}</li>".format(html_gras(x)) for x in m["moyens"])) if m["moyens"] else ""
-        droite = "".join(
-            "<div><h2>{}</h2><p>{}</p></div>".format(titre, html_gras(valeur))
+        section_modalites = '<div class="pf-sec">\n{}\n{}\n</div>'.format(bloc_modes, note) if bloc_modes or note else ""
+        moyens = '<ul class="pf-ul">{}</ul>'.format("".join("<li>{}</li>".format(html_gras(x)) for x in m["moyens"])) if m["moyens"] else ""
+        pile = "".join(
+            '<div>{}<p class="pf-p">{}</p></div>'.format(h2.format(titre), html_gras(valeur))
             for titre, valeur in (("Encadrement", m["encadrement"]), ("Évaluation des acquis", m["evaluation"]), ("Mode de validation", m["validation"]))
             if valeur
         )
         page2 = """
-<section class="page p2" aria-label="Page 2, modalités et informations pratiques">
-<div class="bandeau2"><span class="i">{intitule}</span><span class="m">Modalités et infos pratiques</span></div>
-<div class="corps2">
-<div class="cartes">
-<div><div class="t">Effectif</div><div class="v">{effectif}</div></div>
-<div><div class="t">Lieu</div><div class="v">{lieu}</div></div>
-<div><div class="t">Tarif</div><div class="v">{tarif}</div></div>
+<section class="page pf-page" data-screen-label="Page Informations">
+<div class="pf-strip pf-strip--info">
+<span class="pf-strip-t" data-fit="22,20,19">{intitule}</span>
+<span class="pf-pill">Modalités et infos pratiques</span>
+</div>
+<div class="pf-info" data-info="">
+<div class="pf-tiles">
+<div class="pf-tile"><div class="pf-k">Effectif</div><div class="pf-v">{effectif}</div></div>
+<div class="pf-tile"><div class="pf-k">Lieu</div><div class="pf-v">{lieu}</div></div>
+<div class="pf-tile"><div class="pf-k">Tarif</div><div class="pf-v">{tarif}</div></div>
 </div>
 {modalites}
-<div class="sec deux">
-<div><h2>Méthodes et moyens pédagogiques</h2><p>{methodes}</p>{moyens}</div>
-<div class="pile">{droite}</div>
+<div class="pf-sec pf-cols">
+<div>
+{h2_methodes}
+<p class="pf-p">{methodes}</p>
+{moyens}
 </div>
-<div class="espace"></div>
-<div class="contact"><div><span class="q">Une question sur cette formation&nbsp;?</span><span class="c"><a href="mailto:{email}">{email}</a> · <a href="tel:{tel_lien}">{tel}</a><br><a class="site" href="{url}">{site}</a></span></div><img src="{logo}" alt="Skazy Formation"></div>
-<div class="pied"><span>RIDET {ridet} · N° DFPC {dfpc}</span></div>
+<div class="pf-stack">{pile}</div>
+</div>
+<div class="pf-gap"></div>
+<div class="pf-contact">
+<div class="pf-cq"><span class="pf-cqt">Une question sur cette formation&nbsp;?</span><span class="pf-cqv"><a class="lk" href="mailto:{email}">{email}</a> · <a class="lk" href="tel:{tel_lien}">{tel}</a><br><a class="pf-csite" href="{url}" target="_blank" rel="noopener">{site}</a></span></div>
+<img class="pf-logo pf-logo--contact" src="{logo}" alt="Skazy Formation">
+</div>
+<div class="pf-foot pf-foot--info"><span>RIDET {ridet} · N° DFPC {dfpc}</span></div>
 </div>
 </section>""".format(
             intitule=esc(p["intitule"]),
@@ -390,16 +326,17 @@ def rendre_html(p: dict) -> str:
             lieu=esc(m["lieu"]),
             tarif=esc(m["tarif"]),
             modalites=section_modalites,
+            h2_methodes=h2.format("Méthodes et moyens pédagogiques"),
             methodes=html_gras(m["methodes"]),
             moyens=moyens,
-            droite=droite,
-            email=ch.CONTACT["email"],
-            tel=esc(ch.CONTACT["telephone"]),
-            tel_lien=ch.CONTACT["telephone"].replace(" ", ""),
-            url=ch.CONTACT["url"],
-            site=ch.CONTACT["site"],
-            ridet=esc(ch.CONTACT["ridet"]),
-            dfpc=esc(ch.CONTACT["dfpc"]),
+            pile=pile,
+            email=k["email"],
+            tel=esc(k["telephone"]),
+            tel_lien=k["telephone"].replace(" ", ""),
+            url=k["url"],
+            site=k["site"],
+            ridet=esc(k["ridet"]),
+            dfpc=esc(k["dfpc"]),
             logo=logo,
         )
     return """<!doctype html>
@@ -411,15 +348,26 @@ def rendre_html(p: dict) -> str:
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600;1,700&amp;display=swap" rel="stylesheet">
-<style>:root{{{variables}}}{css}</style>
+<style>{css_modele}</style>
+<style>:root{{{variables}}}{css_ecran}</style>
 </head>
 <body>
 <div class="outils"><button type="button" onclick="print()">Imprimer ou enregistrer en PDF</button></div>
 <main>{page1}{page2}</main>
+<script>{js_modele}</script>
 <script>{js}</script>
 </body>
 </html>
-""".format(titre=esc(p["intitule"]), variables=variables, css=CSS_PLAN, page1=page1, page2=page2, js=JS_AJUSTER)
+""".format(
+        titre=esc(p["intitule"]),
+        css_modele=fichier_charte("plan-formation.css"),
+        variables=variables,
+        css_ecran=CSS_ECRAN,
+        page1=page1,
+        page2=page2,
+        js_modele=fichier_charte("plan-formation.js"),
+        js=JS_AJUSTER,
+    )
 
 
 # ---------------------------------------------------------------- DOCX

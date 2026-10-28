@@ -26,7 +26,7 @@ HAUTEUR_LIGNE = 1.174  # hauteur de ligne naturelle de Raleway, rapportée à la
 PAGE_L, PAGE_H = 595.3, 841.9
 MARGE = 48.0  # marges gauche et droite (17 mm)
 UTILE = PAGE_L - 2 * MARGE
-DPI = 90  # résolution des fonds : nets à l'écran, légers (le base64 du DOCX reste recopiable)
+DPI = 84  # résolution des fonds, du logo et du sticker : nets à l'écran, base64 du DOCX sous 30 000 caractères
 EMU = 12700  # EMU par point
 
 # Page 1
@@ -459,7 +459,7 @@ def rendre_docx(p: dict) -> bytes:
     police(pg.add_run(" · "), 8.5, couleur=PIED)
     lien(pg, "mailto:" + ch.CONTACT["email"], ch.CONTACT["email"], 8.5, PIED)
     pd = para(cellule(t, 1, centre=True), alignement=WD_ALIGN_PARAGRAPH.RIGHT, taille=1, premier=True)
-    image(pd, ch.chemin_logo("couleur").read_bytes(), 32.6)
+    image(pd, ch.logo_rogne("couleur"), 32.6)
     para(pied, taille=1)  # Word exige un paragraphe après un tableau
 
     # ------------------------------------------------ page 2
@@ -511,7 +511,7 @@ def rendre_docx(p: dict) -> bytes:
             porteur = espace(doc, 7.5)
             largeurs = []
             for k, f in enumerate(formats):
-                ancre(porteur, fond_arrondi(carte_l, 165, "#FFFFFF", rayon_pt=10.5, bordure="#DEE2E6", barre=c["couleur"], icone=f["icone"],
+                ancre(porteur, fond_arrondi(carte_l, 165, "#FFFFFF", rayon_pt=10.5, bordure=g["bordureCarte"], barre=c["couleur"], icone=f["icone"],
                                             encre=c["encre"], teinte=c["teinte"]), carte_l, 165, k * (carte_l + ecart), 7.5)
                 largeurs += [carte_l, ecart]
             t = tableau(doc, largeurs[:-1], hauteur=165)
@@ -566,7 +566,7 @@ def rendre_docx(p: dict) -> bytes:
         lien(pc, "tel:" + ch.CONTACT["telephone"].replace(" ", ""), typographie(ch.CONTACT["telephone"]), 10, TEXTE)
         lien(para(cel, multiple=1.258, gauche=21, droite=18), ch.CONTACT["url"], ch.CONTACT["site"], 10, c["encre"], gras=True)
         pd = para(cellule(t, 1, centre=True), alignement=WD_ALIGN_PARAGRAPH.RIGHT, droite=21, taille=1, premier=True)
-        image(pd, ch.chemin_logo("couleur").read_bytes(), 62.4)
+        image(pd, ch.logo_rogne("couleur"), 62.4)
         espace(pied2, 19.8)
         t = tableau(pied2, [UTILE], hauteur=PIED_2_FILET, filet=g["filet"])
         pr = para(cellule(t, 0, centre=True), multiple=1.0, premier=True)
@@ -589,7 +589,7 @@ def rendre_docx(p: dict) -> bytes:
     # Allégé (gabarit python-docx, images) pour Google Docs et les connecteurs Drive : voir docx_google_docs.py.
     from docx_google_docs import preparer_docx
 
-    return preparer_docx(tampon.getvalue())[0]
+    return preparer_docx(tampon.getvalue(), dpi=DPI)[0]  # logo et sticker à la résolution des fonds
 
 
 def mise_en_page(section, haut, bas, distance_pied) -> None:

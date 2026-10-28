@@ -4,6 +4,10 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-28
 
+### skazy-support-formation 1.2.1
+
+- L'exemple n'impose plus ses propres lignes « Passions » et « Desserts » à « Faisons connaissance » : la slide affiche celles du modèle de design-skazy, téléphone et e-mail.
+
 ### Dépôt : la charte vient de design-skazy
 
 - Les skills n'ont plus de charte à eux. La charte qui fait foi est celle du design system [design-skazy](https://github.com/gharel/design-skazy) : son export `charte/` (couleurs des jetons, catégories, photos, contact, logos, textes standard du plan, feuille de style et ajustements du modèle « Plan de formation ») est recopié par `npm run synchroniser`, qui note le commit d'origine dans `commun/charte/origine.json`.

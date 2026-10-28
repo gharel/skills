@@ -16,10 +16,6 @@
     },
     {
       "type": "faisons-connaissance",
-      "infos": [
-        { "label": "Passions", "texte": "acroyoga et moto" },
-        { "label": "Desserts", "texte": "vacherin et tarte au citron" }
-      ],
       "notes": "Présentez-vous en 1 minute, puis lancez le tour de table. Notez les attentes au tableau pour y revenir en fin de formation."
     },
     {

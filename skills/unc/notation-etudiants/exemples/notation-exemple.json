@@ -1,0 +1,268 @@
+{
+  "format": "notation-etudiants",
+  "version": 1,
+  "controle": {
+    "intitule": "CC4 · Réducteur d'URL",
+    "matiere": "Programmation web",
+    "enonce": "https://exemple.org/cours/web/cc4-reducteur-url",
+    "date": "2026-10-20"
+  },
+  "bareme": [
+    {
+      "id": "mail",
+      "libelle": "Mail de rendu",
+      "max": 1,
+      "regle": "1 : objet avec NOM et CC4, et URL ; 0,5 : seule l'URL est fournie ; 0 : rien d'exploitable."
+    },
+    {
+      "id": "indentation",
+      "libelle": "Indentation",
+      "max": 1,
+      "regle": "1 : homogène (Prettier) ; 0,5 : mélange de 2 et 4 espaces ; 0 : désordonnée."
+    },
+    {
+      "id": "console",
+      "libelle": "Pas de console.log",
+      "max": 1,
+      "regle": "1 : aucun (un console.error dans un catch est toléré) ; 0,5 : logs de démarrage ou d'erreur ; 0 : logs de débogage dispersés."
+    },
+    {
+      "id": "interface",
+      "libelle": "Interface",
+      "max": 3,
+      "regle": "Ce qui marche en ligne (un client cassé en ligne fait perdre au moins 2 points), retours d'erreur, bouton « Copier », sobriété."
+    },
+    {
+      "id": "validation",
+      "libelle": "1.1 Validation des entrées",
+      "max": 3,
+      "regle": "3 : URL invalide refusée côté serveur avec un code 400 et un message ; 1,5 : contrôle côté client seulement ; 0 : aucun contrôle."
+    },
+    {
+      "id": "unicite",
+      "libelle": "1.2 Unicité des codes courts",
+      "max": 3,
+      "regle": "3 : collision vérifiée ou nouvel essai ; 1,5 : code aléatoire long sans vérification ; 0 : collision possible et non traitée."
+    },
+    {
+      "id": "persistance",
+      "libelle": "1.3 Persistance",
+      "max": 2,
+      "regle": "2 : base de données (SQLite ou autre) ; 1 : fichier JSON ; 0 : mémoire seulement."
+    },
+    {
+      "id": "redirection",
+      "libelle": "1.4 Redirection et API JSON",
+      "max": 2,
+      "regle": "1 pour la redirection HTML, 1 pour la réponse JSON (négociation de contenu, 406 sinon)."
+    },
+    {
+      "id": "github",
+      "libelle": "Livraison GitHub",
+      "max": 2,
+      "regle": "2 : tags complets, commits par partie et README ; 1 : tags ou commits incomplets ; 0 : commit unique sans tag."
+    },
+    {
+      "id": "securite",
+      "libelle": "Clé secrète et suppression",
+      "max": 2,
+      "regle": "2 : secret renvoyé au seul créateur, DELETE refusé sans clé ou avec une mauvaise clé ; 1 : un des deux ; 0 : aucun."
+    },
+    {
+      "id": "deploiement",
+      "libelle": "Déploiement",
+      "penalite": -10,
+      "regle": "0 si le site est en ligne et fonctionnel ; -10 sinon."
+    },
+    {
+      "id": "erreurs",
+      "libelle": "Erreurs",
+      "penalite": -2,
+      "regle": "-0,5 à -1 par défaut fonctionnel non couvert ailleurs (faille, Swagger absent, route demandée absente)."
+    }
+  ],
+  "etudiants": [
+    {
+      "nom": "MARTIN",
+      "prenom": "Léa",
+      "statut": "evalue",
+      "rendu": {
+        "date": "18/10/2026 21:40",
+        "github": "https://github.com/exemple-lea/cc4-reducteur",
+        "deploiement": "https://cc4-lea.onrender.com"
+      },
+      "notes": {
+        "mail": { "note": 1, "justification": "Objet « MARTIN Léa CC4 », liens GitHub et Render." },
+        "indentation": {
+          "note": 1,
+          "justification": "Prettier configuré (.prettierrc), indentation de 2 espaces partout."
+        },
+        "console": {
+          "note": 0.5,
+          "justification": "console.log de démarrage dans server.mjs, ligne 42."
+        },
+        "interface": {
+          "note": 3,
+          "justification": "Testé en ligne le 22/10 : création, message d'erreur, bouton « Copier » fonctionnels."
+        },
+        "validation": {
+          "note": 3,
+          "justification": "POST avec « pas une url » : 400 et message JSON."
+        },
+        "unicite": {
+          "note": 3,
+          "justification": "Boucle de nouvel essai en cas de collision (routes/api.mjs, lignes 18 à 27)."
+        },
+        "persistance": {
+          "note": 2,
+          "justification": "SQLite (database.mjs), données conservées après redémarrage."
+        },
+        "redirection": {
+          "note": 2,
+          "justification": "302 vers l'URL longue ; JSON avec Accept: application/json ; 406 pour image/png."
+        },
+        "github": {
+          "note": 2,
+          "justification": "Tags v1 à v3 sur des commits distincts, 14 commits, README complet."
+        },
+        "securite": {
+          "note": 1.5,
+          "justification": "Secret renvoyé au créateur ; DELETE avec une mauvaise clé renvoie 500 au lieu de 403."
+        },
+        "deploiement": { "note": 0, "justification": "En ligne et fonctionnel le 22/10/2026." },
+        "erreurs": { "note": 0, "justification": "" }
+      },
+      "commentaire": "Travail complet et soigné. Reste à renvoyer 403 pour une mauvaise clé et à retirer le log de démarrage.",
+      "ia": {
+        "probabilite": "20 à 50 %",
+        "part": "10 à 30 %",
+        "indices": "README très structuré avec cases à cocher. Indices contraires : 14 commits progressifs avec corrections, style identique au TP3.",
+        "parties": "Surtout le README et le CSS."
+      }
+    },
+    {
+      "nom": "BERNARD",
+      "prenom": "Hugo",
+      "statut": "evalue",
+      "rendu": {
+        "date": "19/10/2026 23:58",
+        "github": "https://github.com/exemple-hugo/reducteur",
+        "deploiement": "https://reducteur-hugo.onrender.com",
+        "horsDelai": false
+      },
+      "notes": {
+        "mail": { "note": 0.5, "justification": "Seule l'URL GitHub, objet « rendu »." },
+        "indentation": {
+          "note": 0.5,
+          "justification": "Mélange de 2 et 4 espaces (server.mjs et public/app.js)."
+        },
+        "console": { "note": 1, "justification": "Aucun console.log." },
+        "interface": {
+          "note": 1,
+          "justification": "Le client appelle http://localhost:8080/ : « Failed to fetch » en ligne (testé le 22/10)."
+        },
+        "validation": { "note": 3, "justification": "400 et message pour une URL invalide." },
+        "unicite": { "note": 3, "justification": "Vérification de collision avant insertion." },
+        "persistance": { "note": 2, "justification": "SQLite." },
+        "redirection": {
+          "note": 2,
+          "justification": "302 et JSON selon l'en-tête Accept, 406 sinon."
+        },
+        "github": {
+          "note": 0,
+          "justification": "Un seul commit « projet complet » de 640 lignes, aucun tag."
+        },
+        "securite": {
+          "note": 2,
+          "justification": "Comparaison du secret en temps constant, 403 sans clé ou avec une mauvaise clé."
+        },
+        "deploiement": {
+          "note": 0,
+          "justification": "API en ligne et fonctionnelle le 22/10/2026 (seul le client est cassé)."
+        },
+        "erreurs": { "note": 0, "justification": "" }
+      },
+      "commentaire": "Serveur solide, mais client inutilisable en ligne à cause de l'URL codée en dur. Livraison en un seul commit.",
+      "ia": {
+        "probabilite": "50 à 80 %",
+        "part": "40 à 60 %",
+        "indices": "Rupture nette de style avec le TP3 (JSDoc sur chaque fonction, comparaison en temps constant non vue en cours), un seul commit de 640 lignes, émojis dans les commentaires (server.mjs, ligne 3). Indice contraire : erreur de débutant sur l'URL du client.",
+        "parties": "Serveur et routeurs surtout ; le client semble écrit à la main."
+      },
+      "aTrancher": [
+        "Probabilité d'usage de l'IA élevée : proposer un échange oral (explication du code des routeurs)."
+      ]
+    },
+    {
+      "nom": "PETIT",
+      "prenom": "Chloé",
+      "statut": "evalue",
+      "rendu": {
+        "date": "18/10/2026 17:05",
+        "github": "https://github.com/exemple-chloe/annuaire-clubs",
+        "deploiement": "https://annuaire-clubs.vercel.app"
+      },
+      "libelles": {
+        "validation": "1.1 Récupération des données",
+        "unicite": "1.2 Unicité des données",
+        "persistance": "1.3 Persistance",
+        "redirection": "1.4 API JSON"
+      },
+      "notes": {
+        "mail": {
+          "note": 1,
+          "justification": "Objet « PETIT Chloé CC4 projet libre », deux liens."
+        },
+        "indentation": { "note": 1, "justification": "Homogène." },
+        "console": { "note": 1, "justification": "Aucun." },
+        "interface": {
+          "note": 2.5,
+          "justification": "Recherche et ajout fonctionnels en ligne ; pas de message en cas d'échec."
+        },
+        "validation": {
+          "note": 2.5,
+          "justification": "Import CSV contrôlé ; champs vides acceptés."
+        },
+        "unicite": {
+          "note": 3,
+          "justification": "Contrainte UNIQUE sur le nom du club, erreur 409 gérée."
+        },
+        "persistance": { "note": 2, "justification": "PostgreSQL hébergé." },
+        "redirection": { "note": 2, "justification": "Routes JSON documentées dans Swagger." },
+        "github": { "note": 1, "justification": "Commits réguliers mais tags absents." },
+        "securite": {
+          "note": 2,
+          "justification": "Suppression protégée par jeton, 401 sans jeton."
+        },
+        "deploiement": { "note": 0, "justification": "En ligne le 22/10/2026." },
+        "erreurs": { "note": 0, "justification": "" }
+      },
+      "commentaire": "Projet libre accordé par l'enseignant. Lignes 1.1 à 1.4 renommées pour décrire le projet ; points et maxima inchangés.",
+      "ia": {
+        "probabilite": "0 à 20 %",
+        "part": "0 à 10 %",
+        "indices": "Aucun indice : historique progressif sur trois semaines, commentaires personnels.",
+        "parties": "",
+        "declare": "Aide de l'IA pour les messages de commit, selon le mail de l'étudiante."
+      }
+    },
+    {
+      "nom": "ROBERT",
+      "prenom": "Lucas",
+      "statut": "non-evaluable",
+      "rendu": {
+        "date": "20/10/2026 08:12",
+        "github": "https://github.com/exemple-lucas/cc4"
+      },
+      "commentaire": "Dépôt privé ou inexistant (404 le 22/10/2026). Demander l'accès à l'étudiant avant de noter.",
+      "aTrancher": ["Rendu le 20/10 à 8 h 12, après l'échéance du 19/10 à minuit."]
+    }
+  ],
+  "promotion": {
+    "defauts": [
+      "URL codée en dur (localhost) dans le client.",
+      "Code HTTP 500 au lieu de 403 pour une mauvaise clé."
+    ],
+    "interpretations": ["« URL unique » compris comme unicité du code court, pas de l'URL longue."]
+  }
+}

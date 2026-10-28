@@ -9,3 +9,5 @@ package-lock.json
 skills/**/assets/
 commun/charte/icones/
 .claude/
+# Généré par npm run construire (JSON.stringify), contrôlé par construire --verifier
+.claude-plugin/marketplace.json

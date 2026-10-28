@@ -1,5 +1,5 @@
 /**
- * Atelier : transforme le JSON rédigé par un assistant IA en fichiers (plan, support, quiz) en
+ * Atelier : transforme le JSON rédigé par un assistant IA en fichiers (plan, support, quiz, notation) en
  * exécutant dans le navigateur, avec Pyodide, les mêmes scripts Python que les skills.
  */
 const PYODIDE = 'https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.mjs';
@@ -34,6 +34,13 @@ const TYPES = {
       ['forms', 'Google Forms (script)'],
       ['corrige', 'Corrigé (.md)'],
     ],
+    paquets: ['micropip'],
+    pip: ['openpyxl'],
+  },
+  notation: {
+    skill: 'notation-etudiants',
+    libelle: 'Notation',
+    formats: [['xlsx', 'Classeur (.xlsx), un onglet par étudiant']],
     paquets: ['micropip'],
     pip: ['openpyxl'],
   },
@@ -118,6 +125,17 @@ if rapport.ok:
 json.dumps({"erreurs": rapport.erreurs, "avertissements": rapport.avertissements, "lien": lien,
             "fichiers": {k: base64.b64encode(v).decode() for k, v in fichiers.items()}})
 `,
+  notation: `
+import base64, json, sys
+sys.path.insert(0, "/skills/notation-etudiants/scripts")
+import rendre_notation as rn
+n, rapport = rn.normaliser_notation(json.loads(TEXTE))
+fichiers = {}
+if rapport.ok and "xlsx" in FORMATS:
+    fichiers[rn.nom_fichier(n)] = rn.rendre_xlsx(n)
+json.dumps({"erreurs": rapport.erreurs, "avertissements": rapport.avertissements, "lien": None,
+            "fichiers": {k: base64.b64encode(v).decode() for k, v in fichiers.items()}})
+`,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -145,6 +163,7 @@ function detecter(objet) {
   const format = objet.format ?? objet.quiz?.format;
   if (format === 'skazy-plan' || objet.programme) return 'plan';
   if (format === 'skazy-support' || objet.slides) return 'support';
+  if (format === 'notation-etudiants' || objet.etudiants) return 'notation';
   if (format === 'skazy-quiz' || objet.quiz || objet.questions) return 'quiz';
   return null;
 }
@@ -300,7 +319,7 @@ async function produire(evenement) {
   const type = detecter(objet);
   if (!type) {
     dire(
-      'Type de document non reconnu : le JSON doit contenir « format » (skazy-plan, skazy-support ou skazy-quiz).',
+      'Type de document non reconnu : le JSON doit contenir « format » (skazy-plan, skazy-support, skazy-quiz ou notation-etudiants).',
     );
     return;
   }

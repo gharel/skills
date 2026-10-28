@@ -18,6 +18,17 @@
         "./skills/pro/skazy-support-formation",
         "./skills/pro/skazy-quiz"
       ]
+    },
+    {
+      "name": "unc",
+      "displayName": "UNC · Université de la Nouvelle-Calédonie",
+      "description": "Cours, évaluations et suivi des étudiants.",
+      "source": "./",
+      "strict": false,
+      "homepage": "https://gharel.github.io/skills/",
+      "skills": [
+        "./skills/unc/notation-etudiants"
+      ]
     }
   ]
 }

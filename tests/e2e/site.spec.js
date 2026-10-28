@@ -1,20 +1,25 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const SKILLS = ['skazy-plan-formation', 'skazy-support-formation', 'skazy-quiz'];
+const SKILLS = [
+  'skazy-plan-formation',
+  'skazy-support-formation',
+  'skazy-quiz',
+  'notation-etudiants',
+];
 
 test.describe('Catalogue', () => {
-  test('présente les trois skills Pro dans l’ordre de la chaîne, et les catégories à venir', async ({
+  test('présente les skills Pro dans l’ordre de la chaîne, puis les skills UNC', async ({
     page,
   }) => {
     await page.goto('./');
     await expect(page).toHaveTitle('Skills IA · Skazy Formation');
     const cartes = page.locator('.carte[data-skill]');
-    await expect(cartes).toHaveCount(3);
+    await expect(cartes).toHaveCount(4);
     expect(await cartes.evaluateAll((l) => l.map((c) => c.dataset.skill))).toEqual(SKILLS);
     await expect(page.locator('#categorie-unc')).toBeVisible();
     await expect(page.locator('#categorie-perso')).toBeVisible();
-    await expect(page.locator('.carte--vide')).toHaveCount(2);
+    await expect(page.locator('.carte--vide')).toHaveCount(1);
   });
 
   test('les téléchargements existent', async ({ page, request }) => {
@@ -92,6 +97,7 @@ test.describe('Atelier', () => {
     ['quiz', ['.skazy-quiz.json', '.kahoot.xlsx', '.google-forms.gs', '.corrige.md']],
     ['plan', ['.html', '.docx']],
     ['support', ['.html', '.pptx']],
+    ['notation', ['.xlsx']],
   ];
   for (const [exemple, extensions] of CAS) {
     test(`produit les fichiers de l’exemple « ${exemple} » dans le navigateur`, async ({

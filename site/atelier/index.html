@@ -6,7 +6,7 @@
     <title>Atelier · Skills IA · Skazy Formation</title>
     <meta
       name="description"
-      content="Transformez le JSON produit par un assistant IA en plan de formation (HTML, DOCX), support (HTML, PPTX) ou quiz (Kahoot, Google Forms, Quiz Skazy), directement dans le navigateur."
+      content="Transformez le JSON produit par un assistant IA en plan de formation (HTML, DOCX), support (HTML, PPTX), quiz (Kahoot, Google Forms, Quiz Skazy) ou notation d'étudiants (XLSX), directement dans le navigateur."
     />
     <meta name="robots" content="noindex" />
     <meta name="color-scheme" content="light dark" />
@@ -77,15 +77,17 @@
         <div class="atelier__intro">
           <h1 class="section__titre">Atelier</h1>
           <p class="section__chapo">
-            Collez ici le JSON rédigé par votre assistant (ChatGPT, Gemini, Mistral…) avec un skill
-            Skazy Formation. L’atelier produit les fichiers dans votre navigateur&nbsp;: rien n’est
+            Collez ici le JSON rédigé par votre assistant (ChatGPT, Gemini, Mistral…) avec l’un de
+            ces skills. L’atelier produit les fichiers dans votre navigateur&nbsp;: rien n’est
             envoyé sur un serveur. Le premier passage charge le moteur Python (une vingtaine de
             secondes).
           </p>
         </div>
 
         <form class="atelier__formulaire" id="formulaire">
-          <label class="etiquette" for="entree">JSON du plan, du support ou du quiz</label>
+          <label class="etiquette" for="entree"
+            >JSON du plan, du support, du quiz ou de la notation</label
+          >
           <textarea
             id="entree"
             spellcheck="false"
@@ -119,7 +121,14 @@
                 class="lien"
                 data-exemple="skazy-quiz/exemples/quiz-exemple.json"
               >
-                quiz
+                quiz</button
+              >,
+              <button
+                type="button"
+                class="lien"
+                data-exemple="notation-etudiants/exemples/notation-exemple.json"
+              >
+                notation
               </button>
             </span>
           </div>

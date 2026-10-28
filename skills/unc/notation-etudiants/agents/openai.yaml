@@ -1,0 +1,12 @@
+interface:
+  display_name: Notation des rendus étudiants
+  short_description: Corrige et note des TP rendus par mail (GitHub, déploiement) selon un barème, avec un onglet par étudiant et une estimation indicative de l'usage de l'IA.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+    - chatgpt
+    - codex
+    - api
+    - atlas
+  allow_implicit_invocation: true

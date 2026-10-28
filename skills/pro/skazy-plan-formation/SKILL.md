@@ -3,7 +3,7 @@ name: skazy-plan-formation
 description: "Crée, restructure ou enrichit un plan de formation (fiche programme A4 d'une ou deux pages) aux couleurs de Skazy Formation, à partir d'un simple sujet, de notes ou d'un plan existant. Rédige l'intitulé, la description, 3 à 5 objectifs pédagogiques observables (taxonomie de Bloom), les prérequis, le public, la durée, le programme en parties et les modalités, puis produit un HTML imprimable en PDF et un DOCX pour Word ou Google Docs, fidèles au modèle « Plan de formation » du design system Skazy Formation. À utiliser dès que l'on demande un plan de formation, un programme ou une fiche de formation, un déroulé ou un syllabus, même sans citer Skazy."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.0.0'
+  version: '1.1.0'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills
@@ -69,7 +69,8 @@ Le rendu est donc identique quel que soit l'assistant utilisé.
    - Rappelle comment s'en servir :
      - le HTML s'imprime en PDF (bouton « Imprimer ou enregistrer en PDF ») ;
      - le DOCX s'ouvre dans Word ;
-     - dans Google Docs, passer par Fichier > Ouvrir > Importer.
+     - le DOCX s'importe tel quel dans Google Docs, avec la même mise en page : Fichier > Ouvrir > Importer, ou un connecteur Google Drive qui crée le fichier avec conversion. Il est léger (25 Ko environ) pour passer par un connecteur. Si le connecteur demande le contenu en base64, `python scripts/docx_google_docs.py plan-<intitulé>.docx --base64` l'écrit en lignes de 12 000 caractères, à recopier bout à bout en un seul appel. La méthode, la vérification et les limites sont dans [references/google-docs.md](references/google-docs.md) ;
+     - un DOCX retouché dans Word se prépare d'abord avec `python scripts/docx_google_docs.py plan.docx`, qui l'allège et retire l'interligne exact.
    - Propose la suite logique : créer le support de formation à partir de ce plan avec le skill `skazy-support-formation`, en lui donnant le JSON.
 
 ## Quand on te donne un plan existant
@@ -91,9 +92,11 @@ Le rendu est donc identique quel que soit l'assistant utilisé.
 ## Fichiers du skill
 
 - `scripts/rendre_plan.py` : contrôle du JSON, rendu HTML (A4) et DOCX.
+- `scripts/docx_google_docs.py` : DOCX prêt pour Google Docs (allégé, sans interligne exact), appliqué à chaque rendu et utilisable sur un DOCX retouché.
 - `scripts/charte.py` et `assets/charte/` : couleurs, logos, icônes et stickers de la charte Skazy Formation.
 - `references/regles-redaction.md` : règles de rédaction détaillées et calibrage par niveau.
 - `references/format-plan.md` : format du JSON, champ par champ.
+- `references/google-docs.md` : import dans Google Docs à l'identique, par Drive ou par un connecteur, et vérification.
 - `exemples/plan-exemple.json` : plan complet (Excel, les bases).
 
-Version 1.0.0. Sources, mises à jour et autres skills : https://gharel.github.io/skills/
+Version 1.1.0. Sources, mises à jour et autres skills : https://gharel.github.io/skills/

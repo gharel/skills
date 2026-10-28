@@ -6,7 +6,8 @@ Usage :
 
 Le JSON suit references/format-plan.md. Le HTML reproduit le modèle « 3. Plan de formation »
 du Skazy Formation Design System (Claude Design) ; le DOCX en reprend la mise en page avec de vrais
-en-têtes et pieds de page (bandeau couleur pleine largeur), lisibles dans Word et Google Docs.
+en-têtes et pieds de page (bandeau couleur pleine largeur), lisibles dans Word et Google Docs. Il est
+allégé par docx_google_docs.py (environ 25 Ko) : il s'importe tel quel dans Google Docs.
 """
 
 from __future__ import annotations
@@ -348,6 +349,16 @@ def rendre_docx(p: dict) -> bytes:
         st.paragraph_format.space_before = Pt(0)
     doc.styles["Normal"].paragraph_format.left_indent = Mm(MARGE)
     doc.styles["Normal"].paragraph_format.right_indent = Mm(MARGE)
+    # Police et langue par défaut du document : Google Docs les reprend pour le texte ajouté après import.
+    defaut = doc.styles.element.find(qn("w:docDefaults")).find(qn("w:rPrDefault")).find(qn("w:rPr"))
+    fonts = defaut.find(qn("w:rFonts"))
+    for attr in list(fonts.attrib):
+        del fonts.attrib[attr]
+    for attr in ("w:ascii", "w:hAnsi", "w:cs", "w:eastAsia"):
+        fonts.set(qn(attr), POLICE)
+    langue = defaut.find(qn("w:lang"))
+    if langue is not None:
+        langue.set(qn("w:val"), "fr-FR")
 
     section = doc.sections[0]
     section.page_width, section.page_height = Mm(LARGEUR), Mm(297)
@@ -373,7 +384,9 @@ def rendre_docx(p: dict) -> bytes:
         if couleur:
             run.font.color.rgb = RGBColor(*ch.rgb(couleur))
         if majuscules:
-            run.font.all_caps = True
+            # Texte en capitales plutôt que l'attribut « majuscules » : Word en français retire alors les
+            # accents (MODALITES), et Google Docs n'a pas cet attribut.
+            run.text = run.text.upper()
         if espacement is not None:
             sp = OxmlElement("w:spacing")
             sp.set(qn("w:val"), str(int(espacement * 20)))
@@ -686,7 +699,10 @@ def rendre_docx(p: dict) -> bytes:
 
     tampon = io.BytesIO()
     doc.save(tampon)
-    return tampon.getvalue()
+    # Allégé (gabarit python-docx, images) pour Google Docs et les connecteurs Drive : voir docx_google_docs.py.
+    from docx_google_docs import preparer_docx
+
+    return preparer_docx(tampon.getvalue())[0]
 
 
 # Ordre des enfants imposé par le schéma OOXML (Word l'exige pour appliquer certaines propriétés).

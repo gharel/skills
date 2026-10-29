@@ -4,6 +4,11 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-29
 
+### Dépôt : page de documentation
+
+- Nouvelle page `documentation.html`, reliée au catalogue (héros, section d'installation, pied) : installation par assistant et par système (Windows, macOS, Linux, WSL, Git Bash), fonctionnement de la commande, options, mise à jour automatique, désinstallation, usage des skills (chaîne plan, support, quiz ; notation UNC), statuts et dépannage.
+- Le bouton « Copier » met une commande sur une seule ligne, même quand le formatage du HTML la coupe.
+
 ### Dépôt : installeurs multi-assistants, inspirés de SkillCrew
 
 - `installer.ps1` (Windows, PowerShell 5.1 et 7) et `installer.sh` (macOS, Linux, WSL ; Git Bash passe la main à PowerShell) posent une seule copie de chaque skill dans `~/.agents/skills`, que lisent Codex, Gemini CLI, GitHub Copilot, Cursor et OpenCode, et un lien par skill pour Claude Code et Windsurf (jonction sous Windows, sans droits administrateur). Fini les copies en double dans `~/.gemini`, `~/.cursor`, `~/.copilot` et `~/.config/opencode` : les anciennes sont retirées. Claude Code ne reçoit pas de lien si le plugin `gharel-skills` est installé.

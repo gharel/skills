@@ -570,6 +570,162 @@ button {
   font-size: var(--texte-sm);
 }
 
+/* ── Documentation ─────────────────────────────────────── */
+.heros .bouton--secondaire {
+  background: transparent;
+  border-color: var(--scene-bord);
+  color: var(--scene-texte);
+}
+.heros .bouton--secondaire:hover {
+  border-color: var(--scene-accent);
+  color: var(--scene-texte);
+}
+.heros--doc .heros__interieur {
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: var(--e-12);
+}
+.doc {
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: var(--e-12) var(--e-6) var(--e-16);
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: var(--e-12);
+  align-items: start;
+}
+.sommaire {
+  position: sticky;
+  top: calc(var(--hauteur-bandeau) + var(--e-6));
+  font-size: var(--texte-sm);
+}
+.sommaire__titre {
+  margin-bottom: var(--e-3);
+  font-size: var(--texte-xs);
+  font-weight: 800;
+  letter-spacing: var(--interlettre-tres-large);
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+.sommaire ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 2px solid var(--bord);
+}
+.sommaire a {
+  display: block;
+  margin-left: -2px;
+  padding: var(--e-1) var(--e-3);
+  border-left: 2px solid transparent;
+  color: var(--texte-doux);
+  text-decoration: none;
+}
+.sommaire a:hover {
+  border-left-color: var(--primaire);
+  color: var(--texte-fort);
+}
+.doc__contenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-12);
+  min-width: 0;
+  max-width: 80ch;
+}
+.doc__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+}
+.doc__section .section__titre {
+  margin-bottom: 0;
+}
+.doc__section h3 {
+  margin-top: var(--e-3);
+  font-size: var(--texte-lg);
+}
+.doc__section h4 {
+  margin: 0;
+  font-size: var(--texte-md);
+  color: var(--texte-fort);
+}
+.doc__section ul {
+  margin: 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+.tableau {
+  overflow-x: auto;
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon-lg);
+}
+.tableau table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texte-sm);
+}
+.tableau th,
+.tableau td {
+  padding: var(--e-3) var(--e-4);
+  border-bottom: 1px solid var(--bord);
+  text-align: left;
+  vertical-align: top;
+}
+.tableau tbody tr:last-child td {
+  border-bottom: 0;
+}
+.tableau th {
+  background: var(--surface);
+  color: var(--texte-fort);
+}
+/* Les codes des tableaux se coupent seulement aux <wbr> (après « _ » et « / »), pas en plein mot. */
+.tableau code {
+  overflow-wrap: normal;
+}
+@media (min-width: 641px) {
+  .tableau--options td:first-child wbr {
+    display: none;
+  }
+}
+.demande {
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--rayon-md);
+  background: var(--primaire-pale);
+  color: var(--texte-fort);
+  font-weight: 600;
+}
+.chaine-doc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-4);
+}
+.chaine-doc__etape {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  padding: var(--e-5);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon-xl);
+  background: var(--surface);
+  font-size: var(--texte-sm);
+}
+.faq details {
+  border-bottom: 1px solid var(--bord);
+}
+.faq summary {
+  padding: var(--e-3) 0;
+  font-weight: 700;
+  color: var(--texte-fort);
+  cursor: pointer;
+}
+.faq details p {
+  padding-bottom: var(--e-4);
+}
+
 /* ── Pied ──────────────────────────────────────────────── */
 .pied {
   border-top: 1px solid var(--bord);
@@ -614,8 +770,20 @@ button {
 }
 @media (max-width: 900px) {
   .heros__interieur,
-  .deux-colonnes {
+  .deux-colonnes,
+  .doc,
+  .chaine-doc {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .doc {
+    gap: var(--e-8);
+  }
+  .sommaire {
+    position: static;
+  }
+  .sommaire ol {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 720px) {
@@ -627,8 +795,16 @@ button {
   .bandeau__interieur,
   .heros__interieur,
   .section__interieur,
+  .doc,
   .pied__interieur {
     padding-inline: var(--e-4);
+  }
+  .sommaire ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tableau th,
+  .tableau td {
+    padding: var(--e-2) var(--e-3);
   }
   .bandeau__interieur {
     gap: var(--e-2);

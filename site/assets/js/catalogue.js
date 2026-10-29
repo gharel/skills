@@ -52,7 +52,11 @@ for (const bouton of document.querySelectorAll('[data-copier]')) {
     const cible = bouton.dataset.copier
       ? document.getElementById(bouton.dataset.copier)
       : bouton.parentElement.querySelector('code');
-    copier((cible.content ?? cible).textContent.trim(), bouton);
+    // Une commande tient sur une ligne : les retours à la ligne du source HTML deviennent des espaces.
+    const texte = cible.content
+      ? cible.content.textContent.trim()
+      : cible.textContent.trim().replace(/\s+/g, ' ');
+    copier(texte, bouton);
   });
 }
 

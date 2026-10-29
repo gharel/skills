@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Documentation · Skills IA</title>
+    <meta
+      name="description"
+      content="Installer, mettre à jour et utiliser les skills IA de Skazy Formation : Claude, ChatGPT, Claude Code, Codex, Gemini CLI, Copilot, Cursor, OpenCode, sous Windows, macOS, Linux et WSL."
+    />
+    <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="darkreader-lock" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1f1f1f" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="assets/fonts/georama-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="assets/css/charte.css" />
+    <link rel="stylesheet" href="assets/css/skills.css" />
+    <script>
+      // Thème commun aux outils Skazy Formation, appliqué avant l'affichage.
+      try {
+        const theme = JSON.parse(localStorage.getItem('skazy-outils:theme'));
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {
+        // stockage indisponible : thème du système
+      }
+    </script>
+    <script type="module" src="assets/js/theme.js"></script>
+    <script type="module" src="assets/js/catalogue.js"></script>
+  </head>
+  <body>
+    <!-- @icones -->
+    <a class="lien-evitement" href="#contenu">Aller au contenu</a>
+
+    <header class="bandeau">
+      <div class="bandeau__interieur">
+        <a class="bandeau__nom" href="./">
+          <img class="bandeau__pastille" src="favicon.svg" width="28" height="28" alt="" />
+          <span class="bandeau__nom-texte">Skills IA</span>
+        </a>
+        <div class="bandeau__actions">
+          <a
+            class="bouton-icone bandeau__github"
+            href="https://github.com/gharel/skills"
+            aria-label="Code source sur GitHub (nouvel onglet)"
+            title="Code source sur GitHub (nouvel onglet)"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg class="icone" aria-hidden="true"><use href="#i-github" /></svg>
+          </a>
+          <button type="button" class="bouton-icone" id="bouton-theme" hidden>
+            <svg class="icone" aria-hidden="true"><use href="#i-circle-half-stroke" /></svg>
+          </button>
+          <span class="bandeau__filet" aria-hidden="true"></span>
+          <a
+            class="bandeau__logo"
+            href="https://formation.skazy.nc"
+            target="_blank"
+            rel="noopener"
+            aria-label="Site de Skazy Formation (nouvel onglet)"
+            title="Site de Skazy Formation (nouvel onglet)"
+          >
+            <img
+              class="logo logo--clair"
+              src="assets/img/logo-skazy-formation.svg"
+              alt=""
+              width="109"
+              height="36"
+            />
+            <img
+              class="logo logo--sombre"
+              src="assets/img/logo-skazy-formation-blanc.svg"
+              alt=""
+              width="109"
+              height="36"
+            />
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main id="contenu" tabindex="-1">
+      <section class="heros heros--doc" aria-labelledby="titre-page">
+        <div class="heros__interieur">
+          <div class="heros__texte">
+            <p class="surtitre">Documentation</p>
+            <h1 id="titre-page">Installer et utiliser les skills</h1>
+            <p class="heros__chapo">
+              Équiper votre assistant, le tenir à jour et lui faire produire vos documents&nbsp;:
+              plan, support, quiz ou grille de notation. Valable pour Claude, ChatGPT et les
+              assistants en ligne de commande, sous Windows, macOS, Linux et WSL.
+            </p>
+            <div class="heros__actions">
+              <a class="bouton bouton--secondaire" href="./">
+                <svg class="icone" aria-hidden="true"><use href="#i-arrow-left" /></svg>
+                Retour au catalogue
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="doc">
+        <nav class="sommaire" aria-labelledby="titre-sommaire">
+          <p class="sommaire__titre" id="titre-sommaire">Sur cette page</p>
+          <ol>
+            <li><a href="#commencer">Par où commencer</a></li>
+            <li><a href="#claude-chatgpt">Claude et ChatGPT</a></li>
+            <li><a href="#claude-code">Claude Code</a></li>
+            <li><a href="#ligne-de-commande">Assistants en ligne de commande</a></li>
+            <li><a href="#autres">Autres assistants</a></li>
+            <li><a href="#fonctionnement">Ce que fait la commande</a></li>
+            <li><a href="#options">Options</a></li>
+            <li><a href="#mettre-a-jour">Mettre à jour</a></li>
+            <li><a href="#desinstaller">Désinstaller</a></li>
+            <li><a href="#utiliser">Utiliser les skills</a></li>
+            <li><a href="#statuts">Statuts des skills</a></li>
+            <li><a href="#depannage">Dépannage</a></li>
+          </ol>
+        </nav>
+
+        <div class="doc__contenu">
+          <section class="doc__section" id="commencer" aria-labelledby="titre-commencer">
+            <h2 class="section__titre" id="titre-commencer">Par où commencer</h2>
+            <p>Repérez votre assistant, puis suivez la section indiquée.</p>
+            <div
+              class="tableau"
+              role="region"
+              aria-label="Tableau des assistants et de leur installation"
+              tabindex="0"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Assistant</th>
+                    <th scope="col">Installation</th>
+                    <th scope="col">Mise à jour</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Claude.ai, Claude Desktop</td>
+                    <td>
+                      <a href="#claude-chatgpt">Importer le <code>.zip</code></a>
+                    </td>
+                    <td>Réimporter le <code>.zip</code></td>
+                  </tr>
+                  <tr>
+                    <td>ChatGPT</td>
+                    <td>
+                      <a href="#claude-chatgpt">Importer le <code>.zip</code></a
+                      >, ou un GPT avec la version un fichier
+                    </td>
+                    <td>Réimporter</td>
+                  </tr>
+                  <tr>
+                    <td>Claude Code, Cowork</td>
+                    <td><a href="#claude-code">Plugin de la place de marché</a></td>
+                    <td>Automatique</td>
+                  </tr>
+                  <tr>
+                    <td>Codex, Gemini CLI, GitHub Copilot, Cursor, OpenCode, Windsurf</td>
+                    <td><a href="#ligne-de-commande">Une commande</a></td>
+                    <td>Relancer la commande, ou chaque jour automatiquement</td>
+                  </tr>
+                  <tr>
+                    <td>Gemini, Mistral Le Chat, Perplexity…</td>
+                    <td><a href="#autres">Instructions courtes et fichiers</a></td>
+                    <td>Remplacer les fichiers</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="doc__section" id="claude-chatgpt" aria-labelledby="titre-claude">
+            <h2 class="section__titre" id="titre-claude">Claude et ChatGPT</h2>
+            <h3>Claude.ai et Claude Desktop</h3>
+            <ol class="etapes">
+              <li>
+                Sur le <a href="./#catalogue">catalogue</a>, cliquez sur
+                <strong>Télécharger le skill</strong> pour obtenir son fichier <code>.zip</code>.
+              </li>
+              <li>
+                Dans Claude, ouvrez <strong>Paramètres &gt; Capacités</strong>. Vérifiez que
+                l’exécution de code est activée&nbsp;: les skills en ont besoin pour produire les
+                fichiers.
+              </li>
+              <li>
+                Section <strong>Skills</strong>, choisissez <strong>Importer un skill</strong>, puis
+                le fichier <code>.zip</code>. Activez le skill.
+              </li>
+            </ol>
+            <p>
+              Pour une nouvelle version, supprimez l’ancienne puis importez le nouveau
+              <code>.zip</code>. Désactivez les anciens skills <code>plan-creator</code>,
+              <code>support-creator</code> et <code>qcm-creator</code>&nbsp;: les skills Skazy
+              Formation les remplacent.
+            </p>
+            <h3>ChatGPT</h3>
+            <p>
+              Importez le fichier <code>.zip</code> depuis la gestion des skills de votre compte.
+              Sans les Skills, passez par un GPT personnalisé ou un projet&nbsp;:
+            </p>
+            <ol class="etapes">
+              <li>
+                Collez les instructions courtes du skill (bouton
+                <strong>Copier les instructions</strong> de sa carte).
+              </li>
+              <li>
+                Ajoutez en fichiers de connaissance la version un fichier (<code>.md</code>) et le
+                contenu du <code>.zip</code>&nbsp;: scripts et charte.
+              </li>
+              <li>Activez l’interpréteur de code.</li>
+            </ol>
+          </section>
+
+          <section class="doc__section" id="claude-code" aria-labelledby="titre-claude-code">
+            <h2 class="section__titre" id="titre-claude-code">Claude Code</h2>
+            <p>Ajoutez le dépôt comme place de marché, une seule fois&nbsp;:</p>
+            <div class="commande">
+              <code>/plugin marketplace add gharel/skills</code>
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <p>Puis installez les catégories qui vous servent&nbsp;:</p>
+            <div class="commande">
+              <code>/plugin install skazy-formation@gharel-skills</code>
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <div class="commande">
+              <code>/plugin install unc@gharel-skills</code>
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <p>
+              Pour les mises à jour, ouvrez <code>/plugin</code>, onglet
+              <strong>Marketplaces</strong>, et activez la mise à jour automatique de
+              <code>gharel-skills</code>. À défaut&nbsp;:
+              <code>/plugin marketplace update gharel-skills</code>. Les mêmes plugins servent dans
+              Cowork.
+            </p>
+            <p class="note">
+              Avec le plugin installé, la <a href="#ligne-de-commande">commande</a> ne pose aucun
+              lien pour Claude Code&nbsp;: les skills n’apparaissent pas deux fois.
+            </p>
+          </section>
+
+          <section
+            class="doc__section"
+            id="ligne-de-commande"
+            aria-labelledby="titre-ligne-de-commande"
+          >
+            <h2 class="section__titre" id="titre-ligne-de-commande">
+              Assistants en ligne de commande
+            </h2>
+            <p>
+              Une commande installe tous les skills pour Codex, Gemini CLI, GitHub Copilot, Cursor,
+              OpenCode, Windsurf et Claude Code. Elle ne demande ni Node.js ni droits
+              administrateur.
+            </p>
+            <h3>Windows</h3>
+            <p>Dans PowerShell (5.1, fourni avec Windows, ou 7)&nbsp;:</p>
+            <div class="commande">
+              <code>irm https://gharel.github.io/skills/installer.ps1 | iex</code>
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <h3>macOS et Linux</h3>
+            <p>Dans un terminal&nbsp;:</p>
+            <div class="commande">
+              <code>curl -fsSL https://gharel.github.io/skills/installer.sh | sh</code>
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <p>
+              Il faut <code>curl</code> (ou <code>wget</code>) et <code>unzip</code> (ou
+              <code>python3</code>), présents sur la plupart des systèmes.
+            </p>
+            <h3>WSL</h3>
+            <p>
+              Lancez la commande <code>curl</code> dans votre distribution. Elle équipe d’abord les
+              assistants lancés dans WSL, puis ceux de Windows (Claude Desktop, Cursor…) par
+              <code>powershell.exe</code>. Pour équiper WSL seul&nbsp;:
+            </p>
+            <div class="commande">
+              <code
+                >curl -fsSL https://gharel.github.io/skills/installer.sh | SKILLS_WINDOWS=0 sh</code
+              >
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <h3>Git Bash, MSYS ou Cygwin</h3>
+            <p>
+              La commande <code>curl</code> passe la main à PowerShell&nbsp;: le résultat est le
+              même que sous Windows.
+            </p>
+            <p class="note">
+              Ouvrez ensuite une nouvelle session de votre assistant pour qu’il charge les skills.
+              Claude Code les voit aussitôt.
+            </p>
+          </section>
+
+          <section class="doc__section" id="autres" aria-labelledby="titre-autres">
+            <h2 class="section__titre" id="titre-autres">Autres assistants</h2>
+            <p>
+              Gemini, Mistral Le Chat, Copilot, Perplexity et les autres n’importent pas de dossier
+              de skill. Créez un Gem, un agent ou un espace&nbsp;:
+            </p>
+            <ol class="etapes">
+              <li>collez les instructions courtes du skill&nbsp;;</li>
+              <li>
+                ajoutez en documents la version un fichier (<code>.md</code>) et le contenu du
+                <code>.zip</code>&nbsp;;
+              </li>
+              <li>activez l’exécution de code, si l’assistant la propose.</li>
+            </ol>
+            <p>
+              Sans exécution de code, l’assistant vous donne le JSON et la commande pour produire
+              les fichiers sur votre poste (voir <a href="#utiliser">Utiliser les skills</a>).
+            </p>
+          </section>
+
+          <section class="doc__section" id="fonctionnement" aria-labelledby="titre-fonctionnement">
+            <h2 class="section__titre" id="titre-fonctionnement">Ce que fait la commande</h2>
+            <ol class="etapes">
+              <li>
+                Elle lit le catalogue publié sur ce site. Seules les versions qui ont passé les
+                contrôles y figurent.
+              </li>
+              <li>Elle télécharge les skills nouveaux ou changés, et seulement eux.</li>
+              <li>Elle range chaque skill une seule fois, dans <code>~/.agents/skills</code>.</li>
+              <li>Elle relie ce dossier aux assistants qui ne le lisent pas.</li>
+              <li>
+                Elle note ce qu’elle a installé dans un manifeste,
+                <code>~/.agents/.gharel-skills/manifeste.tsv</code>.
+              </li>
+            </ol>
+            <div
+              class="tableau"
+              role="region"
+              aria-label="Tableau des dossiers lus par chaque assistant"
+              tabindex="0"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Assistant</th>
+                    <th scope="col">Dossier lu</th>
+                    <th scope="col">Ce que pose la commande</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Codex, Gemini CLI, GitHub Copilot, Cursor, OpenCode</td>
+                    <td>
+                      <code>~/.agents/<wbr />skills</code>
+                    </td>
+                    <td>Rien de plus&nbsp;: ils lisent les skills à la source.</td>
+                  </tr>
+                  <tr>
+                    <td>Claude Code</td>
+                    <td>
+                      <code>~/.claude/<wbr />skills</code>
+                    </td>
+                    <td>
+                      Un lien par skill (une jonction sous Windows), sauf si le plugin est installé.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Windsurf</td>
+                    <td>
+                      <code>~/.codeium/<wbr />windsurf/<wbr />skills</code>
+                    </td>
+                    <td>Un lien par skill.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              Sous Windows, <code>~</code> désigne votre dossier personnel,
+              <code>C:\Users\&lt;nom&gt;</code>.
+            </p>
+            <h3>Vos propres skills</h3>
+            <p>
+              La commande ne touche qu’aux dossiers qu’elle a installés. Si un de vos skills porte
+              le même nom qu’un des nôtres, elle le déplace dans
+              <code>~/.agents/.gharel-skills/sauvegardes</code> avant d’installer le sien. La
+              désinstallation le remet à sa place.
+            </p>
+            <p>
+              Les anciennes versions de la commande copiaient les skills dans chaque dossier
+              d’assistant&nbsp;: ces copies en double sont retirées au premier passage.
+            </p>
+          </section>
+
+          <section class="doc__section" id="options" aria-labelledby="titre-options">
+            <h2 class="section__titre" id="titre-options">Options</h2>
+            <p>
+              Les options sont des variables d’environnement, posées avant la commande. La sélection
+              est retenue&nbsp;: les mises à jour suivantes la gardent.
+            </p>
+            <div
+              class="tableau tableau--options"
+              role="region"
+              aria-label="Tableau des options"
+              tabindex="0"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Variable</th>
+                    <th scope="col">Valeur</th>
+                    <th scope="col">Effet</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>SKILLS</code></td>
+                    <td>Noms séparés par des virgules, ou <code>tout</code></td>
+                    <td>
+                      Seulement ces skills, y compris ceux marqués «&nbsp;Sur demande&nbsp;».
+                      <code>tout</code> revient à la sélection par défaut.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>SKILLS_<wbr />CATEGORIE</code>
+                    </td>
+                    <td>
+                      <code>pro</code>, <code>unc</code>, <code>perso</code>, ou <code>tout</code>
+                    </td>
+                    <td>Seulement ces catégories (plusieurs, séparées par des virgules).</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>SKILLS_<wbr />AUTO</code>
+                    </td>
+                    <td><code>1</code> ou <code>0</code></td>
+                    <td>
+                      Inscrit ou retire la <a href="#mettre-a-jour">mise à jour quotidienne</a>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>SKILLS_<wbr />ACTION</code>
+                    </td>
+                    <td><code>desinstaller</code></td>
+                    <td>Retire tout ce que la commande a installé.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>SKILLS_<wbr />DOSSIER</code>
+                    </td>
+                    <td>Un chemin</td>
+                    <td>Installe dans ce seul dossier, sans lien ni mise à jour automatique.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>SKILLS_<wbr />WINDOWS</code>
+                    </td>
+                    <td><code>0</code></td>
+                    <td>Sous WSL, n’équipe pas Windows.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Par exemple, pour les seuls skills Skazy Formation, sous Windows&nbsp;:</p>
+            <div class="commande">
+              <code
+                >$env:SKILLS_CATEGORIE='pro'; irm https://gharel.github.io/skills/installer.ps1 |
+                iex</code
+              >
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <p>Sous macOS, Linux ou WSL&nbsp;:</p>
+            <div class="commande">
+              <code
+                >curl -fsSL https://gharel.github.io/skills/installer.sh | SKILLS_CATEGORIE=pro
+                sh</code
+              >
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <p class="note">
+              Dans PowerShell, une variable reste posée jusqu’à la fermeture de la fenêtre. Retirez
+              <code>SKILLS_ACTION</code> après une désinstallation&nbsp;:
+              <code>Remove-Item env:SKILLS_ACTION</code>.
+            </p>
+          </section>
+
+          <section class="doc__section" id="mettre-a-jour" aria-labelledby="titre-mettre-a-jour">
+            <h2 class="section__titre" id="titre-mettre-a-jour">Mettre à jour</h2>
+            <h3>Assistants en ligne de commande</h3>
+            <p>
+              Relancez la commande d’installation. Son bilan marque chaque skill&nbsp;:
+              <code>+</code> nouveau, <code>^</code> mis à jour (ancienne et nouvelle version),
+              <code>=</code> déjà à jour, <code>-</code> retiré.
+            </p>
+            <p>Pour que la mise à jour se fasse seule, chaque jour, lancez une fois&nbsp;:</p>
+            <div class="commande">
+              <code
+                >$env:SKILLS_AUTO='1'; irm https://gharel.github.io/skills/installer.ps1 | iex</code
+              >
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <div class="commande">
+              <code
+                >curl -fsSL https://gharel.github.io/skills/installer.sh | SKILLS_AUTO=1 sh</code
+              >
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <div
+              class="tableau"
+              role="region"
+              aria-label="Tableau de la mise à jour automatique par système"
+              tabindex="0"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Système</th>
+                    <th scope="col">Mécanisme</th>
+                    <th scope="col">Vérifier</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Windows</td>
+                    <td>Tâche planifiée <code>gharel-skills</code>, chaque jour à 9&nbsp;h</td>
+                    <td><code>Get-ScheduledTask gharel-skills</code></td>
+                  </tr>
+                  <tr>
+                    <td>macOS</td>
+                    <td>LaunchAgent <code>nc.skazy.gharel-skills</code>, chaque jour à 9&nbsp;h</td>
+                    <td><code>launchctl list | grep gharel</code></td>
+                  </tr>
+                  <tr>
+                    <td>Linux, WSL</td>
+                    <td>Timer systemd de l’utilisateur, sinon crontab</td>
+                    <td><code>systemctl --user list-timers gharel-skills.timer</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              Un ordinateur éteint à l’heure prévue fait la mise à jour à son prochain démarrage.
+              <code>SKILLS_AUTO=0</code> retire la tâche.
+            </p>
+            <h3>Claude Code, Claude.ai et ChatGPT</h3>
+            <p>
+              Claude Code suit la place de marché (voir <a href="#claude-code">Claude Code</a>).
+              Pour Claude.ai et ChatGPT, réimportez le <code>.zip</code>. Le catalogue signale par
+              un badge <span class="badge badge--nouveau">Nouvelle version</span> les skills changés
+              depuis votre dernière visite, et le
+              <a href="https://github.com/gharel/skills/blob/main/CHANGELOG.md"
+                >journal des versions</a
+              >
+              dit ce qui a changé.
+            </p>
+          </section>
+
+          <section class="doc__section" id="desinstaller" aria-labelledby="titre-desinstaller">
+            <h2 class="section__titre" id="titre-desinstaller">Désinstaller</h2>
+            <div class="commande">
+              <code
+                >$env:SKILLS_ACTION='desinstaller'; irm
+                https://gharel.github.io/skills/installer.ps1 | iex</code
+              >
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <div class="commande">
+              <code
+                >curl -fsSL https://gharel.github.io/skills/installer.sh |
+                SKILLS_ACTION=desinstaller sh</code
+              >
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <p>
+              La commande retire les skills, les liens, le manifeste et la tâche planifiée, puis
+              remet en place vos skills sauvegardés. Dans Claude Code&nbsp;:
+              <code>/plugin uninstall skazy-formation@gharel-skills</code>. Dans Claude.ai ou
+              ChatGPT, supprimez le skill depuis les paramètres.
+            </p>
+          </section>
+
+          <section class="doc__section" id="utiliser" aria-labelledby="titre-utiliser">
+            <h2 class="section__titre" id="titre-utiliser">Utiliser les skills</h2>
+            <p>
+              Il n’y a pas de commande à retenir&nbsp;: décrivez ce que vous voulez. L’assistant
+              connaît la description de chaque skill et charge celui qui correspond à votre demande.
+              Pour être sûr qu’il le prenne, nommez-le&nbsp;: «&nbsp;avec le skill
+              skazy-quiz&nbsp;».
+            </p>
+            <h3>La chaîne Skazy Formation</h3>
+            <p>
+              Les trois skills Pro s’enchaînent. Chacun accepte le JSON produit par le précédent
+              (<code>plan.json</code>, puis <code>support.json</code>)&nbsp;: gardez-le, il évite de
+              tout réexpliquer.
+            </p>
+            <ol class="chaine-doc">
+              <li class="chaine-doc__etape">
+                <img src="icones/skazy-plan-formation.svg" alt="" width="48" height="48" />
+                <h4>1. Plan de formation</h4>
+                <p class="demande">
+                  «&nbsp;Fais un plan de formation Power BI pour débutants, sur deux jours.&nbsp;»
+                </p>
+                <p>
+                  Une fiche programme A4 en HTML (à imprimer en PDF) et en DOCX (Word, Google Docs),
+                  plus <code>plan.json</code>.
+                </p>
+              </li>
+              <li class="chaine-doc__etape">
+                <img src="icones/skazy-support-formation.svg" alt="" width="48" height="48" />
+                <h4>2. Support de formation</h4>
+                <p class="demande">«&nbsp;Crée le support de formation de ce plan.&nbsp;»</p>
+                <p>
+                  Joignez <code>plan.json</code> ou le DOCX. Vous obtenez un diaporama HTML à
+                  projeter et un PPTX (PowerPoint, Google Slides), avec les notes formateur.
+                </p>
+              </li>
+              <li class="chaine-doc__etape">
+                <img src="icones/skazy-quiz.svg" alt="" width="48" height="48" />
+                <h4>3. Quiz</h4>
+                <p class="demande">
+                  «&nbsp;Prépare un quiz de 15 questions sur ce support, pour Kahoot.&nbsp;»
+                </p>
+                <p>
+                  Un fichier Kahoot (<code>.xlsx</code>), un script Google Forms, un lien vers le
+                  Quiz Skazy et un corrigé. Le quiz ne reprend que ce que dit le support.
+                </p>
+              </li>
+            </ol>
+            <h3>UNC&nbsp;: notation des étudiants</h3>
+            <p class="demande">
+              «&nbsp;Corrige le TP&nbsp;2&nbsp;: voici l’énoncé, le barème et les mails des
+              étudiants.&nbsp;»
+            </p>
+            <p>
+              Une note justifiée par critère, un onglet par étudiant (Google Sheets ou
+              <code>.xlsx</code>) et une estimation indicative de l’usage de l’IA, à relire avant de
+              communiquer les notes.
+            </p>
+            <h3>Comment les fichiers sont produits</h3>
+            <p>
+              Le skill fait écrire à l’assistant un JSON documenté. Un script Python le contrôle et
+              le transforme en fichiers aux couleurs de la charte. Si l’assistant exécute du Python
+              (Claude, ChatGPT, Codex, Claude Code…), vous recevez directement les fichiers. Sinon,
+              il vous donne le JSON et la commande à lancer sur votre poste, par exemple&nbsp;:
+            </p>
+            <div class="commande">
+              <code>pip install python-docx python-pptx openpyxl pillow</code>
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <div class="commande">
+              <code>python scripts/rendre_plan.py plan.json --sortie sorties</code>
+              <button type="button" class="copier" data-copier>Copier</button>
+            </div>
+            <h3>Pour de bons résultats</h3>
+            <ul>
+              <li>
+                Donnez la matière&nbsp;: notes, plan existant, support, énoncé. Sans elle, le skill
+                part d’hypothèses raisonnables, que vous pourrez corriger.
+              </li>
+              <li>
+                Précisez ce qui compte pour vous&nbsp;: durée, public, nombre de questions, sortie
+                voulue. Le reste prend une valeur par défaut.
+              </li>
+              <li>
+                Demandez des retouches ciblées&nbsp;: «&nbsp;raccourcis la partie&nbsp;3&nbsp;»,
+                «&nbsp;ajoute un exercice&nbsp;». L’assistant modifie le JSON et refait les
+                fichiers.
+              </li>
+              <li>Relisez avant de diffuser&nbsp;: vous restez l’auteur du document.</li>
+            </ul>
+          </section>
+
+          <section class="doc__section" id="statuts" aria-labelledby="titre-statuts">
+            <h2 class="section__titre" id="titre-statuts">Statuts des skills</h2>
+            <p>
+              Chaque skill a un statut, affiché sur sa carte quand il n’est pas recommandé. Il
+              décide de ce que fait la commande d’installation.
+            </p>
+            <div class="tableau" role="region" aria-label="Tableau des statuts" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Sur la carte</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Effet</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Pas de badge</td>
+                    <td>Recommandé</td>
+                    <td>Installé par défaut.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge--statut">Sur demande</span></td>
+                    <td>Disponible</td>
+                    <td>Installé seulement si vous le nommez dans <code>SKILLS</code>.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge--statut">Déprécié</span></td>
+                    <td>Déprécié</td>
+                    <td>
+                      Gardé là où il est installé, plus installé ailleurs. Passez au skill indiqué
+                      en remplacement.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Absent du catalogue</td>
+                    <td>Retiré</td>
+                    <td>Supprimé de votre poste à la mise à jour suivante.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="doc__section" id="depannage" aria-labelledby="titre-depannage">
+            <h2 class="section__titre" id="titre-depannage">Dépannage</h2>
+            <div class="faq">
+              <details>
+                <summary>L’assistant ne voit pas le skill</summary>
+                <p>
+                  Ouvrez une nouvelle session&nbsp;: la plupart des assistants ne chargent les
+                  skills qu’au démarrage. Relancez la commande et lisez son bilan&nbsp;: il liste
+                  les assistants détectés et les dossiers équipés. Le skill doit se trouver dans
+                  <code>~/.agents/skills/&lt;nom&gt;/SKILL.md</code>.
+                </p>
+              </details>
+              <details>
+                <summary>Le skill apparaît deux fois dans Claude Code</summary>
+                <p>
+                  Le plugin et une copie coexistent. Relancez la commande&nbsp;: quand le plugin est
+                  installé, elle retire ses liens et les anciennes copies de
+                  <code>~/.claude/skills</code>. Dans Claude.ai, désactivez les anciens skills
+                  <code>plan-creator</code>, <code>support-creator</code> et
+                  <code>qcm-creator</code>.
+                </p>
+              </details>
+              <details>
+                <summary>«&nbsp;Il faut unzip ou python3&nbsp;»</summary>
+                <p>
+                  Installez l’un des deux, par exemple <code>sudo apt install unzip</code> sous
+                  Debian ou Ubuntu, puis relancez la commande.
+                </p>
+              </details>
+              <details>
+                <summary>PowerShell refuse la commande</summary>
+                <p>
+                  <code>irm … | iex</code> ne dépend pas de la stratégie d’exécution des scripts. Si
+                  votre poste est géré par une organisation qui bloque PowerShell, demandez à votre
+                  service informatique, ou installez avec Node.js&nbsp;:
+                  <code>npx skills add gharel/skills -g</code>.
+                </p>
+              </details>
+              <details>
+                <summary>WSL&nbsp;: «&nbsp;mise à jour automatique impossible&nbsp;»</summary>
+                <p>
+                  Votre distribution n’a ni systemd ni cron actif. Ajoutez
+                  <code>[boot]</code> puis <code>systemd=true</code> dans
+                  <code>/etc/wsl.conf</code>, lancez <code>wsl --shutdown</code> depuis Windows,
+                  puis relancez la commande avec <code>SKILLS_AUTO=1</code>.
+                </p>
+              </details>
+              <details>
+                <summary>Un de mes skills a disparu</summary>
+                <p>
+                  Il portait le nom d’un de nos skills et a été mis de côté dans
+                  <code>~/.agents/.gharel-skills/sauvegardes</code>. Renommez-le pour garder les
+                  deux, ou désinstallez nos skills pour qu’il revienne à sa place.
+                </p>
+              </details>
+              <details>
+                <summary>L’assistant donne du JSON au lieu des fichiers</summary>
+                <p>
+                  Il n’exécute pas de code. Activez l’exécution de code (Claude) ou l’interpréteur
+                  de code (ChatGPT), ou lancez la commande qu’il vous donne, après
+                  <code>pip install python-docx python-pptx openpyxl pillow</code>.
+                </p>
+              </details>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="pied">
+      <div class="pied__interieur">
+        <p>
+          <strong>Skills IA</strong> · Guillaume Harel, Skazy Formation ·
+          <a href="https://github.com/gharel/skills">github.com/gharel/skills</a>
+        </p>
+        <p>
+          Mis à jour le
+          <!-- @date -->
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

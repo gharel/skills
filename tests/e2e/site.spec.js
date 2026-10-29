@@ -95,3 +95,67 @@ test.describe('Catalogue', () => {
     });
   }
 });
+
+test.describe('Documentation', () => {
+  test('est reliée au catalogue et son sommaire mène à chaque section', async ({ page }) => {
+    await page.goto('./');
+    await page.locator('.heros').getByRole('link', { name: 'Documentation' }).click();
+    await expect(page).toHaveTitle('Documentation · Skills IA');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'Installer et utiliser les skills',
+    );
+    const cibles = await page
+      .locator('.sommaire a')
+      .evaluateAll((liens) => liens.map((a) => a.getAttribute('href')));
+    expect(cibles.length).toBeGreaterThan(8);
+    for (const cible of cibles) await expect(page.locator(cible), cible).toHaveCount(1);
+    // Les icônes du sprite sont remplacées à la construction.
+    await expect(page.locator('#i-arrow-left')).toHaveCount(1);
+  });
+
+  test('donne les commandes des installeurs, à copier', async ({ page }) => {
+    await page.goto('documentation.html');
+    const commandes = (await page.locator('.commande code').allTextContents()).map((c) =>
+      c.replace(/\s+/g, ' ').trim(),
+    );
+    expect(commandes).toContain('irm https://gharel.github.io/skills/installer.ps1 | iex');
+    expect(commandes).toContain('curl -fsSL https://gharel.github.io/skills/installer.sh | sh');
+    expect(commandes).toContain(
+      'curl -fsSL https://gharel.github.io/skills/installer.sh | SKILLS_CATEGORIE=pro sh',
+    );
+    await expect(page.locator('.commande .copier')).toHaveCount(commandes.length);
+  });
+
+  test('copie une commande coupée par le formatage sur une seule ligne', async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('documentation.html');
+    const bloc = page.locator('.commande', { hasText: 'SKILLS_CATEGORIE=pro sh' });
+    await bloc.getByRole('button', { name: 'Copier' }).click();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      'curl -fsSL https://gharel.github.io/skills/installer.sh | SKILLS_CATEGORIE=pro sh',
+    );
+  });
+
+  for (const theme of ['light', 'dark']) {
+    test(`accessibilité (axe), thème ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme });
+      await page.goto('documentation.html');
+      const resultat = await new AxeBuilder({ page }).analyze();
+      expect(
+        resultat.violations.map((v) => `${v.id} : ${v.nodes.map((n) => n.target).join(', ')}`),
+      ).toEqual([]);
+    });
+  }
+
+  for (const largeur of [360, 820, 1280]) {
+    test(`pas de défilement horizontal à ${largeur} px`, async ({ page }) => {
+      await page.setViewportSize({ width: largeur, height: 800 });
+      await page.goto('documentation.html');
+      const deborde = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+      expect(deborde).toBe(false);
+    });
+  }
+});

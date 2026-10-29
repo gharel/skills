@@ -1,6 +1,7 @@
 /**
  * npm run construire : contrôle les skills puis construit le site dans _site/ :
- *   - index.html (catalogue généré), skills.json et skills.tsv (lus par les installeurs) ;
+ *   - index.html (catalogue généré), documentation.html, skills.json et skills.tsv (lus par les
+ *     installeurs) ;
  *   - telechargements/<skill>.zip (Claude.ai, ChatGPT) et <skill>.md (version un fichier) ;
  *   - icones/<skill>.svg (sticker affiché par le catalogue) ;
  *   - .claude-plugin/marketplace.json à la racine du dépôt (plugins Claude Code).
@@ -31,6 +32,8 @@ const ICONES_PAGE = {
   github: 'github',
   download: 'download',
   'file-text': 'file-text',
+  'book-open': 'book-open',
+  'arrow-left': 'arrow-left',
 };
 
 const echapper = (t) =>
@@ -299,6 +302,11 @@ const page = (await readFile(join(SITE, 'index.html'), 'utf8'))
   .replace('<!-- @resume -->', echapper(chapo))
   .replace('<!-- @date -->', dateFr(aujourdhui));
 await writeFile(join(SITE, 'index.html'), page);
+// Documentation : même sprite d'icônes et même date que le catalogue.
+const documentation = (await readFile(join(SITE, 'documentation.html'), 'utf8'))
+  .replace('<!-- @icones -->', sprite)
+  .replace('<!-- @date -->', dateFr(aujourdhui));
+await writeFile(join(SITE, 'documentation.html'), documentation);
 
 const taille = (await readdir(join(SITE, 'telechargements'))).length;
 console.log(`Site construit dans _site/ : ${nombre} skill(s), ${taille} fichier(s) à télécharger.`);

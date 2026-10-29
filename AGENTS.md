@@ -30,7 +30,7 @@ Les trois skills Pro forment une chaîne. Chaque skill accepte le JSON produit p
 skills/<catégorie>/<nom>/        Un skill : SKILL.md, agents/openai.yaml, references/, scripts/, assets/, exemples/
 commun/charte/                   Copie de la charte de design-skazy (charte.json, plan-formation.css/.js, logos) + charte.py et icônes Lucide
 modele/                          Modèle à copier pour créer un skill
-site/                            Sources du site : index.html (gabarit), assets/, installer.ps1, installer.sh
+site/                            Sources du site : index.html (gabarit), documentation.html, assets/, installer.ps1, installer.sh
 outils/                          Scripts Node : construire, synchroniser la charte, icônes, captures, serveur local
 tests/                           Vitest (outils), pytest (tests/py : rendus), Playwright (tests/e2e : site)
 .claude-plugin/marketplace.json  Généré par npm run construire : un plugin Claude Code par catégorie

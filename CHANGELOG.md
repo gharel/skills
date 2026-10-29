@@ -4,6 +4,11 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-29
 
+### skazy-support-formation 1.4.1
+
+- Images rognées au centre : la photo ajoutée à la slide « Questions » était calée sur son bord droit, un réglage du modèle propre à sa photo par défaut. Elle est désormais rognée au centre, dans le HTML (`background-position:center`) comme dans le PPTX. La photo du modèle reste calée à droite.
+- Des tests vérifient que chaque photo rognée (couverture, portrait du formateur, objectifs, chapitre, image pleine page, questions) garde le centre de l'image, en largeur comme en hauteur.
+
 ### skazy-plan-formation 1.5.0, skazy-support-formation 1.4.0, skazy-quiz 1.1.0, notation-etudiants 1.1.0
 
 - Charte resynchronisée sur design-skazy (`623a2a4`) et skills réalignés sur ses modèles : `npm run modeles` ne trouve aucun écart (521 textes comparés), l'alignement est verrouillé et `npm run check` passe de nouveau.

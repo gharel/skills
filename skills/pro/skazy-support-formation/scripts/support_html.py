@@ -720,13 +720,15 @@ def evaluation(s, f):
 
 
 def questions(s, f):
-    return """<div class="sf-97d93b" style="background-image:url(&quot;{photo}&quot;)"></div>
+    # Le modèle cale à droite sa propre photo ; une photo ajoutée est rognée au centre.
+    return """<div class="sf-97d93b"{fond}></div>
 <div class="sf-bc4cec"></div>
 <div class="sf-147da3">
 <div role="img" aria-label="Skazy Formation" class="sf-4059b6"></div>
 {titre}
 <div class="sf-39ba17"><div class="sf-e3ec02">{formateur}</div><div>{email}</div></div>
-</div>""".format(photo=_html.escape(ch.url_photo(s.get("photo") or ch.CHARTE["photoQuestions"]), quote=True),
+</div>""".format(fond=en_ligne("background-image:url(&quot;{}&quot;)".format(_html.escape(ch.url_photo(s.get("photo") or ch.CHARTE["photoQuestions"]), quote=True)),
+                              "background-position:center" if s.get("photo") else ""),
                  titre=titre(s.get("titre") or "Avez-vous des questions ?", interieur("sf-147da3"), "sf-2596f1"), formateur=esc(f["formateur"]), email=mailto(f["email"]))
 
 

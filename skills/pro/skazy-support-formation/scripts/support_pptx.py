@@ -1558,8 +1558,9 @@ def evaluation(sl: Slide, s):
 
 def questions(sl: Slide, s):
     c = sl.deck.c
-    sl.photo(ch.url_photo(s.get("photo") or ch.CHARTE["photoQuestions"]), 0, 0, 960, H, position="right", saturation=1.2,
-             contraste=1.05)
+    # Le modèle cale à droite sa propre photo ; une photo ajoutée est rognée au centre.
+    sl.photo(ch.url_photo(s.get("photo") or ch.CHARTE["photoQuestions"]), 0, 0, 960, H,
+             position="center" if s.get("photo") else "right", saturation=1.2, contraste=1.05)
     sl.rect(960, 0, 960, H, c["couleur"])
     logo_entete(sl)
     t = s.get("titre") or "Avez-vous des questions ?"

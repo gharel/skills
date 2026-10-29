@@ -1,3 +1,4 @@
+import base64
 import io
 import json
 import re
@@ -122,6 +123,68 @@ def test_images_locales_integrees(tmp_path):
     assert images, "la capture du contenu doit être posée dans le PPTX"
 
 
+def degrade(largeur=1200, hauteur=800) -> str:
+    """Photo de test en data URI : le rouge croît de gauche à droite, le vert de haut en bas."""
+    from PIL import Image
+
+    image = Image.new("RGB", (largeur, hauteur))
+    image.putdata([(x * 255 // (largeur - 1), y * 255 // (hauteur - 1), 128) for y in range(hauteur) for x in range(largeur)])
+    tampon = io.BytesIO()
+    image.save(tampon, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(tampon.getvalue()).decode()
+
+
+def centre_de(octets: bytes) -> tuple[float, float]:
+    """Centre du cadrage, de 0 à 1 sur chaque axe, lu dans le dégradé (moyennes du rouge et du vert)."""
+    from PIL import Image, ImageStat
+
+    image = Image.open(io.BytesIO(octets))
+    masque = image.getchannel("A") if image.mode == "RGBA" else None
+    rouge, vert, _ = ImageStat.Stat(image.convert("RGB"), masque).mean
+    return rouge / 255, vert / 255
+
+
+def test_recadrer_garde_le_centre():
+    """Rognée en « cover », une image garde son centre, en largeur comme en hauteur."""
+    from support_pptx import jpeg, recadrer
+
+    photo = ch.telecharger(degrade())
+    for largeur, hauteur in ((760, 1000), (1920, 1080), (960, 1080), (1920, 300)):
+        x, y = centre_de(jpeg(recadrer(photo, largeur, hauteur), 2000))
+        assert abs(x - 0.5) < 0.01 and abs(y - 0.5) < 0.01, (largeur, hauteur, x, y)
+    x, _ = centre_de(jpeg(recadrer(photo, 960, 1080, "right"), 2000))
+    assert x > 0.65  # seule la photo du modèle, sur « Questions », reste calée à droite
+
+
+def test_photos_ajoutees_rognees_au_centre():
+    """Chaque photo ajoutée est rognée au centre dans le PPTX, comme dans le HTML (background-position:center)."""
+    from support_html import rendre_html
+
+    photo = degrade()
+    donnees = json.loads(EXEMPLE.read_text(encoding="utf-8"))
+    donnees["formation"]["photoFormateur"] = photo
+    slides = [
+        {"type": "couverture", "photo": photo},
+        {"type": "faisons-connaissance"},
+        {"type": "objectifs", "objectifs": ["**Un**", "**Deux**", "**Trois**"], "photo": photo},
+        {"type": "chapitre", "titre": "Partie", "photo": photo},
+        {"type": "image", "titre": "Pause", "image": photo},
+        {"type": "questions", "photo": photo},
+    ]
+    s, _ = m.normaliser_support(dict(donnees, slides=slides))
+    pptx = presentation(s)
+    for numero, (slide, cadre) in enumerate(zip(pptx.slides, (960, 200, 760, 760, 1920, 960))):
+        photos = [sh for sh in slide.shapes if sh.shape_type == 13 and abs(sh.width - cadre * PX) <= 2 * PX]
+        assert photos, "slide {} : photo absente".format(numero + 1)
+        x, y = centre_de(photos[0].image.blob)
+        assert abs(x - 0.5) < 0.02 and abs(y - 0.5) < 0.02, (numero + 1, x, y)
+
+    html = rendre_html(s)
+    assert re.search(r'<div class="sf-97d93b" style="background-image:url\([^)]+\);background-position:center">', html)
+    defaut = rendre_html(m.normaliser_support(dict(donnees, slides=[{"type": "questions"}]))[0])
+    assert re.search(r'<div class="sf-97d93b" style="background-image:url\([^)]+\)">', defaut)  # photo du modèle : à droite
+
+
 def test_html():
     from support_html import rendre_html
 
@@ -136,6 +199,7 @@ def test_html():
 EN_LIGNE = {
     "--cover": r'url\("[^"]+"\)',
     "background-image": r'url\(("[^"]+"|data:image/svg\+xml;base64,[\w+/=]+)\)',
+    "background-position": r"center",
     "--i": r"url\(data:image/svg\+xml;base64,[\w+/=]+\)",
     "left": r"calc\(-?[\d.]+% - 32px\)",
     "top": r"calc\(-?[\d.]+% - 32px\)",

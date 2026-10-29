@@ -1,8 +1,8 @@
 # À chaque push sur main : on vérifie les skills (format, charte, versions, rendus Python, site),
 # puis on construit le site (catalogue, téléchargements) et on le publie sur GitHub Pages.
 # Le site n'est publié que si tout passe.
-# La charte se lit dans le dépôt privé gharel/design-skazy, que chaque job clone : le secret
-# DESIGN_SKAZY_TOKEN est un jeton d'accès en lecture seule au contenu de ce dépôt.
+# La charte se lit dans le dépôt privé gharel/design-skazy, que chaque job clone dans design-skazy/ :
+# le secret DESIGN_SKAZY_CLE est la clé privée d'une clé de déploiement en lecture seule de ce dépôt.
 name: Vérifier puis publier sur GitHub Pages
 
 on:
@@ -23,17 +23,19 @@ jobs:
   verifier:
     name: Tests (skills, rendus, site)
     runs-on: ubuntu-latest
+    env:
+      DESIGN_SKAZY: ${{ github.workspace }}/design-skazy
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Récupérer design-skazy, source de la charte (dépôt privé)
-        shell: bash
-        env:
-          JETON: ${{ secrets.DESIGN_SKAZY_TOKEN }}
-        run: |
-          git clone --quiet --depth 1 "https://x-access-token:${JETON}@github.com/gharel/design-skazy.git" "$RUNNER_TEMP/design-skazy"
-          echo "DESIGN_SKAZY=$RUNNER_TEMP/design-skazy" >> "$GITHUB_ENV"
+        uses: actions/checkout@v7
+        with:
+          repository: gharel/design-skazy
+          ssh-key: ${{ secrets.DESIGN_SKAZY_CLE }}
+          persist-credentials: false
+          path: design-skazy
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -76,17 +78,19 @@ jobs:
       matrix:
         systeme: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.systeme }}
+    env:
+      DESIGN_SKAZY: ${{ github.workspace }}/design-skazy
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Récupérer design-skazy, source de la charte (dépôt privé)
-        shell: bash
-        env:
-          JETON: ${{ secrets.DESIGN_SKAZY_TOKEN }}
-        run: |
-          git clone --quiet --depth 1 "https://x-access-token:${JETON}@github.com/gharel/design-skazy.git" "$RUNNER_TEMP/design-skazy"
-          echo "DESIGN_SKAZY=$RUNNER_TEMP/design-skazy" >> "$GITHUB_ENV"
+        uses: actions/checkout@v7
+        with:
+          repository: gharel/design-skazy
+          ssh-key: ${{ secrets.DESIGN_SKAZY_CLE }}
+          persist-credentials: false
+          path: design-skazy
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -101,6 +105,8 @@ jobs:
     name: Publication sur GitHub Pages
     needs: [verifier, installeurs]
     runs-on: ubuntu-latest
+    env:
+      DESIGN_SKAZY: ${{ github.workspace }}/design-skazy
     environment:
       name: github-pages
       url: ${{ steps.deploiement.outputs.page_url }}
@@ -109,12 +115,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: Récupérer design-skazy, source de la charte (dépôt privé)
-        shell: bash
-        env:
-          JETON: ${{ secrets.DESIGN_SKAZY_TOKEN }}
-        run: |
-          git clone --quiet --depth 1 "https://x-access-token:${JETON}@github.com/gharel/design-skazy.git" "$RUNNER_TEMP/design-skazy"
-          echo "DESIGN_SKAZY=$RUNNER_TEMP/design-skazy" >> "$GITHUB_ENV"
+        uses: actions/checkout@v7
+        with:
+          repository: gharel/design-skazy
+          ssh-key: ${{ secrets.DESIGN_SKAZY_CLE }}
+          persist-credentials: false
+          path: design-skazy
       - uses: actions/setup-node@v7
         with:
           node-version: 24

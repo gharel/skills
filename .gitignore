@@ -7,5 +7,7 @@ _site/
 sorties/
 playwright-report/
 test-results/
+# Clone de design-skazy par la CI (la charte se lit dans ce dépôt, sans copie ici)
+design-skazy/
 .DS_Store
 Thumbs.db

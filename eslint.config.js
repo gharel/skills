@@ -10,6 +10,8 @@ export default [
       'sorties/',
       'playwright-report/',
       'test-results/',
+      // Clone de design-skazy par la CI.
+      'design-skazy/',
       'skills/**/assets/',
     ],
   },

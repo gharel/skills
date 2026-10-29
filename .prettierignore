@@ -4,6 +4,7 @@ _site/
 sorties/
 playwright-report/
 test-results/
+design-skazy/
 package-lock.json
 *.py
 skills/**/assets/

@@ -13,7 +13,7 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 ### Dépôt : plus de synchronisation de la charte
 
 - `npm run synchroniser` (`outils/synchroniser-charte.mjs`) est supprimé, et `npm run check` ne le lance plus. `npm run construire` embarque l'export de design-skazy dans chaque `.zip`, recopie le code commun (`charte.py`, icônes, `alignement.json`) dans les skills, et vérifie avec `--verifier` qu'aucune copie de la charte n'est revenue et que les modèles sont alignés.
-- La CI clone design-skazy, dépôt privé, avec le secret `DESIGN_SKAZY_TOKEN`. Les tests Python et `npm run icones` lisent la charte dans design-skazy.
+- La CI clone design-skazy, dépôt privé, avec une clé de déploiement en lecture seule (secret `DESIGN_SKAZY_CLE`). Les tests Python et `npm run icones` lisent la charte dans design-skazy.
 
 ### skazy-support-formation 1.4.1
 

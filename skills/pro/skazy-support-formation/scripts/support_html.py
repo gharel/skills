@@ -36,9 +36,11 @@ GRAS = "sf-e320ef"  # **gras** d'un texte courant
 
 @lru_cache(maxsize=None)
 def feuille() -> str:
-    """Feuille exportée par design-skazy pour le modèle, dans la charte de ce skill (le module charte importé
-    peut venir d'un autre skill, dont la charte n'a pas cette feuille)."""
-    return (Path(__file__).resolve().parent.parent / "assets" / "charte" / "support-formation.css").read_text(encoding="utf-8")
+    """Feuille exportée par design-skazy pour le modèle : celle de design-skazy si le modèle n'a pas changé
+    depuis l'alignement, sinon la copie de ce skill (le module charte importé peut venir d'un autre skill,
+    dont la charte n'a pas cette feuille)."""
+    sources, _ = ch.sources_charte(ch.DESIGN, Path(__file__).resolve().parent.parent / "assets" / "charte")
+    return sources["support-formation.css"].read_text(encoding="utf-8")
 
 
 def propriete(classe: str, nom: str, defaut: str | None = None) -> str:

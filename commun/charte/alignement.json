@@ -1,12 +1,12 @@
 {
-  "design": "3a7e09bfda8d42dd02c2c71d909f63230dc90808",
+  "design": "623a2a47b1bca37019cab5baa01f7d728564575a",
   "modeles": {
     "plan-formation": {
-      "empreinte": "2ecf4bc760c297ecd3b79404484a3cce6acd4e00fcccc6e31dd1a58ee23bcda2",
+      "empreinte": "e2157ad71f1da41b61434652c564ab7b0d527c2cdaf99231b4b21db96771de67",
       "skill": "skazy-plan-formation"
     },
     "support-formation": {
-      "empreinte": "e91d786540f911b5cb81eb9cbf9336cf877110742da2d10481db27afb119b46d",
+      "empreinte": "c1d5507c7c6067530baae51aeb629e4ed7bb6ed8e29b1cfb057233cb6b4ea367",
       "skill": "skazy-support-formation"
     }
   }

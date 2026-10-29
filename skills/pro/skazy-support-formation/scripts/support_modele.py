@@ -222,7 +222,7 @@ def normaliser_support(brut: dict, dossier=None) -> tuple[dict, ch.Rapport]:
             chapitre_courant = slide
             if not slide.get("photo"):
                 num_photo += 1
-                slide["photo"] = cat["photos"][num_photo % 3]
+                slide["photo"] = cat["photos"][num_photo % len(cat["photos"])]
         if t == "a-retenir" and "sousTitre" not in slide and chapitre_courant:
             # Comme le modèle : « Chapitre 1 », puis le titre du chapitre, sur deux lignes.
             slide["sousTitre"] = "Chapitre {}\n{}".format(chapitre_courant["numero"], chapitre_courant.get("titre", ""))

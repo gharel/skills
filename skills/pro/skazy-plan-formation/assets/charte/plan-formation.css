@@ -353,7 +353,7 @@ a{color:var(--ci)}a:hover{color:var(--color-doc-text)}
 .pf-strip-t{display:block;min-width:0;font-size:20px;font-weight:700;line-height:1.15;text-wrap:balance;overflow-wrap:break-word}
 .pf-strip--info{padding:24px 64px}
 .pf-strip--info .pf-strip-t{font-size:22px}
-.pf-pill{flex-shrink:0;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;background:var(--ci);color:#fff;padding:6px 14px;border-radius:999px}
+.pf-pill{flex-shrink:0;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;background:var(--color-doc-bg);color:var(--color-doc-text);padding:6px 14px;border-radius:999px}
 
 /* Couverture : sticker, introduction, encadré, logos, contact */
 .pf-stk{position:absolute;top:68px;right:52px;width:100px;height:100px;transform:rotate(8deg);background:#fff;border-radius:28px;padding:7px;box-shadow:0 6px 14px rgba(0,0,0,.18)}
@@ -389,7 +389,7 @@ a{color:var(--ci)}a:hover{color:var(--color-doc-text)}
 .pf-day:not(:has(.pf-part)){display:none}
 .pf-dayh{margin:0 0 calc(var(--pf-gap) * .8);display:flex;align-items:center;gap:10px;font-size:1.08em;line-height:1.2;font-weight:700;color:var(--color-doc-text);break-after:avoid}
 .pf-dayh::after{content:"";order:3;flex:1;height:2px;border-radius:1px;background:var(--ct)}
-.pf-dayn{order:0;flex-shrink:0;font-size:.85em;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:var(--ci);color:#fff;padding:3px 10px;border-radius:999px}
+.pf-dayn{order:0;flex-shrink:0;font-size:.85em;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:var(--cp,var(--ci));color:var(--cpo,var(--color-white));padding:3px 10px;border-radius:999px}
 .pf-dayt{order:1}
 .pf-dayc{order:2;font-weight:600;color:var(--color-doc-text-muted)}
 .pf-parts{column-count:var(--pf-cols);column-gap:var(--pf-cg);margin-bottom:calc(var(--pf-gap) * -1)}

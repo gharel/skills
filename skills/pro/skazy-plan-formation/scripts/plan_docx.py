@@ -164,15 +164,16 @@ def bandeau_1(couleur, pastilles: list[float]) -> bytes:
     return _fin(im)
 
 
-def bandeau_2(couleur, encre, pastille_l: float, pastille_y: float, pastille_h: float, hauteur: float = BANDEAU_2) -> bytes:
-    """Bandeau de la page 2 et la pastille « Modalités et infos pratiques », alignée sur la marge droite."""
+def bandeau_2(couleur, fond_pastille, pastille_l: float, pastille_y: float, pastille_h: float, hauteur: float = BANDEAU_2) -> bytes:
+    """Bandeau de la page 2 et la pastille « Modalités et infos pratiques » (fond gris du document, comme
+    .pf-pill du modèle), alignée sur la marge droite."""
     from PIL import ImageDraw
 
     im, e = _toile(PAGE_L, hauteur, couleur)
     d = ImageDraw.Draw(im)
     x1 = PAGE_L - MARGE
     d.rounded_rectangle((round((x1 - pastille_l) * e), round(pastille_y * e), round(x1 * e), round((pastille_y + pastille_h) * e)),
-                        round(pastille_h / 2 * e), fill=ch.rgb(encre))
+                        round(pastille_h / 2 * e), fill=ch.rgb(fond_pastille))
     return _fin(im)
 
 
@@ -477,7 +478,7 @@ def rendre_docx(p: dict) -> bytes:
         taille2 = next((t_ for t_ in (16.5, 15.0) if nombre_de_lignes(intitule, t_, largeur_t) == 1), 14.25)
         surplus = max(0.0, ligne(taille2, 0.981) * nombre_de_lignes(intitule, taille2, largeur_t) - 19.5)
         tete = para(doc, multiple=1.0, taille=1)
-        ancre(tete, bandeau_2(c["couleur"], c["encre"], pastille_l, pastille_y + surplus / 2, pastille_h, BANDEAU_2 + surplus),
+        ancre(tete, bandeau_2(c["couleur"], g["fondGris"], pastille_l, pastille_y + surplus / 2, pastille_h, BANDEAU_2 + surplus),
               PAGE_L, BANDEAU_2 + surplus, 0, 0, page=True)
         t = tableau(doc, [largeur_t, 18, pastille_l], hauteur=19.5)
         pt_ = para(cellule(t, 0, centre=True), multiple=0.981, premier=True)
@@ -486,7 +487,7 @@ def rendre_docx(p: dict) -> bytes:
         # Capitales sans jambage : centrée seule, la ligne place le texte 0,86 mm trop bas dans le badge.
         # 4,9 pt d'espace après le remontent de moitié, au centre optique du badge.
         pp = para(cellule(t, 2, centre=True), apres=4.9, multiple=1.0, alignement=WD_ALIGN_PARAGRAPH.CENTER, premier=True)
-        police(pp.add_run(libelle_pastille), 9, gras=True, couleur="#FFFFFF")
+        police(pp.add_run(libelle_pastille), 9, gras=True, couleur=g["texte"])
 
         # Effectif, lieu, tarif : trois cartes grises.
         carte_l, ecart = (UTILE - 21) / 3, 10.5

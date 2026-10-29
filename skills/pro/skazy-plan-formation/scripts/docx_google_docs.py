@@ -546,7 +546,9 @@ def alleger_images(fichiers: dict, messages: list[str], dpi: float, compact: boo
             else:
                 im.save(tampon, "PNG", optimize=True)  # sticker : couleurs vraies, contour lisse
         elif im.convert("RGB").getcolors(4096) is not None:
-            im.convert("RGB").quantize(colors=64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(tampon, "PNG", optimize=True)
+            # Aplats : 64 couleurs, 16 en mode compact (bords un peu moins lissés).
+            im.convert("RGB").quantize(colors=16 if compact else 64, method=Image.Quantize.MEDIANCUT,
+                                       dither=Image.Dither.NONE).save(tampon, "PNG", optimize=True)
         else:
             im.convert("RGB").save(tampon, "PNG", optimize=True)
         avant += len(fichiers[nom])

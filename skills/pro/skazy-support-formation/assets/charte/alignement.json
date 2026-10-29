@@ -1,0 +1,13 @@
+{
+  "design": "623a2a47b1bca37019cab5baa01f7d728564575a",
+  "modeles": {
+    "plan-formation": {
+      "empreinte": "e2157ad71f1da41b61434652c564ab7b0d527c2cdaf99231b4b21db96771de67",
+      "skill": "skazy-plan-formation"
+    },
+    "support-formation": {
+      "empreinte": "c1d5507c7c6067530baae51aeb629e4ed7bb6ed8e29b1cfb057233cb6b4ea367",
+      "skill": "skazy-support-formation"
+    }
+  }
+}

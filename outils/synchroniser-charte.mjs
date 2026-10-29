@@ -8,7 +8,8 @@
  *      Introuvable : étape sautée, commun/charte reste tel quel.
  *   2. commun/charte → chaque skill qui la déclare (metadata.charte dans SKILL.md), pour qu'il reste autonome :
  *        charte: skazy-formation          → scripts/charte.py + assets/charte/ complet (logos, icônes ;
- *                                           <modèle>.css et .js seulement pour le skill skazy-<modèle>)
+ *                                           <modèle>.css et .js, et alignement.json, seulement pour le
+ *                                           skill skazy-<modèle>)
  *        charte: skazy-formation-donnees  → scripts/charte.py + assets/charte/charte.json seulement
  * Avec --verifier, ne copie rien : échoue si une copie diffère de sa source (npm run check, CI), ou si un
  * modèle de design-skazy a changé depuis la dernière comparaison des rendus des skills avec lui
@@ -91,9 +92,13 @@ if (design) {
 async function fichiersCharte(skill, complet) {
   if (!complet) return ['charte.json'];
   const nom = skill.donnees.name;
+  // alignement.json va aux skills d'un modèle : leur charte.py y lit l'empreinte du modèle aligné
+  // avant de reprendre sa feuille de style dans design-skazy.
+  const aligne = Object.values(MODELES_DESIGN).some((m) => m.skill === nom);
   const liste = (await readdir(SOURCE)).filter(
     (f) =>
-      !['charte.py', 'icones', 'origine.json', 'alignement.json'].includes(f) &&
+      !['charte.py', 'icones', 'origine.json'].includes(f) &&
+      (f !== 'alignement.json' || aligne) &&
       (!MODELES.test(f) || nom === `skazy-${f.replace(MODELES, '$1')}`),
   );
   const icones = (await readdir(join(SOURCE, 'icones'))).map((f) => `icones/${f}`);

@@ -1,7 +1,11 @@
 """Accès aux scripts des skills (chaque skill garde sa copie identique de charte.py)."""
 
+import os
 import sys
 from pathlib import Path
+
+# Les rendus testés suivent la copie de la charte du dépôt, jamais le design-skazy du poste.
+os.environ["DESIGN_SKAZY"] = "0"
 
 RACINE = Path(__file__).resolve().parents[2]
 SKILLS = RACINE / "skills" / "pro"

@@ -3,7 +3,7 @@ name: skazy-plan-formation
 description: "Crée, restructure ou enrichit un plan de formation (fiche programme A4 d'une ou deux pages) aux couleurs de Skazy Formation, à partir d'un simple sujet, de notes ou d'un plan existant. Rédige l'intitulé, la description, 3 à 5 objectifs pédagogiques observables (taxonomie de Bloom), les prérequis, le public, la durée, le programme en parties et les modalités, puis produit un HTML imprimable en PDF et un DOCX pour Word ou Google Docs, fidèles au modèle « Plan de formation » du design system Skazy Formation. À utiliser dès que l'on demande un plan de formation, un programme ou une fiche de formation, un déroulé ou un syllabus, même sans citer Skazy."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.4.2'
+  version: '1.5.0'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills
@@ -104,7 +104,7 @@ Le rendu est donc identique quel que soit l'assistant utilisé.
 - `scripts/docx_google_docs.py` : DOCX prêt pour Google Docs (allégé, sans interligne exact), appliqué à chaque rendu et utilisable sur un DOCX retouché ; vérifie aussi la recopie du base64.
 - `scripts/interligne_google_docs.py` : requêtes de correction de l'interligne d'un Google Docs déjà importé.
 - `scripts/comparer_rendus.py` : comparaison du PDF de Google Docs avec celui de Word (demande PyMuPDF).
-- `assets/charte/` : charte du design system design-skazy, seule source de vérité (couleurs, catégories, logos, textes standard de la page 2), avec la feuille de style et les ajustements du modèle « Plan de formation » que reprend le HTML. `scripts/charte.py` la lit et dessine icônes et stickers.
+- `assets/charte/` : charte du design system design-skazy, seule source de vérité (couleurs, catégories, logos, textes standard de la page 2), avec la feuille de style et les ajustements du modèle « Plan de formation » que reprend le HTML. `scripts/charte.py` la lit et dessine icônes et stickers. Si le dépôt design-skazy est sur le poste, `charte.py` lit la charte dans son export avant de produire les fichiers : elle est à jour sans réinstaller le skill. Les modèles ne sont jamais copiés, seulement comparés à l'alignement du skill (`assets/charte/alignement.json`).
 - `references/regles-redaction.md` : règles de rédaction détaillées et calibrage par niveau.
 - `references/format-plan.md` : format du JSON, champ par champ.
 - `references/google-docs.md` : import dans Google Docs à l'identique, par Drive ou par un connecteur, et vérification.

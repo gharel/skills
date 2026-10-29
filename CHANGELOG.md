@@ -4,6 +4,13 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-29
 
+### skazy-plan-formation 1.5.0, skazy-support-formation 1.4.0, skazy-quiz 1.1.0, notation-etudiants 1.1.0
+
+- Charte resynchronisée sur design-skazy (`623a2a4`) et skills réalignés sur ses modèles : `npm run modeles` ne trouve aucun écart (521 textes comparés), l'alignement est verrouillé et `npm run check` passe de nouveau.
+- Plan : la pastille « Modalités et infos pratiques » prend le fond gris et le texte anthracite du document, comme dans le modèle, dans le DOCX aussi. Le HTML définit `--cp` et `--cpo`, couleurs des pastilles à petit texte (couleur et texte -on, ou encre et blanc pour Bureautique, Développement et Web). Le mode compact du DOCX passe ses aplats en 16 couleurs pour rester sous 30 000 caractères de base64.
+- Support : banque de neuf photos par catégorie ; les intercalaires de chapitre les parcourent toutes au lieu de trois.
+- Synchronisation au lancement : `charte.py` lit la charte dans l'export du dépôt design-skazy quand il est sur le poste, sans rien copier et sans jamais lire les modèles autrement que pour leur empreinte. La feuille de style d'un modèle changé depuis l'alignement n'est pas reprise : le skill garde sa version alignée et avertit. `DESIGN_SKAZY=0` s'en passe. Les skills d'un modèle reçoivent `assets/charte/alignement.json`.
+
 ### skazy-support-formation 1.3.2, skazy-plan-formation 1.4.2, skazy-quiz 1.0.7, notation-etudiants 1.0.7
 
 - Images locales : `charte.url_photo` prenait un chemin de fichier pour un identifiant Unsplash, si bien qu'une capture locale restait vide dans les slides `contenu` et `capture`, la photo du formateur et la couverture. Un fichier local est désormais intégré en data URI : le HTML et le PPTX restent autonomes, sans dépendre du dossier des images.

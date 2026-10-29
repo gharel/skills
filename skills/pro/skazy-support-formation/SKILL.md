@@ -3,7 +3,7 @@ name: skazy-support-formation
 description: "Crée le support de formation (diaporama) d'une formation Skazy Formation à partir de son plan de formation (JSON du skill skazy-plan-formation, DOCX, PDF ou simple texte). Découpe chaque partie du programme en slides variées, une idée par slide, avec exercices pratiques, quiz, points à retenir et notes formateur, en suivant les 30 mises en page du modèle « Support de formation » du design system Skazy Formation (couleurs, photos et stickers de la catégorie). Produit un HTML à projeter ou à imprimer en PDF et un PPTX pour PowerPoint ou Google Slides. À utiliser dès que l'on demande un support, un diaporama, des slides, un deck ou une présentation de formation, ou de transformer un plan en support."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.3.2'
+  version: '1.4.0'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills
@@ -87,7 +87,7 @@ Tu rédiges le contenu dans un fichier JSON. Un script produit le HTML et le PPT
 
 - `scripts/rendre_support.py` : contrôle du JSON, puis rendu HTML et PPTX. Il s'appuie sur `support_modele.py`, `support_html.py`, `support_pptx.py` et `charte.py`.
 - `scripts/pptx_google_slides.py` : allège le PPTX (dispositions inutilisées, vignette, images à leur taille d'affichage), appliqué à chaque rendu et utilisable sur un PPTX retouché.
-- `assets/charte/` : charte du design system design-skazy, seule source de vérité (couleurs, catégories, logos, banque de photos). Le rendu reproduit le modèle « Support de formation » de design-skazy. `scripts/charte.py` la lit et dessine icônes et stickers.
+- `assets/charte/` : charte du design system design-skazy, seule source de vérité (couleurs, catégories, logos, banque de photos). Le rendu reproduit le modèle « Support de formation » de design-skazy. `scripts/charte.py` la lit et dessine icônes et stickers. Si le dépôt design-skazy est sur le poste, `charte.py` lit la charte dans son export avant de produire les fichiers : elle est à jour sans réinstaller le skill. Les modèles ne sont jamais copiés, seulement comparés à l'alignement du skill (`assets/charte/alignement.json`).
 - `references/format-support.md` : les 30 types de slides, leurs champs et quand les utiliser.
 - `references/pedagogie.md` : construction du déroulé à partir du plan, rythme, exercices, quiz, notes formateur.
 - `exemples/support-exemple.json` : support complet (Excel, les bases).

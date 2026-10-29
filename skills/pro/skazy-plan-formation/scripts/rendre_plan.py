@@ -212,13 +212,16 @@ addEventListener('beforeprint', ajuster);
 
 
 def fichier_charte(nom: str) -> str:
-    return (ch.DOSSIER_CHARTE / nom).read_text(encoding="utf-8")
+    return ch.fichier_charte(nom).read_text(encoding="utf-8")
 
 
 def rendre_html(p: dict) -> str:
     c = p["_cat"]
-    variables = "--c:{};--ci:{};--ct:{};--co:{};--sk:{};--si:url({})".format(
-        c["couleur"], c["encre"], c["teinte"], c["surCouleur"], c["sticker"], ch.icone_data_uri(c["icone"])
+    # Pastilles à petit texte (--cp, --cpo) : couleur et texte -on, ou encre et blanc là où le -on est blanc.
+    blanc = c["surCouleur"].upper() == "#FFFFFF"
+    variables = "--c:{};--ci:{};--ct:{};--co:{};--cp:{};--cpo:{};--sk:{};--si:url({})".format(
+        c["couleur"], c["encre"], c["teinte"], c["surCouleur"], c["encre"] if blanc else c["couleur"],
+        "#FFFFFF" if blanc else c["surCouleur"], c["sticker"], ch.icone_data_uri(c["icone"])
     )
     parties = []
     for n, partie in enumerate(p["programme"], 1):

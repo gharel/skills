@@ -3,7 +3,7 @@ name: skazy-support-formation
 description: "Crée le support de formation (diaporama) d'une formation Skazy Formation à partir de son plan de formation (JSON du skill skazy-plan-formation, DOCX, PDF ou simple texte). Découpe chaque partie du programme en slides variées, une idée par slide, avec exercices pratiques, quiz, points à retenir et notes formateur, en suivant les 30 mises en page du modèle « Support de formation » du design system Skazy Formation (couleurs, photos et stickers de la catégorie). Produit un HTML à projeter ou à imprimer en PDF et un PPTX pour PowerPoint ou Google Slides. À utiliser dès que l'on demande un support, un diaporama, des slides, un deck ou une présentation de formation, ou de transformer un plan en support."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.3.1'
+  version: '1.3.2'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills

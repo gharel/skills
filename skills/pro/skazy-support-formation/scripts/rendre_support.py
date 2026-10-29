@@ -22,7 +22,7 @@ from support_modele import normaliser_support  # noqa: E402
 
 
 def rendre(chemin_json: str, sortie: str | None = None, formats=("html", "pptx")) -> list[Path]:
-    s, rapport = normaliser_support(ch.lire_json(chemin_json))
+    s, rapport = normaliser_support(ch.lire_json(chemin_json), Path(chemin_json).resolve().parent)
     rapport.afficher()
     if not rapport.ok:
         raise SystemExit(1)
@@ -53,7 +53,7 @@ def main() -> None:
     parser.add_argument("--verifier", action="store_true", help="contrôle le JSON sans rien produire")
     args = parser.parse_args()
     if args.verifier:
-        s, rapport = normaliser_support(ch.lire_json(args.json))
+        s, rapport = normaliser_support(ch.lire_json(args.json), Path(args.json).resolve().parent)
         rapport.afficher()
         if rapport.ok:
             print("Support valide : {} slides.".format(len(s["_slides"])))

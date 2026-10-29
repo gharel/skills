@@ -91,6 +91,37 @@ def test_alias_et_lettre_de_reponse():
     assert s["_slides"][2]["bonne"] == 1
 
 
+def test_images_locales_integrees(tmp_path):
+    """Un fichier local, relatif au JSON ou absolu, est intégré (data URI) : jamais pris pour une photo Unsplash."""
+    from PIL import Image
+
+    Image.new("RGB", (40, 30), "#FF6E3D").save(tmp_path / "capture.png")
+    absolu = (tmp_path / "capture.png").as_posix()
+    slides = [
+        {"type": "couverture"},
+        {"type": "contenu", "titre": "Notion", "image": "capture.png"},
+        {"type": "capture", "titre": "Interface", "image": absolu, "reperes": [{"titre": "Bouton", "texte": "Ici", "x": 50, "y": 50}]},
+        {"type": "avant-apres", "titre": "Comparer", "avant": {"texte": "A", "image": "capture.png"}, "apres": {"texte": "B", "image": "absent.png"}},
+        {"type": "pas-a-pas", "titre": "Étapes", "etapes": [{"texte": "Un", "image": "capture.png"}, {"texte": "Deux"}, {"texte": "Trois"}]},
+        {"type": "evaluation", "qrCode": "capture.png"},
+    ]
+    donnees = json.loads(EXEMPLE.read_text(encoding="utf-8"))
+    donnees["formation"]["photoFormateur"] = "capture.png"
+    s, rapport = m.normaliser_support(dict(donnees, slides=slides), tmp_path)
+    contenu, capture, comparer, etapes, evaluation = s["_slides"][1:6]
+    for url in (contenu["image"], capture["image"], comparer["avant"]["image"], etapes["etapes"][0]["image"], evaluation["qrCode"]):
+        assert url.startswith("data:image/png;base64,")
+    assert comparer["apres"]["image"].startswith("https://images.unsplash.com/")  # introuvable : signalé
+    assert any("absent.png" in a for a in rapport.avertissements)
+    assert not any("capture.png" in a for a in rapport.avertissements)
+
+    from support_html import rendre_html
+
+    assert "unsplash.com/capture" not in rendre_html(s)
+    images = [sh for sh in presentation(s).slides[1].shapes if sh.shape_type == 13 and abs(sh.width - 704 * PX) <= 2 * PX]
+    assert images, "la capture du contenu doit être posée dans le PPTX"
+
+
 def test_html():
     from support_html import rendre_html
 

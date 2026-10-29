@@ -4,6 +4,12 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-29
 
+### skazy-support-formation 1.3.2, skazy-plan-formation 1.4.2, skazy-quiz 1.0.7, notation-etudiants 1.0.7
+
+- Images locales : `charte.url_photo` prenait un chemin de fichier pour un identifiant Unsplash, si bien qu'une capture locale restait vide dans les slides `contenu` et `capture`, la photo du formateur et la couverture. Un fichier local est désormais intégré en data URI : le HTML et le PPTX restent autonomes, sans dépendre du dossier des images.
+- Support : les chemins relatifs se lisent depuis le dossier du JSON (`captures/interface.png`). Les images de `avant`, `apres`, des étapes du `pas-a-pas` et le `qrCode` sont intégrées de la même façon, et une image introuvable est signalée par un avertissement.
+- Les autres skills reçoivent la nouvelle copie de `charte.py` (`fichier_local`, `url_photo`), sans changement de rendu.
+
 ### Dépôt : page de documentation
 
 - Nouvelle page `documentation.html`, reliée au catalogue (héros, section d'installation, pied) : installation par assistant et par système (Windows, macOS, Linux, WSL, Git Bash), fonctionnement de la commande, options, mise à jour automatique, désinstallation, usage des skills (chaîne plan, support, quiz ; notation UNC), statuts et dépannage.

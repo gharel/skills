@@ -153,9 +153,19 @@ def type_slide(nom: str) -> str | None:
     return cle if cle in TYPES else None
 
 
-def normaliser_support(brut: dict) -> tuple[dict, ch.Rapport]:
-    """Valeurs par défaut, numérotation, photos et contrôle du contenu."""
+def normaliser_support(brut: dict, dossier=None) -> tuple[dict, ch.Rapport]:
+    """Valeurs par défaut, numérotation, photos et contrôle du contenu.
+
+    `dossier` : dossier du JSON, auquel se rapportent les chemins d'images relatifs.
+    """
     r = ch.Rapport()
+
+    def image(valeur: str, ou: str) -> str:
+        """URL d'une image ; un fichier local est intégré (data URI), un fichier introuvable est signalé."""
+        if ch.IMAGE_LOCALE.search(valeur) and not valeur.startswith(("http://", "https://", "data:")) and not ch.fichier_local(valeur, dossier):
+            r.avertir("{} : image introuvable « {} » (chemin relatif au dossier du JSON).".format(ou, valeur))
+        return ch.url_photo(valeur, dossier=dossier)
+
     s = copy.deepcopy(brut.get("support", brut))
     if s.get("format") not in (None, FORMAT):
         r.erreur("format attendu « {} », reçu « {} ».".format(FORMAT, s.get("format")))
@@ -181,7 +191,7 @@ def normaliser_support(brut: dict) -> tuple[dict, ch.Rapport]:
     f["role"] = f.get("role") or ch.CONTACT["role"]
     f["stickers"] = f.get("stickers", True) is not False
     f["animations"] = f.get("animations", True) is not False
-    f["_couverture"] = ch.url_photo(f.get("photoCouverture") or cat["photos"][0])
+    f["_couverture"] = image(f.get("photoCouverture") or cat["photos"][0], "formation")
     s["formation"] = f
 
     slides = []
@@ -243,9 +253,17 @@ def normaliser_support(brut: dict) -> tuple[dict, ch.Rapport]:
             if not isinstance(bonne, int) or not 0 <= bonne < len(props):
                 r.erreur("slide {} (quiz) : « bonne » doit être l'indice (0 à {}) de la bonne proposition.".format(i, len(props) - 1))
             slide["bonne"] = bonne
-        for champ in ("photo", "image"):
+        ou = "slide {} ({})".format(i, t)
+        for champ in ("photo", "image", "qrCode"):
             if isinstance(slide.get(champ), str):
-                slide[champ] = ch.url_photo(slide[champ])
+                slide[champ] = image(slide[champ], ou)
+        # Images imbriquées : avant et après, étapes du pas-à-pas.
+        for champ in ("avant", "apres"):
+            if isinstance(slide.get(champ), dict) and isinstance(slide[champ].get("image"), str):
+                slide[champ] = dict(slide[champ], image=image(slide[champ]["image"], ou))
+        if isinstance(slide.get("etapes"), list):
+            slide["etapes"] = [dict(e, image=image(e["image"], ou)) if isinstance(e, dict) and isinstance(e.get("image"), str) else e
+                               for e in slide["etapes"]]
         slides.append(slide)
 
     # Numérotation des quiz : « Question 2 sur 5 » dans chaque suite de slides quiz.

@@ -16,6 +16,7 @@ import base64
 import html
 import io
 import json
+import mimetypes
 import re
 import sys
 import unicodedata
@@ -149,12 +150,29 @@ def variante_logo(cat: dict) -> str:
     return "blanc" if cat["surCouleur"].upper() == "#FFFFFF" else "couleur"
 
 
-def url_photo(photo: str, largeur: int = 1800) -> str:
-    """Identifiant Unsplash de la banque validée (photo-…) ou URL complète."""
+IMAGE_LOCALE = re.compile(r"\.(png|jpe?g|gif|webp|svg)$", re.IGNORECASE)
+
+
+def fichier_local(chemin: str, dossier: str | Path | None = None) -> Path | None:
+    """Fichier image local : chemin absolu, ou relatif au dossier donné (celui du JSON), puis au dossier courant."""
+    if not chemin or chemin.startswith(("http://", "https://", "data:")):
+        return None
+    candidats = [Path(chemin)]
+    if dossier and not candidats[0].is_absolute():
+        candidats.insert(0, Path(dossier) / chemin)
+    return next((c for c in candidats if c.is_file()), None)
+
+
+def url_photo(photo: str, largeur: int = 1800, dossier: str | Path | None = None) -> str:
+    """Identifiant Unsplash de la banque validée (photo-…), URL complète, ou fichier local intégré en data URI."""
     if not photo:
         return ""
     if photo.startswith(("http://", "https://", "data:")):
         return photo
+    fichier = fichier_local(photo, dossier)
+    if fichier:
+        type_mime = mimetypes.guess_type(fichier.name)[0] or "image/png"
+        return "data:{};base64,{}".format(type_mime, base64.b64encode(fichier.read_bytes()).decode())
     return "https://images.unsplash.com/{}?w={}&q=75&auto=format&fit=crop".format(photo, largeur)
 
 

@@ -14,7 +14,11 @@ Dans tous les textes :
 - le gras s'écrit `**ainsi**` ;
 - les espaces insécables de la typographie française sont ajoutés automatiquement.
 
-Une image (`photo`, `image`, `qrCode`) peut prendre trois formes : une URL `https://…`, un identifiant de la banque Unsplash validée (`photo-1616587226960-4a03badbe8bf`) ou un chemin de fichier local.
+Une image (`photo`, `image`, `qrCode`, `photoFormateur`, `photoCouverture`, images de `avant`, `apres` et des étapes du `pas-a-pas`) peut prendre trois formes :
+
+- une URL `https://…` ;
+- un identifiant de la banque Unsplash validée (`photo-1616587226960-4a03badbe8bf`) ;
+- un chemin de fichier local, absolu ou relatif au dossier du JSON (`captures/interface.png`). L'image est intégrée au HTML et au PPTX, qui restent autonomes. Un fichier introuvable est signalé par un avertissement.
 
 ## Bloc `formation`
 

@@ -3,7 +3,7 @@ name: skazy-quiz
 description: "Crée le quiz d'évaluation d'une formation à partir de son support de formation (JSON du skill skazy-support-formation, PPTX, PDF, HTML ou texte) ou d'un cours, sans rien inventer d'absent du support. Questions progressives (QCM, choix multiples, vrai ou faux, réponse libre, curseur, remise en ordre) avec bonnes réponses et explications. Trois sorties au choix : fichier d'import Kahoot (.xlsx), script Google Forms (formulaire en mode quiz) ou JSON pour le Quiz de Skazy Formation, avec un lien direct qui ouvre le quiz. À utiliser dès que l'on demande un quiz, un QCM, un vrai ou faux, un questionnaire d'évaluation, un test de positionnement ou un Kahoot à partir d'un support ou d'un cours."
 license: Propriétaire. Réservé à Skazy Formation.
 metadata:
-  version: '1.1.0'
+  version: '1.2.0'
   categorie: pro
   auteur: Guillaume Harel, Skazy Formation
   source: https://github.com/gharel/skills

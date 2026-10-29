@@ -3,7 +3,7 @@
 Reproduit les 30 mises en page du modèle « 4. Support de formation par catégorie » du Skazy Formation
 Design System (design-skazy, templates/support-formation).
 
-Tout le design vient de la feuille que design-skazy exporte pour ce modèle (assets/charte/support-formation.css),
+Tout le design vient de la feuille que design-skazy exporte pour ce modèle (charte/support-formation.css),
 incluse telle quelle dans la page : jetons, styles.css du design system, styles du modèle, puis une classe
 `sf-xxxxxx` par style en ligne du modèle (xxxxxx : début du SHA-1 du style). Chaque élément reprend la classe
 de l'élément équivalent du modèle ; un attribut style ne porte que ce qui dépend du contenu (positions, nombre

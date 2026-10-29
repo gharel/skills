@@ -59,12 +59,12 @@ def test_html_reprend_le_modele():
 
 
 def test_html_reprend_la_feuille_de_style_du_design_system():
-    """Feuille de style et ajustements du modèle plan-formation de design-skazy, recopiés tels quels ;
+    """Feuille de style et ajustements du modèle plan-formation de design-skazy, repris tels quels ;
     le balisage n'emploie que ses classes (plus celles de la barre d'outils et de la page à l'écran)."""
     p, _ = plan()
     html = r.rendre_html(p)
-    css = (r.ch.DOSSIER_CHARTE / "plan-formation.css").read_text(encoding="utf-8")
-    assert css in html and (r.ch.DOSSIER_CHARTE / "plan-formation.js").read_text(encoding="utf-8") in html
+    css = r.ch.fichier_charte("plan-formation.css").read_text(encoding="utf-8")
+    assert css in html and r.ch.fichier_charte("plan-formation.js").read_text(encoding="utf-8") in html
     corps = html.split("<main>")[1].split("</main>")[0]
     classes = {c for attr in re.findall(r'class="([^"]+)"', corps) for c in attr.split()}
     for c in classes - {"page", "lk"}:

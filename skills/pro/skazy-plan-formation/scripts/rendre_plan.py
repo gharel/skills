@@ -190,8 +190,8 @@ def estimer_charge(p: dict) -> float:
 
 
 # Le design des pages est celui du modèle « plan-formation » de design-skazy : sa feuille de style et ses
-# ajustements (titres, densité du programme, pages de suite) sont recopiés tels quels dans assets/charte/
-# (npm run synchroniser). Ce module n'ajoute que la présentation à l'écran et l'impression.
+# ajustements (titres, densité du programme, pages de suite) sont repris tels quels de son export (charte/ de
+# design-skazy, voir charte.fichier_charte). Ce module n'ajoute que la présentation à l'écran et l'impression.
 CSS_ECRAN = """
 html,body{margin:0}
 body{background:var(--color-gray-200);-webkit-print-color-adjust:exact;print-color-adjust:exact}

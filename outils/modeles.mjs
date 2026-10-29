@@ -6,8 +6,8 @@
  * celui des modèles, repris comme données de test dans tests/modeles/*.json. Pour chaque
  * texte du modèle, le texte identique du skill doit être à la même place (1 px près), de la même taille, avec
  * la même police, le même interligne, la même graisse et la même couleur. Sans écart, l'empreinte des modèles
- * est verrouillée dans commun/charte/alignement.json : npm run check refuse ensuite un modèle changé dans
- * design-skazy tant que cette comparaison n'a pas été refaite.
+ * est verrouillée dans commun/charte/alignement.json (npm run construire la recopie dans les skills) : npm run
+ * check refuse ensuite un modèle changé dans design-skazy tant que cette comparaison n'a pas été refaite.
  *
  * Demande design-skazy ($DESIGN_SKAZY ou ../design-skazy) et un Python qui a les dépendances des skills
  * ($PYTHON, sinon « python »). Usage : npm run modeles [-- plan-formation|support-formation]
@@ -43,7 +43,7 @@ if (!design) {
   );
   process.exit(1);
 }
-// Rendus HTML des skills pour le contenu des modèles.
+// Rendus HTML des skills pour le contenu des modèles, avec la charte du même design-skazy.
 const SORTIE = join(RACINE, 'sorties/modeles');
 await mkdir(SORTIE, { recursive: true });
 const python = process.env.PYTHON || 'python';
@@ -52,7 +52,7 @@ for (const [nom, c] of Object.entries(CAS)) {
   const sortie = execFileSync(
     python,
     [join(RACINE, c.script), join(RACINE, c.json), '--sortie', SORTIE, '--formats', 'html'],
-    { encoding: 'utf8', env: { ...process.env, PYTHONIOENCODING: 'utf-8' } },
+    { encoding: 'utf8', env: { ...process.env, DESIGN_SKAZY: design, PYTHONIOENCODING: 'utf-8' } },
   );
   rendus[nom] = sortie.trim().split(/\r?\n/).pop().trim();
 }
@@ -226,6 +226,6 @@ if (choix.length) {
   );
   await writeFile(ALIGNEMENT, JSON.stringify({ design: commit, modeles }, null, 2) + '\n');
   console.log(
-    'Rendus identiques aux modèles : alignement verrouillé dans commun/charte/alignement.json.',
+    'Rendus identiques aux modèles : alignement verrouillé dans commun/charte/alignement.json. Lancez npm run construire pour le recopier dans les skills.',
   );
 }

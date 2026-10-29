@@ -4,13 +4,17 @@
  *     installeurs) ;
  *   - telechargements/<skill>.zip (Claude.ai, ChatGPT) et <skill>.md (version un fichier) ;
  *   - icones/<skill>.svg (sticker affiché par le catalogue) ;
- *   - .claude-plugin/marketplace.json à la racine du dépôt (plugins Claude Code).
- * Avec --verifier : contrôles seulement (spécification, versions, marketplace à jour), sans écrire.
+ *   - .claude-plugin/marketplace.json à la racine du dépôt (plugins Claude Code) ;
+ *   - le code commun recopié dans les skills (charte.py, icônes, alignement : voir la section 2).
+ * La charte n'a pas de copie dans ce dépôt : elle est lue dans design-skazy ($DESIGN_SKAZY, sinon
+ * ../design-skazy), et chaque .zip embarque son export dans assets/charte.
+ * Avec --verifier : contrôles seulement (spécification, versions, code commun, alignement des modèles de
+ * design-skazy, marketplace à jour), sans écrire.
  * Variable BASE : commit de comparaison pour les versions (par défaut HEAD).
  */
 import { readFile, writeFile, mkdir, rm, cp, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname, relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { zipSync } from 'fflate';
 import {
@@ -21,6 +25,12 @@ import {
   listerSkills,
   controler,
   lireFrontmatter,
+  CHARTE_DESIGN,
+  MODELES,
+  ALIGNEMENT,
+  empreintesModeles,
+  trouverDesign,
+  DESIGN_INTROUVABLE,
 } from './skills.mjs';
 
 const verifier = process.argv.includes('--verifier');
@@ -86,7 +96,72 @@ if (!/^0+$/.test(base) && git('rev-parse', '--verify', '--quiet', `${base}^{comm
   }
 }
 
-// ── 2. Place de marché Claude Code ───────────────────────
+// ── 2. Charte et code commun ─────────────────────────────
+// La charte vient de design-skazy, sans copie ici. Le code commun, lui, est recopié dans chaque skill qui
+// déclare metadata.charte, pour qu'il reste autonome une fois installé :
+//   scripts/charte.py              commun/charte/charte.py ;
+//   assets/charte/icones/          icônes Lucide (npm run icones), charte complète seulement ;
+//   assets/charte/alignement.json  empreinte des modèles (npm run modeles), skills d'un modèle seulement.
+const design = trouverDesign();
+if (!design) erreurs.push(DESIGN_INTROUVABLE);
+const COMMUN = join(RACINE, 'commun/charte');
+const communAEcrire = [];
+for (const s of skills) {
+  const charte = s.donnees.metadata?.charte;
+  const attendus = new Map(); // chemin dans le skill → source
+  if (charte) attendus.set('scripts/charte.py', join(COMMUN, 'charte.py'));
+  if (charte === 'skazy-formation') {
+    for (const f of await readdir(join(COMMUN, 'icones')))
+      attendus.set(`assets/charte/icones/${f}`, join(COMMUN, 'icones', f));
+    if (Object.values(MODELES).some((m) => m.skill === s.nom))
+      attendus.set('assets/charte/alignement.json', ALIGNEMENT);
+  }
+  for (const [chemin, source] of attendus) {
+    const contenu = await readFile(source);
+    const cible = join(s.dossier, chemin);
+    if (existsSync(cible) && (await readFile(cible)).equals(contenu)) continue;
+    if (verifier)
+      erreurs.push(
+        `${s.chemin}/${chemin} diffère de ${relative(RACINE, source).replaceAll('\\', '/')} : lancez npm run construire.`,
+      );
+    else communAEcrire.push([cible, contenu]);
+  }
+  for (const f of s.fichiers.filter((f) => f.startsWith('assets/charte/') && !attendus.has(f)))
+    erreurs.push(
+      `${s.chemin}/${f} : fichier en trop (la charte se lit dans design-skazy, sans copie ici).`,
+    );
+}
+for (const nom of Object.values(CHARTE_DESIGN))
+  if (existsSync(join(COMMUN, nom)))
+    erreurs.push(
+      `commun/charte/${nom} : copie de design-skazy à supprimer (la charte se lit dans design-skazy).`,
+    );
+
+// Les rendus des skills plan et support ont été comparés à la version actuelle des modèles de design-skazy.
+if (design) {
+  const verrou = existsSync(ALIGNEMENT)
+    ? JSON.parse(await readFile(ALIGNEMENT, 'utf8')).modeles
+    : {};
+  for (const [nom, empreinte] of Object.entries(await empreintesModeles(design)))
+    if (verrou?.[nom]?.empreinte !== empreinte) {
+      const message = `le modèle ${nom} a changé dans design-skazy depuis la dernière comparaison avec le skill ${MODELES[nom].skill} : réalignez le skill, puis lancez npm run modeles.`;
+      if (verifier) erreurs.push(message);
+      else console.warn('ATTENTION : ' + message);
+    }
+}
+
+/** Export de design-skazy embarqué dans le .zip d'un skill : [chemin dans design-skazy, nom]. */
+function chartePour(s) {
+  const charte = s.donnees.metadata?.charte;
+  if (!charte) return [];
+  return Object.entries(CHARTE_DESIGN).filter(([, nom]) => {
+    if (charte !== 'skazy-formation') return nom === 'charte.json';
+    const modele = Object.keys(MODELES).find((m) => nom.startsWith(`${m}.`));
+    return !modele || MODELES[modele].skill === s.nom;
+  });
+}
+
+// ── 3. Place de marché Claude Code ───────────────────────
 const marketplace = {
   name: 'gharel-skills',
   owner: { name: 'Guillaume Harel', url: 'https://github.com/gharel' },
@@ -123,8 +198,14 @@ if (verifier) {
 
 await mkdir(join(RACINE, '.claude-plugin'), { recursive: true });
 await writeFile(cheminMarketplace, texteMarketplace);
+for (const [cible, contenu] of communAEcrire) {
+  await mkdir(dirname(cible), { recursive: true });
+  await writeFile(cible, contenu);
+}
+if (communAEcrire.length)
+  console.log(`${communAEcrire.length} fichier(s) de code commun recopié(s) dans les skills.`);
 
-// ── 3. Site ──────────────────────────────────────────────
+// ── 4. Site ──────────────────────────────────────────────
 await rm(SITE, { recursive: true, force: true });
 await cp(join(RACINE, 'site'), SITE, { recursive: true });
 await mkdir(join(SITE, 'telechargements'), { recursive: true });
@@ -200,10 +281,13 @@ for (const s of skills) {
   if (s.statut === 'retire') continue;
   entree.zip = `telechargements/${s.nom}.zip`;
   entree.md = `telechargements/${s.nom}.md`;
-  // Zip : le dossier du skill à la racine de l'archive (format attendu par Claude.ai et ChatGPT).
+  // Zip : le dossier du skill à la racine de l'archive (format attendu par Claude.ai et ChatGPT), avec
+  // l'export de design-skazy dans assets/charte, où charte.py le lit quand design-skazy n'est pas là.
   const entrees = {};
   for (const f of s.fichiers)
     entrees[`${s.nom}/${f}`] = new Uint8Array(await readFile(join(s.dossier, f)));
+  for (const [depuis, nom] of chartePour(s))
+    entrees[`${s.nom}/assets/charte/${nom}`] = new Uint8Array(await readFile(join(design, depuis)));
   await writeFile(
     join(SITE, 'telechargements', `${s.nom}.zip`),
     zipSync(entrees, { level: 9, mtime: new Date(date) }),
@@ -232,7 +316,7 @@ await writeFile(
   ].join('\n') + '\n',
 );
 
-// ── 4. Catalogue dans index.html ─────────────────────────
+// ── 5. Catalogue dans index.html ─────────────────────────
 function badgeStatut(s) {
   if (s.statut === 'disponible') return '<li class="badge badge--statut">Sur demande</li>';
   if (s.statut === 'deprecie')

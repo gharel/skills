@@ -4,6 +4,17 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-29
 
+### skazy-plan-formation 1.6.0, skazy-support-formation 1.5.0, skazy-quiz 1.2.0, notation-etudiants 1.2.0
+
+- La charte se lit dans design-skazy, sans copie dans ce dépôt : `charte.json`, les feuilles des modèles et les logos ne sont plus dans `assets/charte` des skills ni dans `commun/charte`. `charte.py` les lit dans le dépôt design-skazy du poste (`DESIGN_SKAZY`, ou dossier `design-skazy` voisin), sinon dans l'export que le `.zip` embarque (`npm run construire`). Sans l'un ni l'autre, il s'arrête et dit comment l'obtenir.
+- Plan et support réalignés sur les modèles actuels de design-skazy (`65752f8`, logos liés au site et exports Word et PowerPoint) : `npm run modeles` ne trouve aucun écart (521 textes comparés). Le HTML reprend leurs nouvelles feuilles de style (`.lk-logo`, `font-kerning:none` dans le plan).
+- Un modèle changé depuis l'alignement fait toujours avertir le skill. Celui d'un `.zip` garde sa feuille alignée ; celui du dépôt prend la nouvelle.
+
+### Dépôt : plus de synchronisation de la charte
+
+- `npm run synchroniser` (`outils/synchroniser-charte.mjs`) est supprimé, et `npm run check` ne le lance plus. `npm run construire` embarque l'export de design-skazy dans chaque `.zip`, recopie le code commun (`charte.py`, icônes, `alignement.json`) dans les skills, et vérifie avec `--verifier` qu'aucune copie de la charte n'est revenue et que les modèles sont alignés.
+- La CI clone design-skazy, dépôt privé, avec le secret `DESIGN_SKAZY_TOKEN`. Les tests Python et `npm run icones` lisent la charte dans design-skazy.
+
 ### skazy-support-formation 1.4.1
 
 - Images rognées au centre : la photo ajoutée à la slide « Questions » était calée sur son bord droit, un réglage du modèle propre à sa photo par défaut. Elle est désormais rognée au centre, dans le HTML (`background-position:center`) comme dans le PPTX. La photo du modèle reste calée à droite.

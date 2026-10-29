@@ -1,6 +1,8 @@
 # À chaque push sur main : on vérifie les skills (format, charte, versions, rendus Python, site),
 # puis on construit le site (catalogue, téléchargements) et on le publie sur GitHub Pages.
 # Le site n'est publié que si tout passe.
+# La charte se lit dans le dépôt privé gharel/design-skazy, que chaque job clone : le secret
+# DESIGN_SKAZY_TOKEN est un jeton d'accès en lecture seule au contenu de ce dépôt.
 name: Vérifier puis publier sur GitHub Pages
 
 on:
@@ -25,6 +27,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Récupérer design-skazy, source de la charte (dépôt privé)
+        shell: bash
+        env:
+          JETON: ${{ secrets.DESIGN_SKAZY_TOKEN }}
+        run: |
+          git clone --quiet --depth 1 "https://x-access-token:${JETON}@github.com/gharel/design-skazy.git" "$RUNNER_TEMP/design-skazy"
+          echo "DESIGN_SKAZY=$RUNNER_TEMP/design-skazy" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -38,7 +47,7 @@ jobs:
           python -m pip install --quiet python-docx python-pptx openpyxl pillow pytest
       - name: Installer Chromium pour Playwright
         run: npx playwright install --with-deps chromium
-      - name: Format, charte synchronisée, skills conformes et versions montées
+      - name: Format, skills conformes, code commun, alignement des modèles et versions montées
         run: npm run check
         env:
           BASE: ${{ github.event.before }}
@@ -71,6 +80,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Récupérer design-skazy, source de la charte (dépôt privé)
+        shell: bash
+        env:
+          JETON: ${{ secrets.DESIGN_SKAZY_TOKEN }}
+        run: |
+          git clone --quiet --depth 1 "https://x-access-token:${JETON}@github.com/gharel/design-skazy.git" "$RUNNER_TEMP/design-skazy"
+          echo "DESIGN_SKAZY=$RUNNER_TEMP/design-skazy" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -92,6 +108,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Récupérer design-skazy, source de la charte (dépôt privé)
+        shell: bash
+        env:
+          JETON: ${{ secrets.DESIGN_SKAZY_TOKEN }}
+        run: |
+          git clone --quiet --depth 1 "https://x-access-token:${JETON}@github.com/gharel/design-skazy.git" "$RUNNER_TEMP/design-skazy"
+          echo "DESIGN_SKAZY=$RUNNER_TEMP/design-skazy" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v7
         with:
           node-version: 24

@@ -1,16 +1,23 @@
 /**
  * npm run icones : icônes Lucide (version figée du design system) en PNG noir, 256 px, fond transparent,
- * et en SVG, pour les rendus HTML, DOCX et PPTX. Les logos viennent de design-skazy (npm run synchroniser).
- * À relancer seulement si la liste des icônes change, puis npm run synchroniser.
+ * et en SVG, pour les rendus HTML, DOCX et PPTX. Les icônes des catégories sont lues dans la charte de
+ * design-skazy. À relancer seulement si la liste des icônes change, puis npm run construire.
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Resvg } from '@resvg/resvg-js';
+import { trouverDesign, DESIGN_INTROUVABLE } from './skills.mjs';
 
 const CHARTE = fileURLToPath(new URL('../commun/charte/', import.meta.url));
 const LUCIDE = fileURLToPath(new URL('../node_modules/lucide-static/icons/', import.meta.url));
 
-const charte = JSON.parse(await readFile(`${CHARTE}charte.json`, 'utf8'));
+const design = trouverDesign();
+if (!design) {
+  console.error(DESIGN_INTROUVABLE);
+  process.exit(1);
+}
+const charte = JSON.parse(await readFile(join(design, 'charte/charte.json'), 'utf8'));
 
 // Icônes des catégories + icônes des stickers et des mises en page du support.
 const ICONES = [

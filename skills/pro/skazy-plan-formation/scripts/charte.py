@@ -1,21 +1,22 @@
 """Charte Skazy Formation partagée par les scripts des skills Pro.
 
-La charte (couleurs, catégories, photos, contact, logos, textes standard du plan) vient du design system
-design-skazy (github.com/gharel/design-skazy), seule source de vérité : assets/charte/charte.json et les
-logos en sont des copies (npm run synchroniser), jamais modifiées à la main.
+La charte (couleurs, catégories, photos, contact, logos, textes standard du plan, feuilles de style des
+modèles) vient du design system design-skazy (github.com/gharel/design-skazy), seule source de vérité. Le
+dépôt gharel/skills n'en garde aucune copie : ce module la lit dans le dépôt design-skazy du poste
+($DESIGN_SKAZY, sinon un dossier design-skazy à côté du skill, du dossier courant ou de l'un de leurs
+parents, ou ~/www/design-skazy), dans son export charte/ et ses logos. Sans design-skazy, il la lit dans
+assets/charte, où le .zip du skill (npm run construire) embarque cet export. DESIGN_SKAZY=0 n'utilise que
+ce dernier.
 
 Ce module est le code commun : commun/charte/charte.py du dépôt gharel/skills, recopié à l'identique dans
 scripts/charte.py de chaque skill pour qu'il reste autonome une fois installé. Il lit la charte et fournit
 icônes Lucide, logos, stickers (Pillow), typographie française (espaces insécables), gras en ligne
 (**texte**) et petits utilitaires.
 
-Synchronisation au lancement : si le dépôt design-skazy est sur le poste ($DESIGN_SKAZY, sinon un dossier
-design-skazy à côté du skill, du dossier courant ou de l'un de leurs parents, ou ~/www/design-skazy), la
-charte est lue dans son export (charte/, logos) plutôt que dans la copie du skill : elle est à jour sans
-réinstaller le skill. Rien n'est copié, et les modèles (templates/) ne sont lus que pour leur empreinte : la
-feuille de style d'un modèle ne vient de design-skazy que si ce modèle n'a pas changé depuis l'alignement
-du skill (assets/charte/alignement.json) ; sinon le rendu garde la version alignée et un avertissement
-demande de réaligner le skill. DESIGN_SKAZY=0 s'en passe.
+Les modèles de design-skazy (templates/) ne sont lus que pour leur empreinte, comparée à celle de
+l'alignement du skill (assets/charte/alignement.json, npm run modeles). Si un modèle a changé depuis, un
+avertissement demande de réaligner le skill, et le rendu garde la feuille de style alignée quand le .zip
+l'embarque.
 """
 
 from __future__ import annotations
@@ -37,7 +38,7 @@ from pathlib import Path
 DOSSIER_SKILL = Path(__file__).resolve().parent.parent
 DOSSIER_CHARTE = DOSSIER_SKILL / "assets" / "charte"
 
-# Export de design-skazy : chemin dans design-skazy → nom dans assets/charte.
+# Export de design-skazy : chemin dans design-skazy → nom dans assets/charte du .zip.
 EXPORT = {
     "charte/charte.json": "charte.json",
     "charte/plan-formation.css": "plan-formation.css",
@@ -65,13 +66,17 @@ def trouver_design() -> Path | None:
     return next((d for d in candidats if (d / "charte" / "charte.json").is_file()), None)
 
 
-def sources_charte(design: Path | None, dossier: Path = DOSSIER_CHARTE) -> tuple[dict[str, Path], list[str]]:
-    """Fichier lu pour chaque élément de la charte du skill, et avertissements.
+def sources_charte(
+    design: Path | None, dossier: Path = DOSSIER_CHARTE, skill: str = DOSSIER_SKILL.name
+) -> tuple[dict[str, Path], list[str]]:
+    """Fichier lu pour chaque élément de la charte, et avertissements.
 
-    Seuls les fichiers que le skill embarque sont concernés. L'export de design-skazy l'emporte, sauf pour
-    la feuille d'un modèle changé depuis l'alignement du skill.
+    L'export de design-skazy l'emporte sur celui que le .zip embarque dans assets/charte, sauf pour la
+    feuille d'un modèle changé depuis l'alignement du skill, quand le .zip l'embarque. Seul le modèle du
+    skill (skazy-<modèle>) est comparé à l'alignement.
     """
-    sources = {f.name: f for f in dossier.iterdir() if f.is_file() and f.name in EXPORT.values()}
+    embarques = {f.name: f for f in dossier.iterdir() if f.is_file() and f.name in EXPORT.values()} if dossier.is_dir() else {}
+    sources = dict(embarques)
     avertissements: list[str] = []
     if not design:
         return sources, avertissements
@@ -79,18 +84,23 @@ def sources_charte(design: Path | None, dossier: Path = DOSSIER_CHARTE) -> tuple
     verrou = json.loads(alignement.read_text(encoding="utf-8")).get("modeles", {}) if alignement.is_file() else {}
     perimes = set()
     for modele, (gabarit, feuilles) in MODELES.items():
-        if not any(f in sources for f in feuilles):
+        if skill != "skazy-" + modele:
             continue
         chemin = design / gabarit
         empreinte = hashlib.sha256(chemin.read_bytes()).hexdigest() if chemin.is_file() else None
-        if empreinte != verrou.get(modele, {}).get("empreinte"):
+        if empreinte == verrou.get(modele, {}).get("empreinte"):
+            continue
+        alignees = all(f in embarques for f in feuilles)
+        if alignees:
             perimes.update(feuilles)
-            avertissements.append(
-                "ATTENTION : le modèle {} a changé dans design-skazy depuis l'alignement de ce skill : rendu selon la "
-                "version alignée. Réalignez le skill (dépôt gharel/skills : npm run synchroniser, puis npm run modeles).".format(modele)
+        avertissements.append(
+            "ATTENTION : le modèle {} a changé dans design-skazy depuis l'alignement de ce skill : rendu selon {}. "
+            "Réalignez le skill (dépôt gharel/skills : npm run modeles).".format(
+                modele, "la version alignée" if alignees else "sa nouvelle version, peut-être décalé du modèle"
             )
+        )
     for chemin, nom in EXPORT.items():
-        if nom in sources and nom not in perimes and (design / chemin).is_file():
+        if nom not in perimes and (design / chemin).is_file():
             sources[nom] = design / chemin
     return sources, avertissements
 
@@ -102,8 +112,14 @@ for _message in _avertissements:
 
 
 def fichier_charte(nom: str) -> Path:
-    """Fichier de la charte (charte.json, feuille d'un modèle, logo) : export de design-skazy ou copie du skill."""
-    return SOURCES.get(nom, DOSSIER_CHARTE / nom)
+    """Fichier de la charte (charte.json, feuille d'un modèle, logo) : export de design-skazy, ou celui du .zip."""
+    if nom not in SOURCES:
+        raise SystemExit(
+            "Charte Skazy Formation introuvable ({}). Ce skill la lit dans le dépôt design-skazy : indiquez son "
+            "dossier dans la variable DESIGN_SKAZY, ou installez le skill depuis son .zip "
+            "(https://gharel.github.io/skills/), qui embarque la charte.".format(nom)
+        )
+    return SOURCES[nom]
 
 
 CHARTE = json.loads(fichier_charte("charte.json").read_text(encoding="utf-8"))

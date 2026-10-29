@@ -27,7 +27,7 @@ Une partie du `programme` :
 | `points` | liste de textes | oui         | 2 à 6 notions, quelques mots chacune                                     |
 | `duree`  | texte           | non         | Par exemple `"1 h 30"`, affiché à côté du titre et repris par le support |
 
-Les champs de `modalites`, tous facultatifs. Un champ absent reprend la valeur standard ; `false` (ou une liste vide) retire un bloc facultatif. Les valeurs standard sont les textes de la page « Modalités et infos pratiques » du modèle `plan-formation` de design-skazy (`modalitesParDefaut` dans `assets/charte/charte.json`).
+Les champs de `modalites`, tous facultatifs. Un champ absent reprend la valeur standard ; `false` (ou une liste vide) retire un bloc facultatif. Les valeurs standard sont les textes de la page « Modalités et infos pratiques » du modèle `plan-formation` de design-skazy (`modalitesParDefaut` dans le `charte.json` de la charte).
 
 | Champ            | Type             | Contenu et valeur standard                                                                                                                                                                                                                                                                            |
 | ---------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

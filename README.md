@@ -27,6 +27,8 @@ Les installeurs posent une seule copie de chaque skill dans `~/.agents/skills`, 
 
 Les consignes de travail sont dans [AGENTS.md](AGENTS.md).
 
+La charte Skazy Formation n'est pas dans ce dépôt : les skills et la construction la lisent dans le dépôt [design-skazy](https://github.com/gharel/design-skazy) (privé), cloné à côté de celui-ci (`../design-skazy`) ou indiqué par la variable `DESIGN_SKAZY`.
+
 ```bash
 npm install
 python -m pip install python-docx python-pptx openpyxl pillow pytest

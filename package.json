@@ -7,11 +7,10 @@
   "scripts": {
     "dev": "node outils/dev.mjs",
     "construire": "node outils/construire.mjs",
-    "synchroniser": "node outils/synchroniser-charte.mjs",
     "modeles": "node outils/modeles.mjs",
     "icones": "node outils/icones.mjs",
     "format": "prettier --write .",
-    "check": "prettier --check . && eslint . && node outils/synchroniser-charte.mjs --verifier && node outils/construire.mjs --verifier",
+    "check": "prettier --check . && eslint . && node outils/construire.mjs --verifier",
     "test": "vitest run",
     "test:py": "python -m pytest tests/py -q",
     "test:e2e": "playwright test",

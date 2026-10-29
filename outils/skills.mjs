@@ -218,6 +218,18 @@ export function controler(skill) {
   return erreurs;
 }
 
+// Charte exportée par design-skazy, seule source de vérité, sans copie dans ce dépôt : chemin dans
+// design-skazy → nom dans assets/charte des .zip, où npm run construire l'embarque. Les skills la lisent
+// dans design-skazy (charte.py) ; ces chemins sont le contrat entre les deux dépôts.
+export const CHARTE_DESIGN = {
+  'charte/charte.json': 'charte.json',
+  'charte/plan-formation.css': 'plan-formation.css',
+  'charte/plan-formation.js': 'plan-formation.js',
+  'charte/support-formation.css': 'support-formation.css',
+  'assets/logo-color.png': 'logo-color.png',
+  'assets/logo-white.png': 'logo-white.png',
+};
+
 // Modèles de design-skazy, seule référence du design des skills plan et support. Ils ne sont pas copiés dans
 // ce dépôt : npm run modeles les lit dans design-skazy, compare les rendus des skills avec eux et verrouille
 // leur empreinte dans commun/charte/alignement.json ; npm run check refuse ensuite un modèle changé depuis.
@@ -251,3 +263,6 @@ export function trouverDesign() {
     candidats.push(join(dirname(d), 'design-skazy'));
   return candidats.find((d) => d && existsSync(join(d, 'charte/charte.json')));
 }
+
+export const DESIGN_INTROUVABLE =
+  'design-skazy introuvable : clonez github.com/gharel/design-skazy à côté de ce dépôt, ou indiquez son dossier dans DESIGN_SKAZY.';

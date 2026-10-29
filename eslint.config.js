@@ -10,8 +10,6 @@ export default [
       'sorties/',
       'playwright-report/',
       'test-results/',
-      // Ajustements du modèle plan-formation, recopiés de design-skazy à l'identique.
-      'commun/charte/plan-formation.js',
       'skills/**/assets/',
     ],
   },

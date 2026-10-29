@@ -28,10 +28,10 @@ Les trois skills Pro forment une chaîne. Chaque skill accepte le JSON produit p
 
 ```
 skills/<catégorie>/<nom>/        Un skill : SKILL.md, agents/openai.yaml, references/, scripts/, assets/, exemples/
-commun/charte/                   Copie de la charte de design-skazy (charte.json, plan-formation.css/.js, logos) + charte.py et icônes Lucide
+commun/charte/                   Code commun des skills : charte.py, icônes Lucide, alignement.json (aucune copie de la charte)
 modele/                          Modèle à copier pour créer un skill
 site/                            Sources du site : index.html (gabarit), documentation.html, assets/, installer.ps1, installer.sh
-outils/                          Scripts Node : construire, synchroniser la charte, icônes, captures, serveur local
+outils/                          Scripts Node : construire, comparer aux modèles, icônes, captures, serveur local
 tests/                           Vitest (outils), pytest (tests/py : rendus), Playwright (tests/e2e : site)
 .claude-plugin/marketplace.json  Généré par npm run construire : un plugin Claude Code par catégorie
 _site/                           Site construit (non versionné), publié par GitHub Actions
@@ -39,18 +39,17 @@ _site/                           Site construit (non versionné), publié par Gi
 
 ## Commandes
 
-| Commande                   | Rôle                                                                                                                                                          |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run construire`       | Contrôle les skills et construit `_site/` (catalogue, zip, versions un fichier, stickers). Régénère `.claude-plugin/marketplace.json`.                        |
-| `npm run dev`              | Sert `_site/` sur http://localhost:4182 (après `construire`)                                                                                                  |
-| `npm run check`            | Prettier, ESLint, charte synchronisée, skills conformes, versions montées, marketplace à jour (**avant chaque commit**)                                       |
-| `npm test`                 | Vitest : lecture et contrôle des skills                                                                                                                       |
-| `npm run test:py`          | pytest : rendus du plan, du support et du quiz (`pip install python-docx python-pptx openpyxl pillow pytest`)                                                 |
-| `npm run test:e2e`         | Playwright : catalogue, téléchargements, accessibilité, mobile (**avant chaque push**, après `construire`)                                                    |
-| `npm run test:installeurs` | Lance `installer.sh` et `installer.ps1` sur le site construit, dans un dossier personnel temporaire (après `construire`)                                      |
-| `npm run synchroniser`     | Recopie la charte de design-skazy dans `commun/charte`, puis `commun/charte` dans les skills qui la déclarent                                                 |
-| `npm run modeles`          | Compare au pixel les rendus HTML des skills plan et support à leurs modèles de design-skazy, puis verrouille leur empreinte (`commun/charte/alignement.json`) |
-| `npm run icones`           | Régénère les icônes Lucide de la charte en PNG et SVG (rare)                                                                                                  |
+| Commande                   | Rôle                                                                                                                                                                                                            |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run construire`       | Contrôle les skills et construit `_site/` (catalogue, zip avec la charte de design-skazy, versions un fichier, stickers). Recopie le code commun dans les skills et régénère `.claude-plugin/marketplace.json`. |
+| `npm run dev`              | Sert `_site/` sur http://localhost:4182 (après `construire`)                                                                                                                                                    |
+| `npm run check`            | Prettier, ESLint, skills conformes, code commun à jour, aucune copie de la charte, modèles alignés, versions montées, marketplace à jour (**avant chaque commit**)                                              |
+| `npm test`                 | Vitest : lecture et contrôle des skills                                                                                                                                                                         |
+| `npm run test:py`          | pytest : rendus du plan, du support et du quiz (`pip install python-docx python-pptx openpyxl pillow pytest`)                                                                                                   |
+| `npm run test:e2e`         | Playwright : catalogue, téléchargements, accessibilité, mobile (**avant chaque push**, après `construire`)                                                                                                      |
+| `npm run test:installeurs` | Lance `installer.sh` et `installer.ps1` sur le site construit, dans un dossier personnel temporaire (après `construire`)                                                                                        |
+| `npm run modeles`          | Compare au pixel les rendus HTML des skills plan et support à leurs modèles de design-skazy, puis verrouille leur empreinte (`commun/charte/alignement.json`)                                                   |
+| `npm run icones`           | Régénère les icônes Lucide de la charte en PNG et SVG (rare)                                                                                                                                                    |
 
 Contrôle visuel des rendus :
 
@@ -80,7 +79,7 @@ Contrôle visuel des rendus :
    - expose des fonctions pures (`normaliser_…`, `rendre_…`), que les tests appellent directement ;
    - ne doit pas dépendre du réseau : les images passent par `charte.telecharger`, qui renvoie `None` sans accès réseau (le rendu laisse alors un emplacement vide).
 6. Ajouter les tests (`tests/py/test_<skill>.py`) et le nom du skill dans `SKILLS` de `tests/e2e/site.spec.js`.
-7. `npm run synchroniser`, `npm run construire`, `npm run check`, puis tous les tests.
+7. `npm run construire`, `npm run check`, puis tous les tests.
 
 ## Charte Skazy Formation
 
@@ -89,19 +88,21 @@ Contrôle visuel des rendus :
   - `charte.json` : couleurs (jetons), catégories, photos, contact, logos et textes standard de la page 2 du plan ;
   - `plan-formation.css` et `plan-formation.js` : feuille de style et ajustements du modèle de plan, que le HTML du plan reprend tels quels ;
   - `support-formation.css` : feuille de style du modèle de support, où chaque style du modèle devient une classe `sf-xxxxxx` nommée d'après son contenu. Le HTML du support n'emploie que ces classes : il ne recopie aucune valeur de design, et un style modifié dans le modèle change de nom de classe.
-- `npm run synchroniser` recopie cet export et les logos dans `commun/charte` (dépôt cherché dans `$DESIGN_SKAZY`, sinon `../design-skazy`), note le commit dans `commun/charte/origine.json`, puis recopie `commun/charte` dans les skills. Une couleur, une catégorie, une photo ou un texte standard manquant s'ajoute dans design-skazy, jamais ici.
+- **Aucune copie de la charte dans ce dépôt.** Les skills et les outils lisent cet export et les logos (`assets/logo-color.png`, `assets/logo-white.png`) dans le dépôt design-skazy du poste : `$DESIGN_SKAZY`, sinon un dossier `design-skazy` à côté de ce dépôt (`../design-skazy`). Ces chemins sont le contrat entre les deux dépôts (`CHARTE_DESIGN` dans `outils/skills.mjs`, `EXPORT` dans `charte.py`). Après `npm run charte` dans design-skazy, les skills lisent la nouvelle version sans autre étape. Une couleur, une catégorie, une photo ou un texte standard manquant s'ajoute dans design-skazy, jamais ici.
+- `npm run construire` embarque l'export dans `assets/charte/` de chaque `.zip` (Claude.ai, ChatGPT, installeurs) : charte complète (`charte.json`, logos, feuille du modèle du skill) pour `metadata.charte: skazy-formation`, `charte.json` seul pour `skazy-formation-donnees`. Sans design-skazy, `construire` et `check` s'arrêtent. En CI, chaque job clone design-skazy, dépôt privé, avec le secret `DESIGN_SKAZY_TOKEN` (jeton en lecture seule sur son contenu).
 - Les rendus HTML reprennent les mesures en pixels des modèles. Les rendus DOCX et PPTX les transposent : 1 px = 0,5 pt sur une slide de 1 920 px, et le A4 correspond à 794 × 1 123 px.
-- Les modèles ne sont pas copiés dans ce dépôt : il n'en existe qu'une version, celle de design-skazy. `npm run modeles` les y lit, rend les skills plan et support avec le contenu d'exemple des modèles (`tests/modeles/*.json`, données de test seulement) et compare chaque texte au pixel (place, police, taille, interligne, graisse, couleur). Sans écart, il verrouille l'empreinte des modèles dans `commun/charte/alignement.json`. Si un modèle change dans design-skazy, `npm run check` échoue jusqu'à ce que le skill soit réaligné et la comparaison refaite. Les skills restent libres de leur contenu : seul le design vient des modèles.
+- Les modèles ne sont pas copiés dans ce dépôt : il n'en existe qu'une version, celle de design-skazy. `npm run modeles` les y lit, rend les skills plan et support avec le contenu d'exemple des modèles (`tests/modeles/*.json`, données de test seulement) et compare chaque texte au pixel (place, police, taille, interligne, graisse, couleur). Sans écart, il verrouille l'empreinte des modèles dans `commun/charte/alignement.json` (`npm run construire` la recopie dans les skills). Si un modèle change dans design-skazy, `npm run check` échoue jusqu'à ce que le skill soit réaligné et la comparaison refaite. Les skills restent libres de leur contenu : seul le design vient des modèles.
 - Les scripts lisent les couleurs dans `charte.json` (`couleurs`, `categories`, `jetons`), jamais en dur.
 - Utilitaires Python (stickers, typographie, gras `**…**`, images, logos) : seulement dans `commun/charte/charte.py`.
-- **Synchronisation au lancement** : à chaque exécution, `charte.py` cherche le dépôt design-skazy du poste (`$DESIGN_SKAZY`, sinon un dossier `design-skazy` à côté du skill, du dossier courant ou d'un de leurs parents, ou `~/www/design-skazy`). S'il le trouve, il lit `charte.json` et les logos dans son export, sans rien copier : un skill installé suit la charte sans être réinstallé. Les modèles ne sont jamais copiés : leur empreinte SHA-256 est comparée à celle de l'alignement du skill (`assets/charte/alignement.json`, recopié par `npm run synchroniser`). Si le modèle a changé, le skill garde sa feuille de style alignée et avertit qu'il faut le réaligner. `DESIGN_SKAZY=0` s'en passe ; les tests Python le fixent pour ne dépendre que de la copie du dépôt.
-- Ne jamais modifier une copie, ni dans `commun/charte` ni dans un skill : modifier design-skazy (ou `charte.py`), puis `npm run synchroniser`. `npm run check` refuse une copie désynchronisée et, si design-skazy est présent, une charte en retard sur lui.
+- **Lecture au lancement** : à chaque exécution, `charte.py` cherche le dépôt design-skazy du poste (`$DESIGN_SKAZY`, sinon un dossier `design-skazy` à côté du skill, du dossier courant ou d'un de leurs parents, ou `~/www/design-skazy`) et y lit la charte, sans rien copier : un skill installé suit la charte sans être réinstallé. Sans design-skazy, il lit l'export embarqué par le `.zip` ; sans l'un ni l'autre (skill installé depuis ce dépôt, par la place de marché Claude Code ou `npx skills`, sur un poste sans design-skazy), il s'arrête et indique `DESIGN_SKAZY` ou le `.zip`. `DESIGN_SKAZY=0` n'utilise que l'export du `.zip`. Les tests Python lisent design-skazy, comme les skills.
+- Les modèles ne sont jamais copiés : leur empreinte SHA-256 est comparée à celle de l'alignement du skill (`assets/charte/alignement.json`). Si le modèle a changé, le skill avertit qu'il faut le réaligner, et garde la feuille de style alignée si son `.zip` l'embarque.
+- Le code commun (`commun/charte/charte.py`, icônes, `alignement.json`) se modifie dans `commun/charte`, jamais dans un skill : `npm run construire` le recopie, `npm run check` refuse une copie différente, et tout fichier de la charte de design-skazy remis dans `commun/charte` ou dans un skill.
 - Raleway pour les documents et les slides, Georama pour le site. Icônes : **Lucide** 0.460.0 uniquement. Pas d'emoji.
 - Le site reprend le bandeau commun et le thème partagé des outils Skazy Formation : clé `skazy-outils:theme`, `site/assets/js/theme.js` et `site/assets/css/charte.css` copiés depuis `www/home`.
 
 ## Versions et mises à jour
 
-- Tout changement dans le dossier d'un skill, y compris une resynchronisation de la charte, exige de **monter `metadata.version`** (semver) et d'ajouter une ligne dans `CHANGELOG.md`. `npm run check` le vérifie en comparant avec `HEAD`, ou avec `BASE` en CI.
+- Tout changement dans le dossier d'un skill, y compris une nouvelle copie du code commun (`charte.py`, icônes, alignement), exige de **monter `metadata.version`** (semver) et d'ajouter une ligne dans `CHANGELOG.md`. `npm run check` le vérifie en comparant avec `HEAD`, ou avec `BASE` en CI.
 - Comment chaque installation se met à jour :
   - **Claude Code** : mise à jour automatique de la place de marché, ou `/plugin marketplace update gharel-skills` ;
   - **CLI** (Codex, Gemini CLI, Copilot, Cursor, OpenCode, Windsurf) : relancer `installer.ps1` / `installer.sh`, ou les lancer une fois avec `SKILLS_AUTO=1` (tâche quotidienne) ; `npx skills update -g` avec Node.js ;

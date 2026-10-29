@@ -1,6 +1,6 @@
 /**
  * npm run construire : contrôle les skills puis construit le site dans _site/ :
- *   - index.html (catalogue généré), skills.json ;
+ *   - index.html (catalogue généré), skills.json et skills.tsv (lus par les installeurs) ;
  *   - telechargements/<skill>.zip (Claude.ai, ChatGPT) et <skill>.md (version un fichier) ;
  *   - icones/<skill>.svg (sticker affiché par le catalogue) ;
  *   - .claude-plugin/marketplace.json à la racine du dépôt (plugins Claude Code).
@@ -59,6 +59,14 @@ const noms = skills.map((s) => s.nom);
 for (const nom of new Set(noms))
   if (noms.filter((n) => n === nom).length > 1)
     erreurs.push(`skill « ${nom} » présent dans plusieurs catégories.`);
+// Un skill retiré n'est plus publié (ni carte, ni téléchargement, ni plugin) : les installeurs le
+// suppriment des machines grâce à skills.json et skills.tsv.
+const publies = skills.filter((s) => s.statut !== 'retire');
+for (const s of skills)
+  if (s.remplacePar && !publies.some((p) => p.nom === s.remplacePar))
+    erreurs.push(
+      `${s.chemin} : metadata.remplace_par (${s.remplacePar}) n'est pas un skill publié.`,
+    );
 
 // Un skill modifié depuis BASE doit changer de version (sinon les installations ne le voient pas).
 const base = process.env.BASE || 'HEAD';
@@ -81,14 +89,14 @@ const marketplace = {
   owner: { name: 'Guillaume Harel', url: 'https://github.com/gharel' },
   description:
     'Skills IA de Guillaume Harel : Skazy Formation (plan, support, quiz), UNC et usage personnel.',
-  plugins: CATEGORIES.filter((c) => skills.some((s) => s.categorie === c.id)).map((c) => ({
+  plugins: CATEGORIES.filter((c) => publies.some((s) => s.categorie === c.id)).map((c) => ({
     name: c.plugin,
     displayName: `${c.titre} · ${c.sousTitre}`,
     description: c.description,
     source: './',
     strict: false,
     homepage: URL_SITE,
-    skills: skills.filter((s) => s.categorie === c.id).map((s) => `./${s.chemin}`),
+    skills: publies.filter((s) => s.categorie === c.id).map((s) => `./${s.chemin}`),
   })),
 };
 const cheminMarketplace = join(RACINE, '.claude-plugin/marketplace.json');
@@ -173,6 +181,22 @@ const resume = [];
 for (const s of skills) {
   const date = git('log', '-1', '--format=%cs', '--', s.chemin) || aujourdhui;
   s.date = date;
+  const entree = {
+    nom: s.nom,
+    titre: s.titre,
+    resume: s.resume,
+    description: s.description,
+    version: s.version,
+    categorie: s.categorie,
+    statut: s.statut,
+    remplace_par: s.remplacePar,
+    date,
+    source: `${URL_DEPOT}/tree/main/${s.chemin}`,
+  };
+  resume.push(entree);
+  if (s.statut === 'retire') continue;
+  entree.zip = `telechargements/${s.nom}.zip`;
+  entree.md = `telechargements/${s.nom}.md`;
   // Zip : le dossier du skill à la racine de l'archive (format attendu par Claude.ai et ChatGPT).
   const entrees = {};
   for (const f of s.fichiers)
@@ -189,25 +213,30 @@ for (const s of skills) {
     annexes.push([f, await readFile(join(s.dossier, f), 'utf8')]);
   await writeFile(join(SITE, 'telechargements', `${s.nom}.md`), versionUnFichier(s, annexes));
   await cp(join(s.dossier, 'assets/icon.svg'), join(SITE, 'icones', `${s.nom}.svg`));
-  resume.push({
-    nom: s.nom,
-    titre: s.titre,
-    resume: s.resume,
-    description: s.description,
-    version: s.version,
-    categorie: s.categorie,
-    date,
-    zip: `telechargements/${s.nom}.zip`,
-    md: `telechargements/${s.nom}.md`,
-    source: `${URL_DEPOT}/tree/main/${s.chemin}`,
-  });
 }
 await writeFile(
   join(SITE, 'skills.json'),
   JSON.stringify({ genere: aujourdhui, skills: resume }, null, 2),
 );
+// Même index en texte tabulé pour installer.sh, qui n'a pas de lecteur JSON.
+await writeFile(
+  join(SITE, 'skills.tsv'),
+  [
+    '# nom\tcategorie\tversion\tstatut\tremplace_par',
+    ...resume.map((e) =>
+      [e.nom, e.categorie, e.version, e.statut, e.remplace_par || '-'].join('\t'),
+    ),
+  ].join('\n') + '\n',
+);
 
 // ── 4. Catalogue dans index.html ─────────────────────────
+function badgeStatut(s) {
+  if (s.statut === 'disponible') return '<li class="badge badge--statut">Sur demande</li>';
+  if (s.statut === 'deprecie')
+    return `<li class="badge badge--statut">Déprécié${s.remplacePar ? `, remplacé par ${s.remplacePar}` : ''}</li>`;
+  return '';
+}
+
 function carte(s) {
   return `<article class="carte" id="skill-${s.nom}" data-skill="${s.nom}" data-version="${s.version}">
   <div class="carte__tete">
@@ -218,7 +247,7 @@ function carte(s) {
   <ul class="carte__meta">
     <li class="badge badge--version">v${s.version}</li>
     <li class="badge">${dateFr(s.date)}</li>
-    <li class="badge badge--nouveau" hidden>Nouvelle version</li>
+    <li class="badge badge--nouveau" hidden>Nouvelle version</li>${badgeStatut(s)}
   </ul>
   <details><summary>Quand l’utiliser</summary><p>${echapper(s.description)}</p></details>
   <div class="carte__actions">
@@ -238,7 +267,7 @@ function carte(s) {
 }
 
 const catalogue = CATEGORIES.map((c) => {
-  const liste = skills.filter((s) => s.categorie === c.id);
+  const liste = publies.filter((s) => s.categorie === c.id);
   const cartes = liste.length
     ? liste.map(carte).join('\n')
     : `<div class="carte carte--vide"><strong>Bientôt</strong><p>Les skills ${echapper(c.titre)} arrivent.</p></div>`;
@@ -262,7 +291,7 @@ for (const [id, nom] of Object.entries(ICONES_PAGE)) {
 }
 sprite += '</svg>';
 
-const nombre = skills.length;
+const nombre = publies.length;
 const chapo = `${nombre} skill${nombre > 1 ? 's' : ''} pour l’instant, rangés en trois familles. Chaque carte donne le skill complet (.zip, pour Claude et ChatGPT) et sa version en un seul fichier (.md, pour les autres assistants).`;
 const page = (await readFile(join(SITE, 'index.html'), 'utf8'))
   .replace('<!-- @icones -->', sprite)

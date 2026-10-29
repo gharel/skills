@@ -14,7 +14,8 @@
     "check": "prettier --check . && eslint . && node outils/synchroniser-charte.mjs --verifier && node outils/construire.mjs --verifier",
     "test": "vitest run",
     "test:py": "python -m pytest tests/py -q",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:installeurs": "node --test tests/installeurs/installeurs.test.mjs"
   },
   "engines": {
     "node": ">=22"

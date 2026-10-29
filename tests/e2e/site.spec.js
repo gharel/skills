@@ -32,6 +32,12 @@ test.describe('Catalogue', () => {
     }
     const index = await (await request.get('skills.json')).json();
     expect(index.skills.map((s) => s.nom)).toEqual(SKILLS);
+    expect(index.skills.map((s) => s.statut)).toEqual(SKILLS.map(() => 'recommande'));
+    // Index des installeurs : nom, catégorie, version, statut, remplaçant.
+    const tsv = (await (await request.get('skills.tsv')).text()).trim().split('\n');
+    expect(tsv[0]).toMatch(/^# nom\tcategorie\tversion\tstatut/);
+    expect(tsv.slice(1).map((l) => l.split('\t')[0])).toEqual(SKILLS);
+    for (const l of tsv.slice(1)) expect(l.split('\t')).toHaveLength(5);
     for (const fichier of [
       'installer.ps1',
       'installer.sh',

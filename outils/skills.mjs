@@ -39,6 +39,15 @@ export const CATEGORIES = [
   },
 ];
 
+/**
+ * Statuts d'un skill (metadata.statut, inspirés de SkillCrew) : ce que font les installeurs.
+ *   recommande : installé par défaut (statut sans metadata.statut) ;
+ *   disponible : installé seulement si on le demande (SKILLS=<nom>) ;
+ *   deprecie   : gardé là où il est déjà installé, plus installé ailleurs (metadata.remplace_par) ;
+ *   retire     : absent du catalogue, supprimé des machines à la prochaine mise à jour.
+ */
+export const STATUTS = ['recommande', 'disponible', 'deprecie', 'retire'];
+
 const NOM_VALIDE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const VERSION_VALIDE = /^\d+\.\d+\.\d+$/;
 
@@ -118,6 +127,8 @@ export async function listerSkills() {
         nom: donnees?.name ?? '',
         description: donnees?.description ?? '',
         version: donnees?.metadata?.version ?? '',
+        statut: donnees?.metadata?.statut || 'recommande',
+        remplacePar: donnees?.metadata?.remplace_par ?? '',
         titre: openai.titre || donnees?.name || entree.name,
         resume: openai.resume || '',
         fichiers,
@@ -185,6 +196,11 @@ export function controler(skill) {
     erreurs.push(`${ou} : metadata.version doit être une version x.y.z entre guillemets.`);
   if (donnees.metadata?.categorie !== skill.categorie)
     erreurs.push(`${ou} : metadata.categorie doit valoir « ${skill.categorie} » (dossier parent).`);
+  const statut = donnees.metadata?.statut;
+  if (statut !== undefined && !STATUTS.includes(statut))
+    erreurs.push(`${ou} : metadata.statut doit valoir ${STATUTS.join(', ')}.`);
+  if (donnees.metadata?.remplace_par && !['deprecie', 'retire'].includes(statut))
+    erreurs.push(`${ou} : metadata.remplace_par suppose le statut deprecie ou retire.`);
   const lignes = skill.texte.split('\n').length;
   if (lignes > 500)
     erreurs.push(

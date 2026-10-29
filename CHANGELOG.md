@@ -4,6 +4,13 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-10-29
 
+### Dépôt : installeurs multi-assistants, inspirés de SkillCrew
+
+- `installer.ps1` (Windows, PowerShell 5.1 et 7) et `installer.sh` (macOS, Linux, WSL ; Git Bash passe la main à PowerShell) posent une seule copie de chaque skill dans `~/.agents/skills`, que lisent Codex, Gemini CLI, GitHub Copilot, Cursor et OpenCode, et un lien par skill pour Claude Code et Windsurf (jonction sous Windows, sans droits administrateur). Fini les copies en double dans `~/.gemini`, `~/.cursor`, `~/.copilot` et `~/.config/opencode` : les anciennes sont retirées. Claude Code ne reçoit pas de lien si le plugin `gharel-skills` est installé.
+- Ils lisent le site publié (fichiers contrôlés par la CI) au lieu de la branche `main`, et ne téléchargent que les skills changés. Un manifeste (`~/.agents/.gharel-skills/manifeste.tsv`) retient l'installation : un skill sorti du catalogue ou de la sélection est supprimé, un skill personnel du même nom est sauvegardé, `SKILLS_ACTION=desinstaller` retire tout et restaure les sauvegardes. La sélection (`SKILLS`, `SKILLS_CATEGORIE`) est retenue.
+- `SKILLS_AUTO=1` : mise à jour quotidienne par tâche planifiée (Windows), LaunchAgent (macOS), timer systemd utilisateur ou crontab (Linux, WSL). Sous WSL, la commande équipe aussi les assistants de Windows (`SKILLS_WINDOWS=0` pour s'en passer).
+- Statuts de skill (`metadata.statut`) : `recommande` par défaut, `disponible` (installé sur demande), `deprecie` (avec `metadata.remplace_par`), `retire`. Le catalogue publie `skills.tsv` et ajoute statut et remplaçant à `skills.json`.
+
 ### Dépôt : l'atelier est retiré
 
 - Le site n'a plus d'atelier, et Pyodide n'est plus chargé nulle part : les assistants exécutent eux-mêmes les scripts Python des skills. Le catalogue sert les stickers des skills dans `icones/` au lieu de recopier leurs sources.

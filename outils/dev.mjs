@@ -23,6 +23,7 @@ const TYPES = {
   '.zip': 'application/zip',
   '.ps1': 'text/plain; charset=utf-8',
   '.sh': 'text/plain; charset=utf-8',
+  '.tsv': 'text/tab-separated-values; charset=utf-8',
   '.yaml': 'text/yaml; charset=utf-8',
 };
 

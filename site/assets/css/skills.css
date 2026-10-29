@@ -433,7 +433,8 @@ button {
   background: var(--primaire-pale);
   color: var(--primaire-texte);
 }
-.badge--nouveau {
+.badge--nouveau,
+.badge--statut {
   background: var(--orange-pale);
   color: var(--orange-texte);
 }

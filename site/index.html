@@ -232,15 +232,20 @@
                 <code>/plugin marketplace add gharel/skills</code>
                 <button type="button" class="copier" data-copier>Copier</button>
               </div>
-              <p>Puis installez une catégorie de skills&nbsp;:</p>
+              <p>Puis installez une catégorie de skills (Skazy Formation, UNC)&nbsp;:</p>
               <div class="commande">
                 <code>/plugin install skazy-formation@gharel-skills</code>
                 <button type="button" class="copier" data-copier>Copier</button>
               </div>
+              <div class="commande">
+                <code>/plugin install unc@gharel-skills</code>
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
               <p class="note">
-                <strong>Mise à jour</strong>&nbsp;:
-                <code>/plugin marketplace update gharel-skills</code>, ou activez la mise à jour
-                automatique dans <code>/plugin</code>.
+                <strong>Mise à jour</strong>&nbsp;: activez la mise à jour automatique de la place
+                de marché <code>gharel-skills</code> dans <code>/plugin</code>, onglet Marketplaces,
+                ou lancez <code>/plugin marketplace update gharel-skills</code>. Avec le plugin
+                installé, la commande de l’onglet suivant ne double pas les skills dans Claude Code.
               </p>
             </div>
 
@@ -252,33 +257,45 @@
             >
               <h3 class="panneau__titre">Codex, Gemini CLI, Cursor, GitHub Copilot, OpenCode…</h3>
               <p>
-                Avec Node.js, l’outil <code>skills</code> détecte vos assistants et installe
-                tout&nbsp;:
+                Une commande installe chaque skill une seule fois, dans
+                <code>~/.agents/skills</code>&nbsp;: Codex, Gemini CLI, GitHub Copilot, Cursor et
+                OpenCode lisent ce dossier. Claude Code et Windsurf y sont reliés par un lien.
               </p>
-              <div class="commande">
-                <code>npx skills add gharel/skills -g</code>
-                <button type="button" class="copier" data-copier>Copier</button>
-              </div>
-              <p>Mise à jour de tous les skills installés&nbsp;:</p>
-              <div class="commande">
-                <code>npx skills update -g</code>
-                <button type="button" class="copier" data-copier>Copier</button>
-              </div>
-              <p>Sans Node.js, sous Windows (PowerShell)&nbsp;:</p>
+              <p>Windows (PowerShell)&nbsp;:</p>
               <div class="commande">
                 <code>irm https://gharel.github.io/skills/installer.ps1 | iex</code>
                 <button type="button" class="copier" data-copier>Copier</button>
               </div>
-              <p>Sous macOS ou Linux&nbsp;:</p>
+              <p>macOS, Linux et WSL (qui équipe aussi les assistants de Windows)&nbsp;:</p>
               <div class="commande">
                 <code>curl -fsSL https://gharel.github.io/skills/installer.sh | sh</code>
                 <button type="button" class="copier" data-copier>Copier</button>
               </div>
+              <p>
+                <strong>Mise à jour</strong>&nbsp;: relancez la commande. Seuls les skills changés
+                sont téléchargés, et ceux retirés du catalogue sont supprimés. Pour une mise à jour
+                automatique chaque jour (tâche planifiée, launchd ou systemd)&nbsp;:
+              </p>
+              <div class="commande">
+                <code
+                  >$env:SKILLS_AUTO='1'; irm https://gharel.github.io/skills/installer.ps1 |
+                  iex</code
+                >
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
+              <div class="commande">
+                <code
+                  >curl -fsSL https://gharel.github.io/skills/installer.sh | SKILLS_AUTO=1 sh</code
+                >
+                <button type="button" class="copier" data-copier>Copier</button>
+              </div>
               <p class="note">
-                Le script copie les skills dans les dossiers des assistants présents
-                (<code>~/.claude/skills</code>, <code>~/.agents/skills</code>,
-                <code>~/.gemini/skills</code>, <code>~/.cursor/skills</code>,
-                <code>~/.copilot/skills</code>…). Relancez-le pour mettre à jour.
+                <strong>Options</strong>, retenues pour les mises à jour suivantes&nbsp;:
+                <code>SKILLS_CATEGORIE=pro</code> (une catégorie), <code>SKILLS=skazy-quiz</code>
+                (certains skills, dont ceux marqués « Sur demande »),
+                <code>SKILLS_ACTION=desinstaller</code> (tout retirer, sauvegardes restaurées). Un
+                skill personnel du même nom est sauvegardé, jamais écrasé. Avec Node.js,
+                <code>npx skills add gharel/skills -g</code> fonctionne aussi.
               </p>
             </div>
 

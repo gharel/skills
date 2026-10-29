@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { controler, lireFrontmatter, listerSkills } from '../outils/skills.mjs';
 
@@ -102,5 +103,56 @@ describe('controler', () => {
     expect(erreurs).toEqual([
       "skills/pro/essai : clé d'en-tête non standard « version » (à ranger dans metadata).",
     ]);
+  });
+
+  const avecMetadata = (metadata) =>
+    controler({
+      ...base,
+      corps: '',
+      nom: 'essai',
+      description: 'Un skill.',
+      version: '1.0.0',
+      donnees: {
+        name: 'essai',
+        description: 'Un skill.',
+        metadata: { version: '1.0.0', categorie: 'pro', ...metadata },
+      },
+    });
+
+  it('accepte les statuts connus, avec un remplaçant pour un skill déprécié', () => {
+    for (const statut of ['recommande', 'disponible', 'retire'])
+      expect(avecMetadata({ statut })).toEqual([]);
+    expect(avecMetadata({ statut: 'deprecie', remplace_par: 'autre' })).toEqual([]);
+  });
+
+  it('refuse un statut inconnu et un remplaçant sans dépréciation', () => {
+    expect(avecMetadata({ statut: 'obsolete' }).join('\n')).toMatch(/metadata.statut/);
+    expect(avecMetadata({ remplace_par: 'autre' }).join('\n')).toMatch(/remplace_par/);
+  });
+});
+
+describe('installeurs', () => {
+  const ps1 = readFileSync(new URL('../site/installer.ps1', import.meta.url), 'utf8');
+  const sh = readFileSync(new URL('../site/installer.sh', import.meta.url), 'utf8');
+
+  it('installer.ps1 et installer.sh déclarent les mêmes assistants et les mêmes anciennes cibles', () => {
+    const assistantsPs1 = [
+      ...ps1.matchAll(/@\{ Nom = '([^']+)'; Signe = '([^']*)'; Lien = '([^']*)' \}/g),
+    ].map((m) => m.slice(1).join('|'));
+    const assistantsSh = sh.match(/^ASSISTANTS='([^']+)'/m)[1].split('\n');
+    expect(assistantsPs1.length).toBeGreaterThan(5);
+    expect(assistantsPs1).toEqual(assistantsSh);
+    const anciennesPs1 = [
+      ...ps1.match(/\$anciennesCibles = @\(([^)]+)\)/)[1].matchAll(/'([^']+)'/g),
+    ].map((m) => m[1]);
+    const anciennesSh = sh.match(/^ANCIENNES_CIBLES='([^']+)'/m)[1].split(' ');
+    expect(anciennesPs1).toEqual(anciennesSh);
+  });
+
+  it('les deux scripts reconnaissent nos skills à la même marque, présente dans chaque SKILL.md', async () => {
+    const marque = 'source: https://github.com/gharel/skills';
+    expect(ps1).toContain(`$marque = '${marque}'`);
+    expect(sh).toContain(`MARQUE='${marque}'`);
+    for (const s of await listerSkills()) expect(s.texte, s.nom).toContain(marque);
   });
 });

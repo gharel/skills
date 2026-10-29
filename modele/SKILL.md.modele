@@ -5,6 +5,7 @@ license: Propriétaire.
 metadata:
   version: '1.0.0'
   categorie: perso
+  # statut: disponible   (recommande par défaut ; disponible, deprecie avec remplace_par, retire)
   auteur: Guillaume Harel
   source: https://github.com/gharel/skills
 ---

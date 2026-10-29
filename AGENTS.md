@@ -39,17 +39,18 @@ _site/                           Site construit (non versionné), publié par Gi
 
 ## Commandes
 
-| Commande               | Rôle                                                                                                                                                          |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run construire`   | Contrôle les skills et construit `_site/` (catalogue, zip, versions un fichier, stickers). Régénère `.claude-plugin/marketplace.json`.                        |
-| `npm run dev`          | Sert `_site/` sur http://localhost:4182 (après `construire`)                                                                                                  |
-| `npm run check`        | Prettier, ESLint, charte synchronisée, skills conformes, versions montées, marketplace à jour (**avant chaque commit**)                                       |
-| `npm test`             | Vitest : lecture et contrôle des skills                                                                                                                       |
-| `npm run test:py`      | pytest : rendus du plan, du support et du quiz (`pip install python-docx python-pptx openpyxl pillow pytest`)                                                 |
-| `npm run test:e2e`     | Playwright : catalogue, téléchargements, accessibilité, mobile (**avant chaque push**, après `construire`)                                                    |
-| `npm run synchroniser` | Recopie la charte de design-skazy dans `commun/charte`, puis `commun/charte` dans les skills qui la déclarent                                                 |
-| `npm run modeles`      | Compare au pixel les rendus HTML des skills plan et support à leurs modèles de design-skazy, puis verrouille leur empreinte (`commun/charte/alignement.json`) |
-| `npm run icones`       | Régénère les icônes Lucide de la charte en PNG et SVG (rare)                                                                                                  |
+| Commande                   | Rôle                                                                                                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run construire`       | Contrôle les skills et construit `_site/` (catalogue, zip, versions un fichier, stickers). Régénère `.claude-plugin/marketplace.json`.                        |
+| `npm run dev`              | Sert `_site/` sur http://localhost:4182 (après `construire`)                                                                                                  |
+| `npm run check`            | Prettier, ESLint, charte synchronisée, skills conformes, versions montées, marketplace à jour (**avant chaque commit**)                                       |
+| `npm test`                 | Vitest : lecture et contrôle des skills                                                                                                                       |
+| `npm run test:py`          | pytest : rendus du plan, du support et du quiz (`pip install python-docx python-pptx openpyxl pillow pytest`)                                                 |
+| `npm run test:e2e`         | Playwright : catalogue, téléchargements, accessibilité, mobile (**avant chaque push**, après `construire`)                                                    |
+| `npm run test:installeurs` | Lance `installer.sh` et `installer.ps1` sur le site construit, dans un dossier personnel temporaire (après `construire`)                                      |
+| `npm run synchroniser`     | Recopie la charte de design-skazy dans `commun/charte`, puis `commun/charte` dans les skills qui la déclarent                                                 |
+| `npm run modeles`          | Compare au pixel les rendus HTML des skills plan et support à leurs modèles de design-skazy, puis verrouille leur empreinte (`commun/charte/alignement.json`) |
+| `npm run icones`           | Régénère les icônes Lucide de la charte en PNG et SVG (rare)                                                                                                  |
 
 Contrôle visuel des rendus :
 
@@ -66,6 +67,7 @@ Contrôle visuel des rendus :
    - `metadata.categorie` : le dossier parent (`pro`, `unc`, `perso`).
    - `metadata.ordre` : facultatif, ordre d'affichage.
    - `metadata.charte` : `skazy-formation` (charte complète) ou `skazy-formation-donnees` (données seules), si le skill a besoin de la charte.
+   - `metadata.statut` : facultatif, ce que font les installeurs. `recommande` (par défaut) : installé partout ; `disponible` : seulement si on le demande (`SKILLS=<nom>`) ; `deprecie` : gardé là où il est, plus installé ailleurs, avec `metadata.remplace_par` ; `retire` : retiré du catalogue, de la place de marché et des machines à leur mise à jour suivante.
 3. Remplir `agents/openai.yaml` (titre et résumé affichés par ChatGPT, Codex et le catalogue) et `assets/icon.svg` (sticker 64 × 64).
 4. **Rédiger pour tous les assistants** :
    - aucun nom d'outil propre à une IA (pas de « utilise l'outil X ») ;
@@ -100,10 +102,11 @@ Contrôle visuel des rendus :
 
 - Tout changement dans le dossier d'un skill, y compris une resynchronisation de la charte, exige de **monter `metadata.version`** (semver) et d'ajouter une ligne dans `CHANGELOG.md`. `npm run check` le vérifie en comparant avec `HEAD`, ou avec `BASE` en CI.
 - Comment chaque installation se met à jour :
-  - **Claude Code** : `/plugin marketplace update gharel-skills` ;
-  - **CLI** : `npx skills update -g`, ou relancer `installer.ps1` / `installer.sh` ;
+  - **Claude Code** : mise à jour automatique de la place de marché, ou `/plugin marketplace update gharel-skills` ;
+  - **CLI** (Codex, Gemini CLI, Copilot, Cursor, OpenCode, Windsurf) : relancer `installer.ps1` / `installer.sh`, ou les lancer une fois avec `SKILLS_AUTO=1` (tâche quotidienne) ; `npx skills update -g` avec Node.js ;
   - **Claude.ai et ChatGPT** : réimporter le `.zip`.
 - Le catalogue signale à chaque visiteur les skills dont la version a changé depuis sa dernière visite.
+- Les installeurs (inspirés de [SkillCrew](https://skillcrew.yoandev.co)) lisent le site publié, jamais la branche : `skills.tsv` (versions, statuts), puis le `.zip` des skills changés. Une copie par skill dans `~/.agents/skills`, un lien (jonction sous Windows) pour Claude Code et Windsurf, un manifeste dans `~/.agents/.gharel-skills/`. Les deux scripts gardent le même algorithme et la même table d'assistants (contrôlé par `npm test`).
 
 ## Règles
 

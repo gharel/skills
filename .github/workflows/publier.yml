@@ -58,9 +58,32 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+  # Les installeurs sur les trois systèmes : installer.sh (Ubuntu, macOS), installer.ps1 sous
+  # PowerShell 5.1 (Windows) et 7 (partout). WSL ne tourne pas ici : vérification à la main.
+  installeurs:
+    name: Installeurs (${{ matrix.systeme }})
+    strategy:
+      fail-fast: false
+      matrix:
+        systeme: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.systeme }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Construire le site
+        run: npm run construire
+      - name: Tests des installeurs
+        run: npm run test:installeurs
+
   publier:
     name: Publication sur GitHub Pages
-    needs: verifier
+    needs: [verifier, installeurs]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

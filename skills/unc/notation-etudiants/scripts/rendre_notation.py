@@ -232,6 +232,13 @@ def normaliser_notation(brut: dict) -> tuple[dict, ch.Rapport]:
 # ---------------------------------------------------------------- classeur
 
 
+def texte(valeur) -> str:
+    """Texte d'une cellule : typographie française, et jamais une formule. Un texte venu d'un rendu qui commence
+    par « = » serait calculé à l'ouverture (=IMAGE, =IMPORTXML… peuvent envoyer le contenu du classeur ailleurs)."""
+    s = ch.typographie(valeur)
+    return "'" + s if s.startswith("=") else s
+
+
 def ref_onglet(nom: str) -> str:
     return "'{}'".format(nom.replace("'", "''"))
 
@@ -242,7 +249,7 @@ def rendre_xlsx(n: dict) -> bytes:
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font, PatternFill
 
-    t = ch.typographie
+    t = texte
     gras = Font(bold=True)
     entete = PatternFill("solid", fgColor="E8E8EC")
     gris = PatternFill("solid", fgColor="F2F2F2")
@@ -349,7 +356,7 @@ def rendre_xlsx(n: dict) -> bytes:
         note = "={}!B{}".format(ref_onglet(e["_onglet"]), lignes_total[e["_onglet"]]) if e["statut"] == "evalue" else None
         rendu = e["_rendu"]
         synthese.append([
-            e["_qui"], note, sur, STATUTS[e["statut"]], t(e["ia"].get("probabilite", "")), t(e["ia"].get("part", "")),
+            t(e["_qui"]), note, sur, STATUTS[e["statut"]], t(e["ia"].get("probabilite", "")), t(e["ia"].get("part", "")),
             t(" · ".join(x for x in (rendu.get("date"), "hors délai" if rendu.get("horsDelai") else "") if x)),
             t("\n".join(e["aTrancher"])),
         ])

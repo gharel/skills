@@ -66,16 +66,30 @@ CONSIGNE_IA = re.compile(
 INVISIBLES = re.compile("[​-‏‪-‮⁠-⁤﻿\U000e0000-\U000e007f]")
 
 
+# Un dépôt reçu en archive garde son .git/config, qui peut faire lancer une commande par git :
+# core.fsmonitor (ls-files), log.showSignature + gpg.program (log), diff.external, textconv (log --numstat).
+# Les options en ligne de commande l'emportent sur ce fichier.
+GIT_NEUTRE = ("--no-pager", "-c", "core.fsmonitor=false", "-c", "log.showSignature=false")
+LOG_NEUTRE = ("--no-show-signature", "--no-textconv", "--no-ext-diff")
+
+
 def git(depot: Path, *args: str) -> str:
+    if args and args[0] == "log":
+        args = ("log", *LOG_NEUTRE, *args[1:])
     try:
-        # core.fsmonitor=false : un dépôt reçu en archive garde son .git/config, qui pourrait lancer une commande.
-        commande = ["git", "-C", str(depot), "-c", "core.fsmonitor=false", *args]
+        commande = ["git", "-C", str(depot), *GIT_NEUTRE, *args]
         resultat = subprocess.run(commande, capture_output=True, text=True, encoding="utf-8", errors="replace")
     except FileNotFoundError:
         raise SystemExit("git est introuvable : installez-le (https://git-scm.com) ou relevez les indices à la main.")
     if resultat.returncode != 0:
         raise RuntimeError(resultat.stderr.strip() or "git {} a échoué".format(" ".join(args)))
     return resultat.stdout
+
+
+def suivis(depot: Path, *options: str) -> list[str]:
+    """Fichiers suivis, noms bruts : sans -z, git met entre guillemets et encode les chemins accentués
+    (« "client-\\303\\251/package.json" »), qui échapperaient alors à toutes les alertes."""
+    return [f for f in git(depot, "ls-files", "-z", *options).split("\0") if f]
 
 
 def lire(chemin: Path) -> str | None:
@@ -130,7 +144,7 @@ def alertes_securite(depot: Path, fichiers: list[str], commits: list[dict]) -> l
     def alerte(genre, fichier, detail, ligne=None):
         alertes.append({"type": genre, "fichier": fichier, "ligne": ligne, "detail": detail})
 
-    for entree in git(depot, "ls-files", "-s").splitlines():
+    for entree in suivis(depot, "-s"):
         mode, _, _, nom = entree.replace("\t", " ", 1).split(" ", 3)
         if mode == "120000":
             alerte("lien symbolique", nom, "peut pointer hors du dépôt : ne pas l'ouvrir")
@@ -169,7 +183,7 @@ def analyser_depot(chemin: str | Path) -> dict:
     """Mesures d'un dépôt cloné : livraison (tags, commits), code (logs, indentation, fichiers) et indices d'IA."""
     depot = Path(chemin).resolve()
     git(depot, "rev-parse", "--git-dir")
-    fichiers = [f for f in git(depot, "ls-files").splitlines() if f]
+    fichiers = suivis(depot)
 
     # Tags : tous sur le même commit trahissent souvent des tags posés à la fin.
     tags = {}
@@ -271,7 +285,7 @@ def analyser_depot(chemin: str | Path) -> dict:
 def empreintes(depot: Path) -> dict[str, str]:
     """Contenu normalisé (fins de ligne, espaces de fin) des fichiers de code et de texte suivis."""
     resultat = {}
-    for nom in git(depot, "ls-files").splitlines():
+    for nom in suivis(depot):
         if GENERES.search(nom) or PurePosixPath(nom).suffix.lower() not in TEXTE - {".md", ".txt"}:
             continue
         contenu = lire(depot / nom)

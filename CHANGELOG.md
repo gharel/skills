@@ -4,6 +4,12 @@ Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md
 
 ## 2026-11-18
 
+### notation-etudiants 1.3.1, skazy-quiz 1.2.1
+
+- `indices_depot.py` neutralise aussi `log.showSignature`, `textconv` et `diff.external` : le `.git/config` d'un rendu reçu en archive ne peut plus faire lancer une commande par `git log` (`gpg.program`). L'annexe bash passe par la même protection.
+- `indices_depot.py` lit les fichiers suivis avec `ls-files -z` : un `package.json`, un exécutable ou une consigne dans un dossier accentué n'échappe plus aux alertes.
+- `rendre_quiz.py` : le script Google Forms est rempli en une seule substitution, et `*/` est neutralisé dans les données. Un texte du quiz ne peut plus fermer le commentaire d'en-tête pour faire exécuter du code avec les droits Google de l'utilisateur.
+
 ### notation-etudiants 1.3.0
 
 - Garde-fous contre les rendus piégés.

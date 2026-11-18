@@ -152,18 +152,19 @@ Pour un projet libre, regarde aussi les captures d'écran du dépôt.
 
 ## Annexe : commandes shell d'origine (Linux, macOS)
 
-Équivalents bash de `indices_depot.py`, si Python n'est pas disponible :
+Équivalents bash de `indices_depot.py`, si Python n'est pas disponible. Un rendu reçu en archive garde son `.git/config`, qui peut faire lancer une commande par git (`core.fsmonitor`, `log.showSignature` avec `gpg.program`, `diff.external`) : passe toujours par `g`, jamais par `git` directement.
 
 ```bash
+g() { git --no-pager -c core.fsmonitor=false -c log.showSignature=false "$@"; }
 for d in */; do echo "=== $d"; cd "$d"
-  echo "tags: $(git tag | tr '\n' ' ')"
-  git show-ref --tags -d
-  echo "commits: $(git rev-list --all --count)  auteurs: $(git log --format='%an <%ae>' | sort | uniq -c | tr '\n' ';')"
-  git log --format='%ad %s' --date=short | head -15
+  echo "tags: $(g tag | tr '\n' ' ')"
+  g show-ref --tags -d
+  echo "commits: $(g rev-list --all --count)  auteurs: $(g log --no-show-signature --format='%an <%ae>' | sort | uniq -c | tr '\n' ';')"
+  g log --no-show-signature --format='%ad %s' --date=short | head -15
   echo "console.log/debug: $(grep -rn 'console\.\(log\|debug\)' --include=*.mjs --include=*.js --include=*.ejs --include=*.html --exclude-dir=node_modules . | wc -l)"
   cd ..; done
 # Taille de chaque commit, hors fichiers générés
-git log --numstat --format='--- %h %ad %s' --date=iso -- . ':!package-lock.json' ':!*.lock' \
+g log --no-show-signature --no-textconv --no-ext-diff --numstat --format='--- %h %ad %s' --date=iso -- . ':!package-lock.json' ':!*.lock' \
  | awk '/^---/{if(h)print h" | +"n; h=$0; n=0; next} $1~/^[0-9]+$/{n+=$1} END{print h" | +"n}'
 # Émojis et symboles décoratifs
 grep -rnP '[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]|→' --exclude-dir=node_modules --exclude-dir=.git . | head -20

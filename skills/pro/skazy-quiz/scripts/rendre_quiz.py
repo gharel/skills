@@ -16,6 +16,7 @@ import base64
 import io
 import json
 import random
+import re
 import secrets
 import sys
 import time
@@ -359,7 +360,10 @@ def export_forms(q: dict, r: ch.Rapport) -> str:
             item.update(type="cases" if c["multiple"] else "choix", texte=c["texte"], choix=c["choix"], bonnes=c["bonnes"])
         questions.append(item)
     donnees = json.dumps({"titre": q["title"], "description": q["description"], "questions": questions}, ensure_ascii=False, indent=2)
-    return GABARIT_FORMS.replace("__TITRE__", q["title"].replace("*/", "* /")).replace("__DONNEES__", donnees)
+    # Une seule substitution : un texte du quiz qui contiendrait « __DONNEES__ » n'est pas remplacé à son tour.
+    # « */ » fermerait le commentaire d'en-tête et ferait exécuter la suite avec les droits Google de l'utilisateur.
+    morceaux = {"TITRE": q["title"].replace("*/", "* /"), "DONNEES": donnees.replace("*/", "*\\/")}
+    return re.sub(r"__(TITRE|DONNEES)__", lambda m: morceaux[m.group(1)], GABARIT_FORMS)
 
 
 GABARIT_FORMS = """/**

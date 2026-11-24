@@ -2,6 +2,12 @@
 
 Les versions sont propres à chaque skill (`metadata.version` dans son `SKILL.md`). Les entrées les plus récentes sont en haut.
 
+## 2026-11-24
+
+### skazy-support-formation 1.5.1
+
+- L'exemple de support mène à la page « Les outils » à sa nouvelle adresse, https://gharel.github.io/pro/ (le dépôt home devient pro).
+
 ## 2026-11-18
 
 ### notation-etudiants 1.3.1, skazy-quiz 1.2.1

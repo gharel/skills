@@ -208,7 +208,10 @@
         $zip = Chemin $tmp ($s.Nom + '.zip')
         Invoke-WebRequest -Uri ($site + 'telechargements/' + $s.Nom + '.zip') -OutFile $zip -UseBasicParsing
         $extrait = Chemin $tmp $s.Nom
-        Expand-Archive -LiteralPath $zip -DestinationPath $extrait -Force
+        # Pas d'Expand-Archive : lancé depuis PowerShell 7, Windows PowerShell 5.1 hérite de son PSModulePath
+        # et charge son module Archive, qui appelle une surcharge d'ExtractToDirectory absente du .NET Framework.
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [IO.Compression.ZipFile]::ExtractToDirectory($zip, $extrait)
         if (Existe $dest) { if (ANous $dest $connus) { Supprimer $dest } else { Sauvegarder $dest } }
         Move-Item -LiteralPath (Chemin $extrait $s.Nom) -Destination $dest
         if ($avant) { [void]$bilan.Add("  ^ $($s.Nom) $avant -> $($s.Version)") }

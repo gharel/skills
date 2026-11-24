@@ -11,7 +11,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: read
   contents: read
   pages: write
   id-token: write
@@ -110,7 +109,7 @@ jobs:
       DESIGN_SKAZY: ${{ github.workspace }}/design-skazy
     environment:
       name: github-pages
-      url: ${{ steps.deploiement.outputs.page_url }}
+      url: ${{ steps.deploiement.outputs.page_url || steps.deploiement-2.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -133,21 +132,14 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
-      # GitHub met parfois quelques secondes à lister l'archive qui vient d'être envoyée :
-      # sans cette attente, la publication échouait avec « No artifacts named "github-pages" ».
-      - name: Attendre que l'archive du site soit visible
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          for essai in $(seq 1 24); do
-            nombre=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=github-pages" --jq '.total_count' || echo 0)
-            if [ "${nombre:-0}" -gt 0 ]; then
-              echo "Archive visible (essai $essai)."
-              exit 0
-            fi
-            echo "Archive pas encore visible (essai $essai), nouvel essai dans 5 s…"
-            sleep 5
-          done
-          echo "::warning::Archive toujours invisible après 2 min, publication tentée quand même."
+      # deploy-pages ne trouve parfois pas l'archive qui vient d'être envoyée (« No artifacts named
+      # "github-pages" were found », alors que l'API REST la liste déjà) : un second essai après 30 s.
       - id: deploiement
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+      - name: Patienter avant un second essai de publication
+        if: steps.deploiement.outcome == 'failure'
+        run: sleep 30
+      - id: deploiement-2
+        if: steps.deploiement.outcome == 'failure'
         uses: actions/deploy-pages@v5

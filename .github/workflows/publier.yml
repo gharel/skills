@@ -11,6 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -132,5 +133,21 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+      # GitHub met parfois quelques secondes à lister l'archive qui vient d'être envoyée :
+      # sans cette attente, la publication échouait avec « No artifacts named "github-pages" ».
+      - name: Attendre que l'archive du site soit visible
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for essai in $(seq 1 24); do
+            nombre=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=github-pages" --jq '.total_count' || echo 0)
+            if [ "${nombre:-0}" -gt 0 ]; then
+              echo "Archive visible (essai $essai)."
+              exit 0
+            fi
+            echo "Archive pas encore visible (essai $essai), nouvel essai dans 5 s…"
+            sleep 5
+          done
+          echo "::warning::Archive toujours invisible après 2 min, publication tentée quand même."
       - id: deploiement
         uses: actions/deploy-pages@v5

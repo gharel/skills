@@ -98,7 +98,7 @@ Contrôle visuel des rendus :
 - Les modèles ne sont jamais copiés : leur empreinte SHA-256 est comparée à celle de l'alignement du skill (`assets/charte/alignement.json`). Si le modèle a changé, le skill avertit qu'il faut le réaligner, et garde la feuille de style alignée si son `.zip` l'embarque.
 - Le code commun (`commun/charte/charte.py`, icônes, `alignement.json`) se modifie dans `commun/charte`, jamais dans un skill : `npm run construire` le recopie, `npm run check` refuse une copie différente, et tout fichier de la charte de design-skazy remis dans `commun/charte` ou dans un skill.
 - Raleway pour les documents et les slides, Georama pour le site. Icônes : **Lucide** 0.460.0 uniquement. Pas d'emoji.
-- Le site reprend le bandeau commun et le thème partagé des outils Skazy Formation : clé `skazy-outils:theme`, `site/assets/js/theme.js` et `site/assets/css/charte.css` copiés depuis `www/home`.
+- Le site reprend le bandeau commun et le thème partagé des outils Skazy Formation : clé `skazy-outils:theme`, `site/assets/js/theme.js` et `site/assets/css/charte.css` copiés depuis `www/pro`.
 
 ## Versions et mises à jour
 

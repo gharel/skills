@@ -11,3 +11,8 @@ test-results/
 design-skazy/
 .DS_Store
 Thumbs.db
+
+# Secrets locaux
+.env
+.env.*
+!.env.example

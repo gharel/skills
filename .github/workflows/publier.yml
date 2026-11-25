@@ -26,21 +26,22 @@ jobs:
     env:
       DESIGN_SKAZY: ${{ github.workspace }}/design-skazy
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Récupérer design-skazy, source de la charte (dépôt privé)
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: gharel/design-skazy
           ssh-key: ${{ secrets.DESIGN_SKAZY_CLE }}
           persist-credentials: false
           path: design-skazy
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.12'
       - name: Installer les outils
@@ -63,7 +64,7 @@ jobs:
         run: npm run test:e2e
       - name: Garder le rapport Playwright en cas d'échec
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: rapport-playwright
           path: playwright-report/
@@ -81,17 +82,18 @@ jobs:
     env:
       DESIGN_SKAZY: ${{ github.workspace }}/design-skazy
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Récupérer design-skazy, source de la charte (dépôt privé)
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: gharel/design-skazy
           ssh-key: ${{ secrets.DESIGN_SKAZY_CLE }}
           persist-credentials: false
           path: design-skazy
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -111,35 +113,36 @@ jobs:
       name: github-pages
       url: ${{ steps.deploiement.outputs.page_url || steps.deploiement-2.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Récupérer design-skazy, source de la charte (dépôt privé)
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: gharel/design-skazy
           ssh-key: ${{ secrets.DESIGN_SKAZY_CLE }}
           persist-credentials: false
           path: design-skazy
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - name: Construire le site
         run: npm run construire
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: _site
       # deploy-pages ne trouve parfois pas l'archive qui vient d'être envoyée (« No artifacts named
       # "github-pages" were found », alors que l'API REST la liste déjà) : un second essai après 30 s.
       - id: deploiement
         continue-on-error: true
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
       - name: Patienter avant un second essai de publication
         if: steps.deploiement.outcome == 'failure'
         run: sleep 30
       - id: deploiement-2
         if: steps.deploiement.outcome == 'failure'
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
